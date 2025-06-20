@@ -91,7 +91,6 @@ CREATE TABLE LearningGroup (
     FOREIGN KEY (Course_Id) REFERENCES Course(Course_Id)
 );
 
--- 10. User
 CREATE TABLE [User] (
     User_Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     Organization_Id UNIQUEIDENTIFIER,
