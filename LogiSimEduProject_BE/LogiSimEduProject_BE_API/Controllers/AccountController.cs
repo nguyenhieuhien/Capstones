@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.Models;
@@ -43,6 +44,33 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(token);
         }
 
+        [HttpPost("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        {
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+
+                if (payload == null)
+                    return Unauthorized("Invalid Google token");
+
+                // Tìm hoặc tạo tài khoản
+                var account = await _accountService.GetOrCreateGoogleAccountAsync(payload.Email, payload.Name);
+
+                if (account == null)
+                    return Unauthorized("Unable to create or retrieve user");
+
+                // Sinh JWT như login thường
+                var token = GenerateJSONWebToken(account);
+
+                return Ok(token);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         private string GenerateJSONWebToken(Account accountInfo)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -66,5 +94,6 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         public sealed record LoginRequest(string Email, string Password);
+        public sealed record GoogleLoginRequest(string IdToken);
     }
 }
