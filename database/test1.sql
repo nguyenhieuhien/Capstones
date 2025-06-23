@@ -204,3 +204,4 @@ VALUES
 (NEWID(), @StudentRole,    'nguyenthib',    '123456', N'Nguyen Thi B',   'student1@fpt.edu.vn',  '0933123456', 1, GETDATE()),
 (NEWID(), @StaffRole,      'letc_ltc',      '123456', N'Le Thi C',       'staff@ltc.vn',         '0911223344', 1, GETDATE()),
 (NEWID(), @StudentRole,    'phamvand_ltc',  '123456', N'Pham Van D',     'student2@ltc.vn',      '0988776655', 1, GETDATE());
+
