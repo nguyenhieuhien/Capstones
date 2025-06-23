@@ -15,6 +15,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ITopicService, TopicService>();
+builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
+builder.Services.AddScoped<ISceneService, SceneService>();
+builder.Services.AddScoped<IScenarioService, ScenarioService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IAnswerService, AnswerService>();
 
 builder.Services.AddCors(options =>
 {

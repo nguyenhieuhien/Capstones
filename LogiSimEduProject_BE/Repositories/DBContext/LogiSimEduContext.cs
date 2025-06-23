@@ -13,7 +13,6 @@ public partial class LogiSimEduContext : DbContext
     public LogiSimEduContext()
     {
     }
-
     public LogiSimEduContext(DbContextOptions<LogiSimEduContext> options)
         : base(options)
     {
@@ -21,7 +20,31 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
+    public virtual DbSet<Answer> Answers { get; set; }
+
+    public virtual DbSet<Course> Courses { get; set; }
+
+    public virtual DbSet<Lab> Labs { get; set; }
+
+    public virtual DbSet<LearningGroup> LearningGroups { get; set; }
+
+    public virtual DbSet<Organization> Organizations { get; set; }
+
+    public virtual DbSet<Package> Packages { get; set; }
+
+    public virtual DbSet<Question> Questions { get; set; }
+
+    public virtual DbSet<Quiz> Quizzes { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<Scenario> Scenarios { get; set; }
+
+    public virtual DbSet<Scene> Scenes { get; set; }
+
+    public virtual DbSet<Topic> Topics { get; set; }
+
+    public virtual DbSet<Workspace> Workspaces { get; set; }
 
     public static string GetConnectionString(string connectionStringName)
     {
@@ -37,22 +60,20 @@ public partial class LogiSimEduContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07C4A4E672");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07CAE08FDF");
 
             entity.ToTable("Account");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -60,9 +81,7 @@ public partial class LogiSimEduContext : DbContext
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserName)
                 .IsRequired()
                 .HasMaxLength(100);
@@ -70,30 +89,352 @@ public partial class LogiSimEduContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Account_Role");
+                .HasConstraintName("FK__Account__RoleId__6EF57B66");
+        });
+
+        modelBuilder.Entity<Answer>(entity =>
+        {
+            entity.HasKey(e => e.AnswerId).HasName("PK__Answer__36918F3895E8AC6B");
+
+            entity.ToTable("Answer");
+
+            entity.Property(e => e.AnswerId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Answer_Id");
+            entity.Property(e => e.Content).IsRequired();
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsCorrect).HasDefaultValue(false);
+            entity.Property(e => e.QuestionId).HasColumnName("Question_Id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Question).WithMany(p => p.Answers)
+                .HasForeignKey(d => d.QuestionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Answer__Question__0C85DE4D");
+        });
+
+        modelBuilder.Entity<Course>(entity =>
+        {
+            entity.HasKey(e => e.CourseId).HasName("PK__Course__37E005DB7499E2FB");
+
+            entity.ToTable("Course");
+
+            entity.Property(e => e.CourseId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Course_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.WorkspaceId).HasColumnName("Workspace_Id");
+
+            entity.HasOne(d => d.Workspace).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.WorkspaceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Course__Workspac__59FA5E80");
+        });
+
+        modelBuilder.Entity<Lab>(entity =>
+        {
+            entity.HasKey(e => e.LabId).HasName("PK__Lab__1EE6726F6F682873");
+
+            entity.ToTable("Lab");
+
+            entity.Property(e => e.LabId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Lab_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.TopicId).HasColumnName("Topic_Id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Topic).WithMany(p => p.Labs)
+                .HasForeignKey(d => d.TopicId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Lab__Topic_Id__787EE5A0");
+        });
+
+        modelBuilder.Entity<LearningGroup>(entity =>
+        {
+            entity.HasKey(e => e.GroupId).HasName("PK__Learning__3198120936DD736F");
+
+            entity.ToTable("LearningGroup");
+
+            entity.Property(e => e.GroupId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Group_Id");
+            entity.Property(e => e.CourseId).HasColumnName("Course_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.LearningGroups)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__LearningG__Cours__66603565");
+
+            entity.HasMany(d => d.Accounts).WithMany(p => p.Groups)
+                .UsingEntity<Dictionary<string, object>>(
+                    "GroupMember",
+                    r => r.HasOne<Account>().WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__GroupMemb__Accou__72C60C4A"),
+                    l => l.HasOne<LearningGroup>().WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__GroupMemb__Group__71D1E811"),
+                    j =>
+                    {
+                        j.HasKey("GroupId", "AccountId").HasName("PK__GroupMem__BA81F65739084FB8");
+                        j.ToTable("GroupMember");
+                        j.IndexerProperty<Guid>("GroupId").HasColumnName("Group_Id");
+                        j.IndexerProperty<Guid>("AccountId").HasColumnName("Account_Id");
+                    });
+        });
+
+        modelBuilder.Entity<Organization>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationId).HasName("PK__Organiza__A6FA25268AD39AE0");
+
+            entity.ToTable("Organization");
+
+            entity.Property(e => e.OrganizationId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Organization_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Package>(entity =>
+        {
+            entity.HasKey(e => e.PackageId).HasName("PK__Package__B7FCB96A49E457AB");
+
+            entity.ToTable("Package");
+
+            entity.Property(e => e.PackageId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Package_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Question>(entity =>
+        {
+            entity.HasKey(e => e.QuestionId).HasName("PK__Question__B0B2E4E6F85D2CAD");
+
+            entity.ToTable("Question");
+
+            entity.Property(e => e.QuestionId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Question_Id");
+            entity.Property(e => e.Content).IsRequired();
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.QuizId).HasColumnName("Quiz_Id");
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .HasDefaultValue("single_choice");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Quiz).WithMany(p => p.Questions)
+                .HasForeignKey(d => d.QuizId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Question__Quiz_I__05D8E0BE");
+        });
+
+        modelBuilder.Entity<Quiz>(entity =>
+        {
+            entity.HasKey(e => e.QuizId).HasName("PK__Quiz__10974DAA3D378AED");
+
+            entity.ToTable("Quiz");
+
+            entity.Property(e => e.QuizId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Quiz_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.TopicId).HasColumnName("Topic_Id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Topic).WithMany(p => p.Quizzes)
+                .HasForeignKey(d => d.TopicId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Quiz__Topic_Id__7E37BEF6");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07268934BB");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__D80AB4BBE4B16215");
 
             entity.ToTable("Role");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.RoleId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Role_Id");
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Scenario>(entity =>
+        {
+            entity.HasKey(e => e.ScenarioId).HasName("PK__Scenario__891DB6D82A541F4A");
+
+            entity.ToTable("Scenario");
+
+            entity.Property(e => e.ScenarioId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Scenario_Id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.RoleName)
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.SceneId).HasColumnName("Scene_Id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Scene).WithMany(p => p.Scenarios)
+                .HasForeignKey(d => d.SceneId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Scenario__Scene___5441852A");
+        });
+
+        modelBuilder.Entity<Scene>(entity =>
+        {
+            entity.HasKey(e => e.SceneId).HasName("PK__Scene__852A780650EE77FB");
+
+            entity.ToTable("Scene");
+
+            entity.Property(e => e.SceneId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Scene_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(100);
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Topic>(entity =>
+        {
+            entity.HasKey(e => e.TopicId).HasName("PK__Topic__8DEAA40539363307");
+
+            entity.ToTable("Topic");
+
+            entity.Property(e => e.TopicId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Topic_Id");
+            entity.Property(e => e.CourseId).HasColumnName("Course_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.SceneId).HasColumnName("Scene_Id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.Topics)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Topic__Course_Id__5FB337D6");
+
+            entity.HasOne(d => d.Scene).WithMany(p => p.Topics)
+                .HasForeignKey(d => d.SceneId)
+                .HasConstraintName("FK__Topic__Scene_Id__60A75C0F");
+        });
+
+        modelBuilder.Entity<Workspace>(entity =>
+        {
+            entity.HasKey(e => e.WorkspaceId).HasName("PK__Workspac__A15825DA5FFE84E8");
+
+            entity.ToTable("Workspace");
+
+            entity.Property(e => e.WorkspaceId)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("Workspace_Id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsFree).HasDefaultValue(true);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.OrganizationId).HasColumnName("Organization_Id");
+            entity.Property(e => e.PackageId).HasColumnName("Package_Id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Workspaces)
+                .HasForeignKey(d => d.OrganizationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Workspace__Organ__44FF419A");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.Workspaces)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK__Workspace__Packa__45F365D3");
+
+            entity.HasMany(d => d.Scenes).WithMany(p => p.Workspaces)
+                .UsingEntity<Dictionary<string, object>>(
+                    "WorkspaceScene",
+                    r => r.HasOne<Scene>().WithMany()
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__Workspace__Scene__4E88ABD4"),
+                    l => l.HasOne<Workspace>().WithMany()
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__Workspace__Works__4D94879B"),
+                    j =>
+                    {
+                        j.HasKey("WorkspaceId", "SceneId").HasName("PK__Workspac__D90A825AB906BD5E");
+                        j.ToTable("WorkspaceScene");
+                        j.IndexerProperty<Guid>("WorkspaceId").HasColumnName("Workspace_Id");
+                        j.IndexerProperty<Guid>("SceneId").HasColumnName("Scene_Id");
+                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

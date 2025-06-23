@@ -5,11 +5,19 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Role
+public partial class LearningGroup
 {
-    public Guid RoleId { get; set; }
+    public Guid GroupId { get; set; }
+
+    public Guid CourseId { get; set; }
 
     public string Name { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public virtual Course Course { get; set; }
 
     public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
 }

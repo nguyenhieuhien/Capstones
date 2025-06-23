@@ -1,0 +1,23 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories.Base;
+using Repositories.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Repositories
+{
+    public class SceneRepository : GenericRepository<Scene>
+    {
+        public SceneRepository() { }
+
+        public async Task<List<Scene>> GetAll()
+        {
+            var scenes = await _context.Scenes.ToListAsync();
+
+            return scenes;
+        }
+    }
+}
