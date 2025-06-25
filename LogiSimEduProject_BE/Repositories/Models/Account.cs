@@ -21,13 +21,15 @@ public partial class Account
 
     public string Phone { get; set; }
 
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
     public DateTime? DeleteAt { get; set; }
 
     public virtual Role Role { get; set; }
+
+    public virtual ICollection<LearningGroup> Groups { get; set; } = new List<LearningGroup>();
 }
