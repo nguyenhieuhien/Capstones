@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Auth;
+using LogiSimEduProject_BE_API.Controllers.DTO;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -24,11 +25,30 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
-        // GET: api/<AccountController>
         [HttpGet]
-        public async Task<IEnumerable<Account>> Get()
+        public async Task<ActionResult<IEnumerable<AccountDTO>>> GetAll()
         {
-            return await _accountService.GetAll();
+            try
+            {
+                var accounts = await _accountService.GetAll();
+                var result = accounts.Select(account => new AccountDTO
+                {
+                    Id = account.Id,
+                    UserName = account.UserName,
+                    Password = account.Password,
+                    FullName = account.FullName,
+                    Email = account.Email,
+                    Phone = account.Phone,
+                    RoleId = account.RoleId,
+                    IsActive = account.IsActive,
+                }).ToList();
+
+                return Ok(result); // <- You were missing this line
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
         }
 
         [HttpPost("Login")]
