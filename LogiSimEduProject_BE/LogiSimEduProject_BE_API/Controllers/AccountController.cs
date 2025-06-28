@@ -64,31 +64,69 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(token);
         }
 
-        [HttpPost("GoogleLogin")]
-        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        [HttpGet("{id}")]
+        public async Task<Account> Get(string id)
         {
-            try
+            return await _accountService.GetById(id);
+        }
+
+        //[Authorize(Roles = "1, 2")]
+        [HttpGet("Search")]
+        public async Task<IEnumerable<Account>> Get(string username, string fullname, string email, string phone)
+        {
+            return await _accountService.Search(username, fullname, email, phone);
+        }
+
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            var account = new Account
             {
-                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+                UserName = request.UserName,
+                FullName = request.FullName,
+                Email = request.Email,
+                Password = request.Password, 
+                Phone = request.Phone,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
 
-                if (payload == null)
-                    return Unauthorized("Invalid Google token");
+            var result = await _accountService.Register(account);
 
-                // Tìm hoặc tạo tài khoản
-                var account = await _accountService.GetOrCreateGoogleAccountAsync(payload.Email, payload.Name);
+            if (result <= 0)
+                return BadRequest("Fail Register");
 
-                if (account == null)
-                    return Unauthorized("Unable to create or retrieve user");
+            var createdAccount = await _accountService.Authenticate(account.Email, account.Password);
 
-                // Sinh JWT như login thường
-                var token = GenerateJSONWebToken(account);
+            if (createdAccount == null)
+                return Unauthorized();
 
-                return Ok(token);
-            }
-            catch (Exception ex)
+            var token = GenerateJSONWebToken(createdAccount);
+
+            return Ok(new
             {
-                return BadRequest(new { error = ex.Message });
-            }
+                token,
+                user = new
+                {
+                    createdAccount.Id,
+                    createdAccount.UserName,
+                    createdAccount.Email
+                }
+            });
+        }
+
+        //[Authorize(Roles = "1")]
+        [HttpPut("{id}")]
+        public async Task<int> Put(Account account)
+        {
+            return await _accountService.Update(account);
+        }
+
+        //[Authorize(Roles = "1")]
+        [HttpDelete("{id}")]
+        public async Task<bool> Delete(string id)
+        {
+            return await _accountService.Delete(id);
         }
 
         private string GenerateJSONWebToken(Account accountInfo)
@@ -113,7 +151,36 @@ namespace LogiSimEduProject_BE_API.Controllers
             return tokenString;
         }
 
+        //[HttpPost("GoogleLogin")]
+        //public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        //{
+        //    try
+        //    {
+        //        var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+
+        //        if (payload == null)
+        //            return Unauthorized("Invalid Google token");
+
+        //        // Tìm hoặc tạo tài khoản
+        //        var account = await _accountService.GetOrCreateGoogleAccountAsync(payload.Email, payload.Name);
+
+        //        if (account == null)
+        //            return Unauthorized("Unable to create or retrieve user");
+
+        //        // Sinh JWT như login thường
+        //        var token = GenerateJSONWebToken(account);
+
+        //        return Ok(token);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { error = ex.Message });
+        //    }
+        //}
+
         public sealed record LoginRequest(string Email, string Password);
-        public sealed record GoogleLoginRequest(string IdToken);
+
+        public sealed record RegisterRequest(string UserName, string FullName, string Email, string Password, string Phone);
+
     }
 }

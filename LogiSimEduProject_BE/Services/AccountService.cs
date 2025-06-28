@@ -11,8 +11,13 @@ namespace Services
     public interface IAccountService
     {
         Task<Account> Authenticate(string email, string password);
-        Task<Account> GetOrCreateGoogleAccountAsync(string email, string fullName);
+        //Task<Account> GetOrCreateGoogleAccountAsync(string email, string fullName);
         Task<List<Account>> GetAll();
+        Task<Account> GetById(string id);
+        Task<int> Register(Account account);
+        Task<int> Update(Account account);
+        Task<bool> Delete(string id);
+        Task<List<Account>> Search(string username, string fullname, string email, string phone);
     }
 
     public class AccountService : IAccountService
@@ -34,29 +39,66 @@ namespace Services
             return await _repository.GetAll();
         }
 
-        public async Task<Account> GetOrCreateGoogleAccountAsync(string email, string fullName)
+        public async Task<int> Register(Account account)
         {
-            var account = await _repository.GetByEmailAsync(email);
+            var studentRole = await _repository.GetRoleByNameAsync("student");
+            if (studentRole == null)
+                throw new Exception("Role 'student' does not exist");
 
-            if (account == null)
+            account.RoleId = studentRole.RoleId;
+
+            return await _repository.CreateAsync(account);
+        }
+
+        public async Task<bool> Delete(string id)
+        {
+            var item = await _repository.GetByIdAsync(id);
+            if (item != null)
             {
-                account = new Account
-                {
-                    Id = Guid.NewGuid(),
-                    Email = email,
-                    FullName = fullName,
-                    UserName = email,
-                    Password = "", // Không cần thiết
-                    RoleId = new Guid("PUT-DEFAULT-ROLE-ID-HERE"),
-                    CreatedAt = DateTime.UtcNow,
-                    IsActive = true
-                };
-
-                await _repository.InsertAsync(account);
+                return await _repository.RemoveAsync(item);
             }
 
-            return account;
+            return false;
         }
+
+        public async Task<Account> GetById(string id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<List<Account>> Search(string username, string fullname, string email, string phone)
+        {
+            return await _repository.Search(username, fullname, email, phone);
+        }
+
+        public async Task<int> Update(Account account)
+        {
+            return await _repository.UpdateAsync(account);
+        }
+
+        //public async Task<Account> GetOrCreateGoogleAccountAsync(string email, string fullName)
+        //{
+        //    var account = await _repository.GetByEmailAsync(email);
+
+        //    if (account == null)
+        //    {
+        //        account = new Account
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            Email = email,
+        //            FullName = fullName,
+        //            UserName = email,
+        //            Password = "", // Không cần thiết
+        //            RoleId = new Guid("PUT-DEFAULT-ROLE-ID-HERE"),
+        //            CreatedAt = DateTime.UtcNow,
+        //            IsActive = true
+        //        };
+
+        //        await _repository.InsertAsync(account);
+        //    }
+
+        //    return account;
+        //}
 
     }
 }
