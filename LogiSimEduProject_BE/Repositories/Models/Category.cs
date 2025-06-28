@@ -5,19 +5,19 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Organization
+public partial class Category
 {
-    public Guid OrganizationId { get; set; }
+    public Guid Id { get; set; }
 
-    public string Name { get; set; }
+    public string CategoryName { get; set; }
 
-    public string Email { get; set; }
-
-    public string Phone { get; set; }
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<Workspace> Workspaces { get; set; } = new List<Workspace>();
+    public DateTime? DeleteAt { get; set; }
+
+    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 }
