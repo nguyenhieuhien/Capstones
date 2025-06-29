@@ -26,7 +26,7 @@ namespace Repositories
 
         public async Task<Role> GetRoleByNameAsync(string roleName)
         {
-            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+            return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
         }
 
         public async Task InsertAsync(Account account)

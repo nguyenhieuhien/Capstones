@@ -10,10 +10,10 @@ namespace Services
 {
     public interface IWorkspaceService
     {
-        Task<List<Workspace>> GetAll();
-        Task<Workspace> GetById(string id);
-        Task<int> Create(Workspace workspace);
-        Task<int> Update(Workspace workspace);
+        Task<List<WorkSpace>> GetAll();
+        Task<WorkSpace> GetById(string id);
+        Task<int> Create(WorkSpace workspace);
+        Task<int> Update(WorkSpace workspace);
         Task<bool> Delete(string id);
     }
 
@@ -25,7 +25,7 @@ namespace Services
         {
             _repository = new WorkspaceRepository();
         }
-        public async Task<int> Create(Workspace workspace)
+        public async Task<int> Create(WorkSpace workspace)
         {
             return await _repository.CreateAsync(workspace);
         }
@@ -41,17 +41,17 @@ namespace Services
             return false;
         }
 
-        public async Task<List<Workspace>> GetAll()
+        public async Task<List<WorkSpace>> GetAll()
         {
             return await _repository.GetAll();
         }
 
-        public async Task<Workspace> GetById(string id)
+        public async Task<WorkSpace> GetById(string id)
         {
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<int> Update(Workspace workspace)
+        public async Task<int> Update(WorkSpace workspace)
         {
             return await _repository.UpdateAsync(workspace);
         }

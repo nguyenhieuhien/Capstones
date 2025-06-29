@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class Account
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid RoleId { get; set; }
 

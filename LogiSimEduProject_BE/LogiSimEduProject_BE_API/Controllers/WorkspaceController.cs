@@ -15,27 +15,27 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         // GET: api/<WorkspaceController>
         [HttpGet]
-        public async Task<IEnumerable<Workspace>> Get()
+        public async Task<IEnumerable<WorkSpace>> Get()
         {
             return await _service.GetAll();
         }
 
         [HttpGet("{id}")]
-        public async Task<Workspace> Get(string id)
+        public async Task<WorkSpace> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
         [HttpPost]
-        public async Task<int> Post(Workspace workspace)
+        public async Task<int> Post(WorkSpace workspace)
         {
             return await _service.Create(workspace);
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Workspace workspace)
+        public async Task<int> Put(WorkSpace workspace)
         {
             return await _service.Update(workspace);
         }

@@ -45,7 +45,7 @@ namespace Services
             if (studentRole == null)
                 throw new Exception("Role 'student' does not exist");
 
-            account.RoleId = studentRole.RoleId;
+            account.RoleId = studentRole.Id;
 
             return await _repository.CreateAsync(account);
         }
