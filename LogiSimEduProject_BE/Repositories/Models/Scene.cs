@@ -7,21 +7,25 @@ namespace Repositories.Models;
 
 public partial class Scene
 {
-    public Guid SceneId { get; set; }
+    public Guid Id { get; set; }
 
-    public string Name { get; set; }
+    public string SceneName { get; set; }
 
     public string Description { get; set; }
 
-    public Guid? CreatedBy { get; set; }
+    public string ImgUrl { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
+    public DateTime? DeleteAt { get; set; }
+
     public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
 
-    public virtual ICollection<Topic> Topics { get; set; } = new List<Topic>();
+    public virtual ICollection<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; } = new List<SceneOfWorkSpace>();
 
-    public virtual ICollection<Workspace> Workspaces { get; set; } = new List<Workspace>();
+    public virtual ICollection<Topic> Topics { get; set; } = new List<Topic>();
 }

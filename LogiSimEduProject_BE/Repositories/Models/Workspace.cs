@@ -5,27 +5,33 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Workspace
+public partial class WorkSpace
 {
-    public Guid WorkspaceId { get; set; }
+    public Guid Id { get; set; }
 
-    public Guid OrganizationId { get; set; }
+    public Guid? OrderId { get; set; }
 
-    public Guid? PackageId { get; set; }
+    public Guid? OrganizationId { get; set; }
 
-    public string Name { get; set; }
+    public string WorkSpaceName { get; set; }
 
-    public bool? IsFree { get; set; }
+    public int? NumberOfAccount { get; set; }
+
+    public string ImgUrl { get; set; }
+
+    public string Description { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
+    public DateTime? DeleteAt { get; set; }
+
+    public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
+
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
-    public virtual Organization Organization { get; set; }
-
-    public virtual Package Package { get; set; }
-
-    public virtual ICollection<Scene> Scenes { get; set; } = new List<Scene>();
+    public virtual ICollection<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; } = new List<SceneOfWorkSpace>();
 }

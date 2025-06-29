@@ -7,9 +7,17 @@ namespace Repositories.Models;
 
 public partial class Role
 {
-    public Guid RoleId { get; set; }
+    public Guid Id { get; set; }
 
-    public string Name { get; set; }
+    public string RoleName { get; set; }
+
+    public bool? IsActive { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public DateTime? DeleteAt { get; set; }
 
     public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
 }

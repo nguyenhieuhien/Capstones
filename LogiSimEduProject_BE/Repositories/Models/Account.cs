@@ -21,6 +21,8 @@ public partial class Account
 
     public string Phone { get; set; }
 
+    public string AvtUrl { get; set; }
+
     public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
@@ -29,7 +31,13 @@ public partial class Account
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual Role Role { get; set; }
+    public virtual ICollection<AccountOfClass> AccountOfClasses { get; set; } = new List<AccountOfClass>();
 
-    public virtual ICollection<LearningGroup> Groups { get; set; } = new List<LearningGroup>();
+    public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
+
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+    public virtual Role Role { get; set; }
 }

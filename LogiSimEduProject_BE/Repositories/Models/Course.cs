@@ -7,21 +7,35 @@ namespace Repositories.Models;
 
 public partial class Course
 {
-    public Guid CourseId { get; set; }
+    public Guid Id { get; set; }
 
-    public Guid WorkspaceId { get; set; }
+    public Guid CategoryId { get; set; }
 
-    public string Name { get; set; }
+    public Guid WorkSpaceId { get; set; }
+
+    public string CourseName { get; set; }
 
     public string Description { get; set; }
+
+    public double? RatingAverage { get; set; }
+
+    public string ImgUrl { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<LearningGroup> LearningGroups { get; set; } = new List<LearningGroup>();
+    public DateTime? DeleteAt { get; set; }
+
+    public virtual Category Category { get; set; }
+
+    public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
+
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     public virtual ICollection<Topic> Topics { get; set; } = new List<Topic>();
 
-    public virtual Workspace Workspace { get; set; }
+    public virtual WorkSpace WorkSpace { get; set; }
 }

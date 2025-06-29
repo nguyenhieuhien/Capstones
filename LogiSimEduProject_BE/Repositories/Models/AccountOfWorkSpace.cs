@@ -5,19 +5,13 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Topic
+public partial class AccountOfWorkSpace
 {
     public Guid Id { get; set; }
 
-    public Guid SceneId { get; set; }
+    public Guid AccountId { get; set; }
 
-    public Guid CourseId { get; set; }
-
-    public string TopicName { get; set; }
-
-    public string ImgUrl { get; set; }
-
-    public string Description { get; set; }
+    public Guid WorkSpaceId { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -27,9 +21,7 @@ public partial class Topic
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual Course Course { get; set; }
+    public virtual Account Account { get; set; }
 
-    public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
-
-    public virtual Scene Scene { get; set; }
+    public virtual WorkSpace WorkSpace { get; set; }
 }

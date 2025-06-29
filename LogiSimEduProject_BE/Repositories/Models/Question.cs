@@ -7,17 +7,21 @@ namespace Repositories.Models;
 
 public partial class Question
 {
-    public Guid QuestionId { get; set; }
+    public Guid Id { get; set; }
 
     public Guid QuizId { get; set; }
 
-    public string Content { get; set; }
+    public string Description { get; set; }
 
-    public string Type { get; set; }
+    public bool? IsCorrect { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public DateTime? DeleteAt { get; set; }
 
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
