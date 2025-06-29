@@ -96,7 +96,7 @@ namespace Repositories.Base
 
         public T GetById(string code)
         {
-            var entity = _context.Set<T>().Find(code);
+            var entity = _context.Set<T>().Find(Guid.Parse(code));
             if (entity != null)
             {
                 _context.Entry(entity).State = EntityState.Detached;
@@ -107,7 +107,7 @@ namespace Repositories.Base
 
         public async Task<T> GetByIdAsync(string code)
         {
-            var entity = await _context.Set<T>().FindAsync(code);
+            var entity = await _context.Set<T>().FindAsync(Guid.Parse(code));
             if (entity != null)
             {
                 _context.Entry(entity).State = EntityState.Detached;

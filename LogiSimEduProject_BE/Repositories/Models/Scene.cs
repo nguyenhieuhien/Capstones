@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class Scene
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public string SceneName { get; set; }
 

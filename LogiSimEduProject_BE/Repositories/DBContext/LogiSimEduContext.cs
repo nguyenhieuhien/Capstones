@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Repositories.Models;
 
-namespace Repositories.Models;
+namespace Repositories.DBContext;
 
 public partial class LogiSimEduContext : DbContext
 {

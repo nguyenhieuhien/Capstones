@@ -22,8 +22,8 @@ namespace Repositories
 
         public async Task<List<Course>> Search(string name, string description)
         {
-            var courses = await _context.Courses.Include(t => t.Name).Include(t => t.Description).Where(tq =>
-            (tq.Name.Contains(name) || string.IsNullOrEmpty(name)
+            var courses = await _context.Courses.Include(t => t.CourseName).Include(t => t.Description).Where(tq =>
+            (tq.CourseName.Contains(name) || string.IsNullOrEmpty(name)
             && (tq.Description.Contains(description)) || string.IsNullOrEmpty(description)
             )).ToListAsync();
 

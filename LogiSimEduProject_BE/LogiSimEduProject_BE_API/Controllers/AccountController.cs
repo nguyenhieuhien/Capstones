@@ -8,6 +8,7 @@ using Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LogiSimEduProject_BE_API.Controllers.DTO.Account;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -78,7 +79,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register(AccountDTOCreate request)
         {
             var account = new Account
             {
@@ -117,9 +118,37 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Account account)
+        public async Task<ActionResult> Put(string Id, AccountDTOUpdate request)
         {
-            return await _accountService.Update(account);
+            var existingAccount = await _accountService.GetById(Id);
+            if (existingAccount == null)
+            {
+                return NotFound(new { Message = $"Account with ID {Id} was not found." });
+            }
+            existingAccount.UserName = request.UserName;
+            existingAccount.FullName = request.FullName;
+            existingAccount.Password = request.Password;
+            existingAccount.Email = request.Email;
+            existingAccount.Phone = request.Phone;
+
+            await _accountService.Update(existingAccount);
+
+            return Ok(new
+            {
+                Message = "Account updated successfully.",
+                Data = new
+                {
+                    Id = existingAccount.Id,
+                    RoleId = existingAccount.RoleId,
+                    UserName = existingAccount.UserName,
+                    FullName = existingAccount.FullName,
+                    Password = existingAccount.Password,
+                    Email = existingAccount.Email,
+                    Phone = existingAccount.Phone,
+                    IsActive = existingAccount.IsActive,
+
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class WorkSpace
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid? OrderId { get; set; }
 
