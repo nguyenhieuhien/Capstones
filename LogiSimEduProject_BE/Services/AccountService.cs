@@ -14,6 +14,7 @@ namespace Services
     {
         Task<Account> Authenticate(string email, string password);
         Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword);
+        Task<(bool success, string message)> ResetPasswordAsync(string email, string newPassword);
 
         Task<List<Account>> GetAll();
         Task<Account> GetById(string id);
@@ -57,6 +58,18 @@ namespace Services
         }
 
 
+        public async Task<(bool success, string message)> ResetPasswordAsync(string email, string newPassword)
+        {
+            var account = await _repository.GetAccountByEmail(email);
+            if (account == null)
+                return (false, "Tài khoản không tồn tại.");
+
+            var hasher = new PasswordHasher<Account>();
+            account.Password = hasher.HashPassword(account, newPassword);
+
+            await _repository.UpdateAsync(account);
+            return (true, "Đặt lại mật khẩu thành công.");
+        }
 
 
         public async Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword)
