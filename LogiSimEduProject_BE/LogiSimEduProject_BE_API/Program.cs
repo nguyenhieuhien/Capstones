@@ -19,6 +19,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
 builder.Services.AddScoped<ISceneService, SceneService>();
 builder.Services.AddScoped<IScenarioService, ScenarioService>();

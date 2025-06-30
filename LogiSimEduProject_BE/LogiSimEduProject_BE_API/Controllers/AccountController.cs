@@ -27,12 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         // GET: api/<AccountController>
-        [HttpGet("GetAll")]
-        public async Task<IEnumerable<Account>> Get()
-        {
-            return await _accountService.GetAll();
-        }
-
+    
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
@@ -44,6 +39,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             var token = GenerateJSONWebToken(account.Result);
 
             return Ok(token);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<Category>>> GetAll()
+        {
+            var accounts = await _accountService.GetAll();
+            return Ok(accounts);
         }
 
         [HttpGet("{id}")]
@@ -83,11 +85,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (createdAccount == null)
                 return Unauthorized();
 
-            var token = GenerateJSONWebToken(createdAccount);
 
             return Ok(new
             {
-                token,
                 user = new
                 {
                     createdAccount.Id,
