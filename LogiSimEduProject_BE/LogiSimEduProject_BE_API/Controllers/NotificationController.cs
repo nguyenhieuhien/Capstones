@@ -83,7 +83,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         //[Authorize(Roles = "1")]
         [HttpDelete("{id}")]
         public async Task<bool> Delete(string id)
-    {
+        {
             return await _service.Delete(id);
         }
     }

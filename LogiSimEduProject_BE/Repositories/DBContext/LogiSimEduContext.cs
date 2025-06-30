@@ -30,7 +30,13 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Class> Classes { get; set; }
 
+    public virtual DbSet<Conversation> Conversations { get; set; }
+
+    public virtual DbSet<ConversationParticipant> ConversationParticipants { get; set; }
+
     public virtual DbSet<Course> Courses { get; set; }
+
+    public virtual DbSet<Message> Messages { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
@@ -70,11 +76,11 @@ public partial class LogiSimEduContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC0759164918");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC077F3D53C2");
 
             entity.ToTable("Account");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.AvtUrl)
                 .HasMaxLength(255)
                 .HasColumnName("AvtURL");
@@ -105,11 +111,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<AccountOfClass>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC077EA768A9");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC0736D70D77");
 
             entity.ToTable("AccountOfClass");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -133,11 +139,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<AccountOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC078CBF9719");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07325DB847");
 
             entity.ToTable("AccountOfWorkSpace");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -161,11 +167,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07D845B47C");
+            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC0730FC7D42");
 
             entity.ToTable("Answer");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -185,11 +191,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC0724EDA4B8");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC0777A747D4");
 
             entity.ToTable("Category");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CategoryName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
@@ -204,11 +210,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Class>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC078EF5F6E3");
+            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07C7F835E5");
 
             entity.ToTable("Class");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.ClassName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
@@ -226,13 +232,64 @@ public partial class LogiSimEduContext : DbContext
                 .HasConstraintName("FK_Class_Course");
         });
 
+        modelBuilder.Entity<Conversation>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC0752914A8B");
+
+            entity.ToTable("Conversation");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+        });
+
+        modelBuilder.Entity<ConversationParticipant>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC07B5BC687A");
+
+            entity.ToTable("ConversationParticipant");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.JoinedAt).HasColumnType("datetime");
+            entity.Property(e => e.LastReadAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.ConversationParticipants)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Conversat__Accou__06CD04F7");
+
+            entity.HasOne(d => d.Conversation).WithMany(p => p.ConversationParticipants)
+                .HasForeignKey(d => d.ConversationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Conversat__Conve__05D8E0BE");
+        });
+
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC079C03332B");
+            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC07CB392E22");
 
             entity.ToTable("Course");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CourseName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
@@ -259,13 +316,48 @@ public partial class LogiSimEduContext : DbContext
                 .HasConstraintName("FK_Course_WorkSpace");
         });
 
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Message__3214EC07DEEC7773");
+
+            entity.ToTable("Message");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.AttachmentUrl)
+                .HasMaxLength(500)
+                .HasColumnName("AttachmentURL");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            entity.Property(e => e.IsEdited).HasDefaultValue(false);
+            entity.Property(e => e.MessageType).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Conversation).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.ConversationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Message__Convers__01142BA1");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.SenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Message__SenderI__02084FDA");
+        });
+
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC07F3DDE9FF");
+            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC075D0AD141");
 
             entity.ToTable("Notification");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -286,11 +378,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07328E602B");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07F9B59B73");
 
             entity.ToTable("Question");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -310,11 +402,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC07A903A14A");
+            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC07D0CAB885");
 
             entity.ToTable("Quiz");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -335,11 +427,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC07DA0C672C");
+            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC07649B460C");
 
             entity.ToTable("Review");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -364,11 +456,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07AC359F28");
+            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC070C65DF41");
 
             entity.ToTable("Role");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -385,11 +477,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Scenario>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC07D840DF0D");
+            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC0762DA97FB");
 
             entity.ToTable("Scenario");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -410,11 +502,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Scene>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC07A8AE0F1F");
+            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC07B4B95240");
 
             entity.ToTable("Scene");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -433,11 +525,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<SceneOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC07855D51F2");
+            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC070B7EE89E");
 
             entity.ToTable("SceneOfWorkSpace");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -461,11 +553,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Topic>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC07B61A990D");
+            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC07F6E751ED");
 
             entity.ToTable("Topic");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -494,11 +586,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<WorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC07A509E89B");
+            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC07A324B1C5");
 
             entity.ToTable("WorkSpace");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");

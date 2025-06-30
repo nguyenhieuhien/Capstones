@@ -235,3 +235,47 @@ CREATE TABLE [Notification] (
     Delete_At DATETIME,
     CONSTRAINT FK_Notification_Account FOREIGN KEY (AccountId) REFERENCES [Account](Id)
 );
+
+CREATE TABLE Conversation (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    MessageId UNIQUEIDENTIFIER NULL,
+    IsGroup BIT NOT NULL,
+    Title NVARCHAR(255),
+    IsActive BIT DEFAULT 1,
+    Created_At DATETIME NOT NULL,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE Message (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    ConversationId UNIQUEIDENTIFIER NOT NULL,
+    SenderId UNIQUEIDENTIFIER NOT NULL,
+    MessageType NVARCHAR(50),
+    Content NVARCHAR(MAX),
+    AttachmentURL NVARCHAR(500),
+    IsEdited BIT DEFAULT 0,
+    IsDeleted BIT DEFAULT 0,
+    IsActive BIT DEFAULT 1,
+    Created_At DATETIME NOT NULL,
+    Updated_At DATETIME,
+    Delete_At DATETIME,
+
+    FOREIGN KEY (ConversationId) REFERENCES Conversation(Id),
+    FOREIGN KEY (SenderId) REFERENCES Account(Id)  
+);
+
+CREATE TABLE ConversationParticipant (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    ConversationId UNIQUEIDENTIFIER NOT NULL,
+    AccountId UNIQUEIDENTIFIER NOT NULL,
+    JoinedAt DATETIME NOT NULL,
+    LastReadAt DATETIME,
+    IsActive BIT DEFAULT 1,
+    Created_At DATETIME NOT NULL,
+    Updated_At DATETIME,
+    Delete_At DATETIME,
+
+    FOREIGN KEY (ConversationId) REFERENCES Conversation(Id),
+    FOREIGN KEY (AccountId) REFERENCES Account(Id)
+);

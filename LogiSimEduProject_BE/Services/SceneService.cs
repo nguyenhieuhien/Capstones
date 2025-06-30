@@ -27,6 +27,7 @@ namespace Services
         }
         public async Task<int> Create(Scene scene)
         {
+            scene.Id = Guid.NewGuid();
             return await _repository.CreateAsync(scene);
         }
 

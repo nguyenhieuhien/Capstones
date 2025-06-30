@@ -53,6 +53,9 @@ builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService
 builder.Services.AddScoped<IAccountOfClassService, AccountOfClassService>();
 builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 
 builder.Services.AddCors(options =>
 {

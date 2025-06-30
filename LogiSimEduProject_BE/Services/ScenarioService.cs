@@ -27,6 +27,7 @@ namespace Services
         }
         public async Task<int> Create(Scenario scenario)
         {
+            scenario.Id = Guid.NewGuid();
             return await _repository.CreateAsync(scenario);
         }
 

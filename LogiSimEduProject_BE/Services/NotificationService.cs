@@ -27,6 +27,7 @@ namespace Services
         }
         public async Task<int> Create(Notification notification)
         {
+            notification.Id = Guid.NewGuid();
             return await _repository.CreateAsync(notification);
         }
 

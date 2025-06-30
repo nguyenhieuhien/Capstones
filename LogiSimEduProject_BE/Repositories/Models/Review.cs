@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class Review
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     public Guid AccountId { get; set; }
 
