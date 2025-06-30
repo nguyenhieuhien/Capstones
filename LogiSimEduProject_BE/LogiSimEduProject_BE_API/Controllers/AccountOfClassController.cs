@@ -1,6 +1,12 @@
-﻿namespace LogiSimEduProject_BE_API.Controllers
+
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace LogiSimEduProject_BE_API.Controllers
 {
-    public class AccountOfClassController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AccountOfClassController : ControllerBase
     {
+
     }
 }
