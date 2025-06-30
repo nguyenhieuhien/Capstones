@@ -83,11 +83,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (createdAccount == null)
                 return Unauthorized();
 
-            var token = GenerateJSONWebToken(createdAccount);
-
             return Ok(new
             {
-                token,
                 user = new
                 {
                     createdAccount.Id,
