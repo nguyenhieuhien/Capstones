@@ -14,7 +14,7 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IRoleService _service;
         public RoleController(IRoleService service) => _service = service;
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Role>> Get()
         {
             return await _service.GetAll();
@@ -27,7 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
+        [HttpPost("Create")]
         public async Task<IActionResult> Create(RoleDTOCreate request)
         {
             var role = new Role
@@ -51,9 +51,26 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Role role)
+        public async Task<ActionResult> Put(string id,RoleDTOUpdate request)
         {
-            return await _service.Update(role);
+            var existingRole = await _service.GetById(id);
+            if (existingRole == null)
+            {
+                return NotFound(new { Message = $"Role with ID {id} was not found." });
+            }
+            existingRole.RoleName = request.RoleName;
+            
+            await _service.Update(existingRole);
+
+            return Ok(new
+            {
+                Message = "Account updated successfully.",
+                Data = new
+                {
+                    RoleName = existingRole.RoleName,
+                    IsActive = existingRole.IsActive,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

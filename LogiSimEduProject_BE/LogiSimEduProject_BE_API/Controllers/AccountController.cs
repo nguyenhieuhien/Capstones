@@ -26,8 +26,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AccountDTO>>> GetAll()
+        // GET: api/<AccountController>
+        [HttpGet("GetAll")]
+        public async Task<IEnumerable<Account>> Get()
         {
             try
             {
@@ -146,7 +147,6 @@ namespace LogiSimEduProject_BE_API.Controllers
                     Email = existingAccount.Email,
                     Phone = existingAccount.Phone,
                     IsActive = existingAccount.IsActive,
-
                 }
             });
         }
