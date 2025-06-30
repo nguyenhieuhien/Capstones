@@ -60,7 +60,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(AccountDTOCreate request)
+        public async Task<IActionResult> Register(AccountOfWorkSpaceDTOCreate request)
         {
             var account = new Account
             {
@@ -99,7 +99,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(string Id, AccountDTOUpdate request)
+        public async Task<ActionResult> Put(string Id, AccountOfWorkSpaceDTOUpdate request)
         {
             var existingAccount = await _accountService.GetById(Id);
             if (existingAccount == null)

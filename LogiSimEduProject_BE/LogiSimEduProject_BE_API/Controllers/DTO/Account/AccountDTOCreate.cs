@@ -1,6 +1,6 @@
 ﻿namespace LogiSimEduProject_BE_API.Controllers.DTO.Account
 {
-    public class AccountDTOCreate
+    public class AccountOfWorkSpaceDTOCreate
     {
         public string UserName { get; set; }
         public string FullName { get; set; }

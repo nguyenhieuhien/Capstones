@@ -46,7 +46,7 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Scene> Scenes { get; set; }
 
-    public virtual DbSet<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; }
+    public virtual DbSet<SceneOfWorkSpaceRepository> SceneOfWorkSpaces { get; set; }
 
     public virtual DbSet<Topic> Topics { get; set; }
 
@@ -431,7 +431,7 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnName("Updated_At");
         });
 
-        modelBuilder.Entity<SceneOfWorkSpace>(entity =>
+        modelBuilder.Entity<SceneOfWorkSpaceRepository>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC07855D51F2");
 
