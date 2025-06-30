@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using LogiSimEduProject_BE_API.Controllers.DTO.Scenario;
+using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -14,7 +17,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ScenarioController(IScenarioService service) => _service = service;
         // GET: api/<ScenarioController>
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Scenario>> Get()
         {
             return await _service.GetAll();
@@ -27,17 +30,54 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(Scenario scenario)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(ScenarioDTOCreate request)
         {
-            return await _service.Create(scenario);
+            var scenario = new Scenario
+            {
+                SceneId = request.SceneId,
+                ScenarioName = request.ScenarioName,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(scenario);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Scenario scenario)
+        public async Task<IActionResult> Put(string id,ScenarioDTOUpdate request)
         {
-            return await _service.Update(scenario);
+            var existingScenario = await _service.GetById(id);
+            if (existingScenario == null)
+            {
+                return NotFound(new { Message = $"Scenario with ID {id} was not found." });
+            }
+            existingScenario.SceneId = request.SceneId;
+            existingScenario.ScenarioName = request.ScenarioName;
+            existingScenario.Description = request.Description;
+            existingScenario.UpdatedAt = DateTime.UtcNow;
+
+            await _service.Update(existingScenario);
+
+            return Ok(new
+            {
+                Message = "Scenario updated successfully.",
+                Data = new
+                {
+                    SceneId = existingScenario.SceneId,
+                    ScenarioName = existingScenario.ScenarioName,
+                    Description = existingScenario.Description,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

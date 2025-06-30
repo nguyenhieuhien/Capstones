@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
+using LogiSimEduProject_BE_API.Controllers.DTO.Workspace;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -14,7 +17,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         public WorkspaceController(IWorkspaceService service) => _service = service;
 
         // GET: api/<WorkspaceController>
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<WorkSpace>> Get()
         {
             return await _service.GetAll();
@@ -27,17 +30,62 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(WorkSpace workspace)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(WorkspaceDTOCreate request)
         {
-            return await _service.Create(workspace);
+            var workspace = new WorkSpace
+            {
+                OrderId = request.OrderId,
+                OrganizationId = request.OrganizationId,
+                WorkSpaceName = request.WorkSpaceName,
+                NumberOfAccount = request.NumberOfAccount,
+                ImgUrl = request.ImgUrl,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(workspace);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(WorkSpace workspace)
+        public async Task<IActionResult> Put(string id, WorkspaceDTOUpdate request)
         {
-            return await _service.Update(workspace);
+            var existingWorkSpace = await _service.GetById(id);
+            if (existingWorkSpace == null)
+            {
+                return NotFound(new { Message = $"WorkSpace with ID {id} was not found." });
+            }
+            existingWorkSpace.OrderId = request.OrderId;
+            existingWorkSpace.OrganizationId = request.OrganizationId;
+            existingWorkSpace.WorkSpaceName = request.WorkSpaceName;
+            existingWorkSpace.NumberOfAccount = request.NumberOfAccount;
+            existingWorkSpace.ImgUrl = request.ImgUrl;
+            existingWorkSpace.Description = request.Description;
+            existingWorkSpace.UpdatedAt = DateTime.UtcNow;
+
+            await _service.Update(existingWorkSpace);
+
+            return Ok(new
+            {
+                Message = "WorkSpace updated successfully.",
+                Data = new
+                {
+                    OrderId = existingWorkSpace.OrderId,
+                    CourseId = existingWorkSpace.OrganizationId,
+                    WorkSpaceName = existingWorkSpace.WorkSpaceName,
+                    ImgUrl = existingWorkSpace.ImgUrl,
+                    Description = existingWorkSpace.Description,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
+using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -14,7 +17,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public SceneController(ISceneService service) => _service = service;
 
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Scene>> Get()
         {
             return await _service.GetAll();
@@ -27,17 +30,54 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(Scene scene)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(SceneDTOCreate request)
         {
-            return await _service.Create(scene);
+            var scene  = new Scene
+            {
+                SceneName = request.SceneName,
+                ImgUrl = request.ImgUrl,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(scene);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Scene scene)
+        public async Task<IActionResult> Put(string id, SceneDTOUpdate request)
         {
-            return await _service.Update(scene);
+            var existingScene = await _service.GetById(id);
+            if (existingScene == null)
+            {
+                return NotFound(new { Message = $"Scene with ID {id} was not found." });
+            }
+            existingScene.SceneName = request.SceneName;
+            existingScene.ImgUrl = request.ImgUrl;
+            existingScene.Description = request.Description;
+            existingScene.UpdatedAt = DateTime.UtcNow;
+
+            await _service.Update(existingScene);
+
+            return Ok(new
+            {
+                Message = "Scene updated successfully.",
+                Data = new
+                {
+                    SceneName = existingScene.SceneName,
+                    ImgUrl = existingScene.ImgUrl,
+                    Description = existingScene.Description,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

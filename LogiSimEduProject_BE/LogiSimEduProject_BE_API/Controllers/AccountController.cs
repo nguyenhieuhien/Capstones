@@ -27,7 +27,11 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         // GET: api/<AccountController>
-
+        [HttpGet("GetAll")]
+        public async Task<IEnumerable<Account>> Get()
+        {
+            return await _accountService.GetAll();
+        }
 
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginRequest request)
@@ -63,7 +67,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 UserName = request.UserName,
                 FullName = request.FullName,
                 Email = request.Email,
-                Password = request.Password, 
+                Password = request.Password,
                 Phone = request.Phone,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow

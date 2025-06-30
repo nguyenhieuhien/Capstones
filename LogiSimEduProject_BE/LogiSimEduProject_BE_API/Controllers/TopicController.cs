@@ -57,24 +57,32 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Topic topic)
+        public async Task<IActionResult> Put(string id, TopicDTOUpdate request)
         {
-            var existingRole = await _service.GetById(id);
-            if (existingRole == null)
+            var existingTopic = await _service.GetById(id);
+            if (existingTopic == null)
             {
-                return NotFound(new { Message = $"Role with ID {id} was not found." });
+                return NotFound(new { Message = $"Topic with ID {id} was not found." });
             }
-            existingRole.RoleName = request.RoleName;
+            existingTopic.SceneId = request.SceneId;
+            existingTopic.CourseId = request.CourseId;
+            existingTopic.TopicName = request.TopicName;
+            existingTopic.ImgUrl = request.ImgUrl;
+            existingTopic.Description = request.Description;
+            existingTopic.UpdatedAt = DateTime.UtcNow;
 
-            await _service.Update(existingRole);
+            await _service.Update(existingTopic);
 
             return Ok(new
             {
-                Message = "Account updated successfully.",
+                Message = "Topic updated successfully.",
                 Data = new
                 {
-                    RoleName = existingRole.RoleName,
-                    IsActive = existingRole.IsActive,
+                    SceneId = existingTopic.SceneId,
+                    CourseId = existingTopic.CourseId,
+                    TopicName = existingTopic.TopicName,
+                    ImgUrl = existingTopic.ImgUrl,
+                    Description = existingTopic.Description,
                 }
             });
         }
