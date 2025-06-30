@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -16,7 +18,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         public TopicController(ITopicService service) => _service = service;
 
         // GET: api/<TopicController>
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Topic>> Get()
         {
             return await _service.GetAll();
@@ -29,17 +31,52 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(Topic topic)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(TopicDTOCreate request)
         {
-            return await _service.Create(topic);
+            var topic = new Topic
+            {
+                SceneId = request.SceneId,
+                CourseId = request.CourseId,
+                TopicName = request.TopicName,
+                ImgUrl = request.ImgUrl,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(topic);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Topic topic)
+        public async Task<IActionResult> Put(Topic topic)
         {
-            return await _service.Update(topic);
+            var existingRole = await _service.GetById(id);
+            if (existingRole == null)
+            {
+                return NotFound(new { Message = $"Role with ID {id} was not found." });
+            }
+            existingRole.RoleName = request.RoleName;
+
+            await _service.Update(existingRole);
+
+            return Ok(new
+            {
+                Message = "Account updated successfully.",
+                Data = new
+                {
+                    RoleName = existingRole.RoleName,
+                    IsActive = existingRole.IsActive,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

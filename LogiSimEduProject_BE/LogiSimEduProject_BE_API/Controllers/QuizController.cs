@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LogiSimEduProject_BE_API.Controllers.DTO.Account;
+using LogiSimEduProject_BE_API.Controllers.DTO.Questions;
+using LogiSimEduProject_BE_API.Controllers.DTO.Quiz;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -12,7 +15,7 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IQuizService _service;
         public QuizController(IQuizService service) => _service = service;
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Quiz>> Get()
         {
             return await _service.GetAll();
@@ -25,17 +28,56 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(Quiz quiz)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(QuizDTOCreate request)
         {
-            return await _service.Create(quiz);
+            var quiz = new Quiz
+            {
+                TopicId = request.TopicId,
+                QuizName = request.QuizName,
+                Score = request.Score,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(quiz);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Quiz quiz)
+        public async Task<IActionResult> Put(string id, QuizDTOUpdate request)
         {
-            return await _service.Update(quiz);
+            var existingQuiz = await _service.GetById(id);
+            if (existingQuiz == null)
+            {
+                return NotFound(new { Message = $"Question with ID {id} was not found." });
+            }
+
+            existingQuiz.TopicId = request.TopicId;
+            existingQuiz.QuizName = request.QuizName;
+            existingQuiz.Score = request.Score;
+            existingQuiz.UpdatedAt = DateTime.UtcNow;
+
+            await _service.Update(existingQuiz);
+
+            return Ok(new
+            {
+                Message = "Quiz updated successfully.",
+                Data = new
+                {
+                    TopicId = existingQuiz.TopicId,
+                    QuizName = existingQuiz.QuizName,
+                    Score = existingQuiz.Score,
+                    IsActive = existingQuiz.IsActive,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

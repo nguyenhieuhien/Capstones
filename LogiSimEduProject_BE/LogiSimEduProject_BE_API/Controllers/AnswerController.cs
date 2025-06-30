@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LogiSimEduProject_BE_API.Controllers.DTO.Answer;
+using LogiSimEduProject_BE_API.Controllers.DTO.Role;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -12,7 +14,7 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IAnswerService _service;
         public AnswerController(IAnswerService service) => _service = service;
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Answer>> Get()
         {
             return await _service.GetAll();
@@ -25,17 +27,56 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(Answer answer)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(AnswerDTOCreate request)
         {
-            return await _service.Create(answer);
+            var answer = new Answer
+            {
+                QuestionId = request.QuestionId,
+                Description = request.Description,
+                IsAnswerCorrect = request.IsAnswerCorrect,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(answer);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Answer answer)
+        public async Task<IActionResult> Put(string id, AnswerDTOUpdate request)
         {
-            return await _service.Update(answer);
+            var existingAnswer = await _service.GetById(id);
+            if (existingAnswer == null)
+            {
+                return NotFound(new { Message = $"Answer with ID {id} was not found." });
+            }
+
+            existingAnswer.QuestionId = request.QuestionId;
+            existingAnswer.Description = request.Description;
+            existingAnswer.IsAnswerCorrect = request.IsAnswerCorrect;
+            existingAnswer.UpdatedAt = DateTime.UtcNow;
+
+            await _service.Update(existingAnswer);
+
+            return Ok(new
+            {
+                Message = "Answer updated successfully.",
+                Data = new
+                {
+                    QuestionId = existingAnswer.QuestionId,
+                    Description = existingAnswer.Description,
+                    IsAnswerCorrect = existingAnswer.IsAnswerCorrect,
+                    IsActive = existingAnswer.IsActive,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LogiSimEduProject_BE_API.Controllers.DTO.Answer;
+using LogiSimEduProject_BE_API.Controllers.DTO.Question;
+using LogiSimEduProject_BE_API.Controllers.DTO.Questions;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 
@@ -12,7 +15,7 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IQuestionService _service;
         public QuestionController(IQuestionService service) => _service = service;
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<IEnumerable<Question>> Get()
         {
             return await _service.GetAll();
@@ -25,17 +28,56 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost]
-        public async Task<int> Post(Question question)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(QuestionDTOCreate request)
         {
-            return await _service.Create(question);
+            var question = new Question
+            {
+                QuizId = request.QuizId,
+                Description = request.Description,
+                IsCorrect = request.IsCorrect,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            var result = await _service.Create(question);
+
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new
+            {
+                Data = request
+            });
         }
 
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
-        public async Task<int> Put(Question question)
+        public async Task<IActionResult> Put(string id,QuestionDTOUpdate request)
         {
-            return await _service.Update(question);
+            var existingQuestion = await _service.GetById(id);
+            if (existingQuestion == null)
+            {
+                return NotFound(new { Message = $"Question with ID {id} was not found." });
+            }
+
+            existingQuestion.QuizId = request.QuizId;
+            existingQuestion.Description = request.Description;
+            existingQuestion.IsCorrect = request.IsCorrect;
+            existingQuestion.UpdatedAt = DateTime.UtcNow;
+
+            await _service.Update(existingQuestion);
+
+            return Ok(new
+            {
+                Message = "Question updated successfully.",
+                Data = new
+                {
+                    QuizId = existingQuestion.QuizId,
+                    Description = existingQuestion.Description,
+                    IsCorrect = existingQuestion.IsCorrect,
+                    IsActive = existingQuestion.IsActive,
+                }
+            });
         }
 
         //[Authorize(Roles = "1")]

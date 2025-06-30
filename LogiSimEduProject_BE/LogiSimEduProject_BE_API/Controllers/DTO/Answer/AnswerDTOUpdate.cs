@@ -2,10 +2,8 @@
 {
     public class AnswerDTOUpdate
     {
-        public string UserName { get; set; }
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
-        public string Password { get; set; }
+        public Guid QuestionId { get; set; }
+        public string Description { get; set; }
+        public bool IsAnswerCorrect { get; set; }
     }
 }
