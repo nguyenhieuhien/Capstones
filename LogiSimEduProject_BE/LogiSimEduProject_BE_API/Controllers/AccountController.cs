@@ -27,31 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         // GET: api/<AccountController>
-        [HttpGet("GetAll")]
-        public async Task<IEnumerable<Account>> Get()
-        {
-            try
-            {
-                var accounts = await _accountService.GetAll();
-                var result = accounts.Select(account => new AccountDTO
-                {
-                    Id = account.Id,
-                    UserName = account.UserName,
-                    Password = account.Password,
-                    FullName = account.FullName,
-                    Email = account.Email,
-                    Phone = account.Phone,
-                    RoleId = account.RoleId,
-                    IsActive = account.IsActive,
-                }).ToList();
 
-                return Ok(result); // <- You were missing this line
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"An error occurred: {ex.Message}");
-            }
-        }
 
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginRequest request)
