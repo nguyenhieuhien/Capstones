@@ -1,44 +1,41 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
+using Microsoft.Extensions.Options;
+using MimeKit;
+using MimeKit.Text; // ⬅️ BẮT BUỘC phải có namespace này
 
-namespace Services
+public class EmailSettings
 {
-    public class EmailService
+    public string SmtpServer { get; set; }
+    public int SmtpPort { get; set; }
+    public string FromEmail { get; set; }
+    public string FromName { get; set; }
+    public string AppPassword { get; set; } // Mật khẩu ứng dụng
+}
+
+public class EmailService
+{
+
+
+    private readonly EmailSettings _settings;
+
+    public EmailService(IOptions<EmailSettings> options) // ✅ Sửa tại đây
     {
-        private readonly IConfiguration _config;
-
-        public EmailService(IConfiguration config)
-        {
-            _config = config;
-        }
-
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
-        {
-            var from = _config["EmailSettings:From"];
-            var password = _config["EmailSettings:Password"];
-            var host = _config["EmailSettings:Host"];
-            var port = int.Parse(_config["EmailSettings:Port"]);
-            var enableSSL = bool.Parse(_config["EmailSettings:EnableSSL"]);
-
-            using var client = new SmtpClient(host, port)
-            {
-                Credentials = new NetworkCredential(from, password),
-                EnableSsl = enableSSL
-            };
-
-            var mailMessage = new MailMessage(from, toEmail, subject, body)
-            {
-                IsBodyHtml = true
-            };
-
-            await client.SendMailAsync(mailMessage);
-        }
+        _settings = options.Value;
     }
 
+    public async Task SendEmailAsync(string toEmail, string subject, string htmlContent)
+    {
+        var email = new MimeMessage();
+        email.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
+        email.To.Add(MailboxAddress.Parse(toEmail));
+        email.Subject = subject;
+        email.Body = new TextPart(TextFormat.Html) { Text = htmlContent };
+
+        using var smtp = new SmtpClient();
+        await smtp.ConnectAsync(_settings.SmtpServer, _settings.SmtpPort, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_settings.FromEmail, _settings.AppPassword);
+        await smtp.SendAsync(email);
+        await smtp.DisconnectAsync(true);
+    }
 }

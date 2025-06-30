@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Firebase Google Login Test</title>
+    <!-- 🔁 Dùng bản compat cho môi trường HTML bình thường -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <h2>🔐 Đăng nhập Google qua Firebase</h2>
+    <button onclick="login()">Login with Google</button>
+
+    <pre id="token" style="margin-top: 20px; padding: 10px; background: #f4f4f4; border: 1px solid #ccc;"></pre>
+
+    <script>
+        // 🛠️ Firebase Config từ Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCa6PIvYx4k71Sdg7SUja2Pg96skDfkp8",
+            authDomain: "logisimedu.firebaseapp.com",
+            projectId: "logisimedu"
+        };
+
+        // ✅ Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        async function login() {
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const token = await result.user.getIdToken();
+                console.log("🔥 Firebase ID Token:", token);
+                document.getElementById("token").innerText = token;
+                alert("Đăng nhập thành công! Token đã hiển thị bên dưới.");
+            } catch (error) {
+                console.error("❌ Đăng nhập thất bại:", error);
+                alert("Đăng nhập thất bại, kiểm tra console.");
+            }
+        }
+    </script>
+</body>
+</html>
