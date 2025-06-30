@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
 builder.Services.AddScoped<ISceneService, SceneService>();
@@ -25,7 +26,9 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService>();
+builder.Services.AddScoped<IAccountOfClassService, AccountOfClassService>();
 builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddCors(options =>
 {
