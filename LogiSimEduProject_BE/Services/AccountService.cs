@@ -1,5 +1,7 @@
 ﻿using Repositories;
 using Repositories.Models;
+using System.Threading.Tasks; // Task<>
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,8 @@ namespace Services
     public interface IAccountService
     {
         Task<Account> Authenticate(string email, string password);
-        //Task<Account> GetOrCreateGoogleAccountAsync(string email, string fullName);
+        Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword);
+
         Task<List<Account>> GetAll();
         Task<Account> GetById(string id);
         Task<int> Register(Account account);
@@ -29,10 +32,60 @@ namespace Services
             _repository = new AccountRepository();
         }
 
-        public async Task<Account> Authenticate(string email, string password)
+        public async Task<Account?> Authenticate(string email, string password)
         {
-            return await _repository.GetUserAccount(email, password);
+            var account = await _repository.GetAccountByEmail(email);
+            if (account == null)
+            {
+                Console.WriteLine($"[Auth] Không tìm thấy tài khoản với email: {email}");
+                return null;
+            }
+
+            var hasher = new PasswordHasher<Account>();
+            try
+            {
+                var result = hasher.VerifyHashedPassword(account, account.Password, password);
+                Console.WriteLine($"[Auth] So sánh kết quả: {result}");
+
+                return result == PasswordVerificationResult.Success ? account : null;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"[Auth] Lỗi Format mật khẩu: {ex.Message}");
+                return null;
+            }
         }
+
+
+
+
+        public async Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword)
+        {
+            var account = await _repository.GetAccountByEmail(email);
+            if (account == null)
+                return (false, "Account not found.");
+
+            var hasher = new PasswordHasher<Account>();
+
+            // Kiểm tra mật khẩu hiện tại
+            var verify = hasher.VerifyHashedPassword(account, account.Password, currentPassword);
+            if (verify != PasswordVerificationResult.Success)
+                return (false, "Current password is incorrect.");
+
+            // Kiểm tra mật khẩu mới có trùng không
+            var samePassword = hasher.VerifyHashedPassword(account, account.Password, newPassword);
+            if (samePassword == PasswordVerificationResult.Success)
+                return (false, "New password must not be the same as the old one.");
+
+            // Cập nhật mật khẩu
+            account.Password = hasher.HashPassword(account, newPassword);
+            account.UpdatedAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(account);
+            return (true, "Password changed successfully.");
+        }
+
+
 
         public async Task<List<Account>> GetAll()
         {

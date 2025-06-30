@@ -14,10 +14,11 @@ namespace Repositories
     {
         public AccountRepository() { }
 
-        public async Task<Account> GetUserAccount(string email, string password)
+        public async Task<Account?> GetAccountByEmail(string email)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            return await _context.Accounts.FirstOrDefaultAsync(u => u.Email == email);
         }
+
 
         public async Task<Account> GetByEmailAsync(string email)
         {
