@@ -27,6 +27,7 @@ namespace Services
         }
         public async Task<int> Create(Topic topic)
         {
+            topic.Id = Guid.NewGuid();
             return await _repository.CreateAsync(topic);
         }
 

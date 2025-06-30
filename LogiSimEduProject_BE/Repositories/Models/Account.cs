@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class Account
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     public Guid RoleId { get; set; }
 
@@ -34,6 +34,10 @@ public partial class Account
     public virtual ICollection<AccountOfClass> AccountOfClasses { get; set; } = new List<AccountOfClass>();
 
     public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
+
+    public virtual ICollection<ConversationParticipant> ConversationParticipants { get; set; } = new List<ConversationParticipant>();
+
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 

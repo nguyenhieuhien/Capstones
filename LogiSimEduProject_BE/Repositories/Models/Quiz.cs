@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class Quiz
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     public Guid TopicId { get; set; }
 

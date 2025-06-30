@@ -31,6 +31,7 @@ namespace Services
             {
                 return 0;
             }
+            review.Id = Guid.NewGuid();
             var result = await _repository.CreateAsync(review);
             return result;
 

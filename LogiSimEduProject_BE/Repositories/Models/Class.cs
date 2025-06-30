@@ -7,7 +7,7 @@ namespace Repositories.Models;
 
 public partial class Class
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     public Guid CourseId { get; set; }
 

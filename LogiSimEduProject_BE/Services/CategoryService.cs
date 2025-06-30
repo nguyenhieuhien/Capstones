@@ -31,6 +31,7 @@
                 {
                     return 0;
                 }
+                category.Id = Guid.NewGuid();
                 var result = await _repository.CreateAsync(category);
                 return result;
             }

@@ -5,23 +5,27 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Notification
+public partial class ConversationParticipant
 {
     public Guid Id { get; set; }
 
+    public Guid ConversationId { get; set; }
+
     public Guid AccountId { get; set; }
 
-    public string Title { get; set; }
+    public DateTime JoinedAt { get; set; }
 
-    public string Description { get; set; }
+    public DateTime? LastReadAt { get; set; }
 
     public bool? IsActive { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
     public DateTime? DeleteAt { get; set; }
 
     public virtual Account Account { get; set; }
+
+    public virtual Conversation Conversation { get; set; }
 }
