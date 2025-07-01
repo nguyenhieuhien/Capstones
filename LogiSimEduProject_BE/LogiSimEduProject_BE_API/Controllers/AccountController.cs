@@ -83,9 +83,6 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-
-        
-
       
         [HttpPost("register")]
         public async Task<IActionResult> Register(AccountDTOCreate request)
@@ -267,12 +264,13 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
+            var roleName = account.Role?.RoleName ?? "Student";
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, account.Email),
                 new Claim("id", account.Id.ToString()),
                 new Claim("username", account.UserName),
+                new Claim(ClaimTypes.Role, roleName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

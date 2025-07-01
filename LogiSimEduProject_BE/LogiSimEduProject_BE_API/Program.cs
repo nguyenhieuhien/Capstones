@@ -25,7 +25,7 @@ if (FirebaseApp.DefaultInstance == null)
 // Add services to the container.
 
 builder.Services.AddControllers();
-
+builder.Services.AddSingleton<FirebaseStorageService>();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddMemoryCache();
@@ -134,7 +134,6 @@ app.UseCors("AllowAllOrigins");
     app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
 
 app.UseStaticFiles();  // <--- thêm dòng này nếu chưa có
 app.UseRouting(); //(Firebase)//
