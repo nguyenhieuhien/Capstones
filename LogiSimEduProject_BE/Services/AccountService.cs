@@ -130,7 +130,7 @@ namespace Services
 
         public async Task<Account> GetById(string id)
         {
-            return await _repository.GetByIdAsync(id);
+            return await _repository.GetById(id);
         }
 
         public async Task<List<Account>> Search(string username, string fullname, string email, string phone)

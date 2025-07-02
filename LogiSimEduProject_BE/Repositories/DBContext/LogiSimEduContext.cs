@@ -36,6 +36,8 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Course> Courses { get; set; }
 
+    public virtual DbSet<EnrollmentRequest> EnrollmentRequests { get; set; }
+
     public virtual DbSet<Message> Messages { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
@@ -314,6 +316,28 @@ public partial class LogiSimEduContext : DbContext
                 .HasForeignKey(d => d.WorkSpaceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Course_WorkSpace");
+        });
+
+        modelBuilder.Entity<EnrollmentRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07D6810515");
+
+            entity.ToTable("EnrollmentRequest");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.RequestedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("pending");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.EnrollmentRequests)
+                .HasForeignKey(d => d.CourseId)
+                .HasConstraintName("FK_EnrollmentRequest_Course");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.EnrollmentRequests)
+                .HasForeignKey(d => d.StudentId)
+                .HasConstraintName("FK_EnrollmentRequest_Student");
         });
 
         modelBuilder.Entity<Message>(entity =>

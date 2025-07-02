@@ -43,6 +43,13 @@ namespace Repositories
             return accounts;
         }
 
+        public async Task<Account> GetById(string id)
+        {
+            return await _context.Accounts
+                .Include(a => a.Role)
+                .FirstOrDefaultAsync(a => a.Id.ToString() == id);
+        }
+
         public async Task<List<Account>> Search(string username, string fullname, string email, string phone)
         {
             var accounts = await _context.Accounts.Include(t => t.UserName).Include(t => t.FullName).Include(t => t.Email).Include(t => t.Phone).Where(tq =>
