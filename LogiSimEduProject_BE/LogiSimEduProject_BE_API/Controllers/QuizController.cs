@@ -1,7 +1,8 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Account;
-using LogiSimEduProject_BE_API.Controllers.DTO.Questions;
+using LogiSimEduProject_BE_API.Controllers.DTO.Question;
 using LogiSimEduProject_BE_API.Controllers.DTO.Quiz;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Models;
 using Services;
 
@@ -48,6 +49,46 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 Data = request
             });
+        }
+
+        [HttpPost("CreateFullQuiz")]
+        public async Task<IActionResult> CreateFullQuiz([FromBody] QuizDTO dto)
+        {
+            var quizId = Guid.NewGuid();
+            var quiz = new Quiz
+            {
+                Id = quizId,
+                TopicId = dto.TopicId,
+                QuizName = dto.QuizName,
+                Score = dto.Score,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                Questions = dto.Questions.Select(q =>
+                {
+                    var questionId = Guid.NewGuid();
+                    return new Question
+                    {
+                        Id = questionId,
+                        QuizId = quizId,
+                        Description = q.Description,
+                        CreatedAt = DateTime.UtcNow,
+                        Answers = q.Answers.Select(a => new Answer
+                        {
+                            Id = Guid.NewGuid(),
+                            QuestionId = questionId,
+                            Description = a.Description,
+                            IsAnswerCorrect = a.IsAnswerCorrect,
+                            CreatedAt = DateTime.UtcNow
+                        }).ToList()
+                    };
+                }).ToList()
+            };
+
+            var result = await _service.CreateFullQuiz(quiz);
+            if (result <= 0)
+                return BadRequest("Fail Create");
+
+            return Ok(new { Message = "Quiz created" });
         }
 
         //[Authorize(Roles = "1")]

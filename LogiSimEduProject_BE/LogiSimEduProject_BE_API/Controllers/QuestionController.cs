@@ -1,6 +1,5 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Answer;
 using LogiSimEduProject_BE_API.Controllers.DTO.Question;
-using LogiSimEduProject_BE_API.Controllers.DTO.Questions;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;

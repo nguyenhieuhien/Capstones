@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.EntityFrameworkCore;
+using Repositories.DBContext;
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -57,6 +59,9 @@ builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+
+builder.Services.AddDbContext<LogiSimEduContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {

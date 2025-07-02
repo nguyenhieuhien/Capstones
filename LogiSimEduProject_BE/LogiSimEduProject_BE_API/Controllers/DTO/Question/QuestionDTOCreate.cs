@@ -1,4 +1,4 @@
-﻿namespace LogiSimEduProject_BE_API.Controllers.DTO.Questions
+﻿namespace LogiSimEduProject_BE_API.Controllers.DTO.Question
 {
     public class QuestionDTOCreate
     {
