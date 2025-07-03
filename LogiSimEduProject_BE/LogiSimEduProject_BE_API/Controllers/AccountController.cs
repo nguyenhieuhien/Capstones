@@ -54,6 +54,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _accountService.Search(username, fullname, email, phone);
         }
 
+        /// <summary>
+        /// Đăng nhập tài khoản bằng email và mật khẩu.
+        /// </summary>
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -78,6 +81,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     account.Id,
                     account.UserName,
+                    account.Password,
                     account.Email
                 }
             });
