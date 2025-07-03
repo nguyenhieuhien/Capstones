@@ -20,14 +20,14 @@ namespace Controllers
             _reviewService = new ReviewService();
         }
 
-        [HttpGet]
+        [HttpGet("GetAllReview")]
         public async Task<ActionResult<List<Review>>> GetAll()
         {
             var reviews = await _reviewService.GetAll();
             return Ok(reviews);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetReview/{id}")]
         public async Task<ActionResult<Review>> GetById(string id)
         {
             var review = await _reviewService.GetById(id);
@@ -36,7 +36,7 @@ namespace Controllers
             return Ok(review);
         }
 
-        [HttpPost]
+        [HttpPost("CreateReview")]
         public async Task<ActionResult<int>> Create([FromBody] ReviewCreateDTO reviewDto)
         {
             if (reviewDto == null)
@@ -56,7 +56,7 @@ namespace Controllers
             return Ok(result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateReview/{id}")]
         public async Task<ActionResult<int>> Update(string id, [FromBody] ReviewUpdateDTO reviewDto)
         {
             if (reviewDto == null)
@@ -73,7 +73,7 @@ namespace Controllers
             return Ok(result);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteReview/{id}")]
         public async Task<ActionResult<bool>> Delete(string id)
         {
             var result = await _reviewService.Delete(id);

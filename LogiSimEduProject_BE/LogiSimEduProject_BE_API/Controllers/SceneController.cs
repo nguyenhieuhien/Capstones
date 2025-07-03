@@ -22,20 +22,20 @@ namespace LogiSimEduProject_BE_API.Controllers
             _env = env;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllScene")]
         public async Task<IEnumerable<Scene>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetScene/{id}")]
         public async Task<Scene> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateScene")]
         public async Task<IActionResult> Post([FromForm] SceneDTOCreate request)
         {
             string imgUrl = null;
@@ -76,7 +76,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateScene/{id}")]
         public async Task<IActionResult> Put(string id, [FromForm] SceneDTOUpdate request)
         {
             var existingScene = await _service.GetById(id);
@@ -120,7 +120,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpGet("download/{id}")]
+        [HttpGet("DownloadScene/{id}")]
         public async Task<IActionResult> Download(string id)
         {
             var scene = await _service.GetById(id);
@@ -139,7 +139,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteScene/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

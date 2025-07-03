@@ -14,20 +14,20 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public SceneOfWorkspaceController(ISceneOfWorkSpaceService service) => _service = service;
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllSceneOfWorkSpace")]
         public async Task<IEnumerable<SceneOfWorkSpace>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetSceneOfWorkSpace/{id}")]
         public async Task<SceneOfWorkSpace> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateSceneOfWorkSpace")]
         public async Task<IActionResult> Post(SceneOfWorkSpaceDTOCreate request)
         {
             var scWs = new SceneOfWorkSpace
@@ -49,7 +49,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateSceneOfWorkSpace/{id}")]
         public async Task<IActionResult> Put(string id, SceneOfWorkSpaceDTOUpdate request)
         {
             var existingScWs = await _service.GetById(id);
@@ -75,7 +75,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteSceneOfWorkSpace/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

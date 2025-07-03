@@ -23,19 +23,19 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllEnrollmentRequest")]
         public async Task<IEnumerable<EnrollmentRequest>> GetAll()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("ByCourse/{courseId}")] // Lấy tất cả yêu cầu theo course
+        [HttpGet("GetEnrollmentRequestBy/{courseId}")] // Lấy tất cả yêu cầu theo course
         public async Task<IEnumerable<EnrollmentRequest>> GetByCourse(string courseId)
         {
             return await _service.GetByCourseId(courseId);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetEnrollmentRequest/{id}")]
         public async Task<ActionResult<EnrollmentRequest>> Get(string id)
         {
             var item = await _service.GetById(id);
@@ -45,7 +45,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         [Authorize(Roles = "Student")]
-        [HttpPost("Request")] // Student gửi yêu cầu
+        [HttpPost("CreateEnrollmentRequest")] // Student gửi yêu cầu
         public async Task<IActionResult> Post([FromBody] EnrollmentRequestDTOCreate request)
         {
             // Kiểm tra tài khoản tồn tại
@@ -73,7 +73,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "Instructor")]
-        [HttpPut("{id}")] // Instructor duyệt hoặc từ chối yêu cầu
+        [HttpPut("UpdateEnrollmentRequest/{id}")] // Instructor duyệt hoặc từ chối yêu cầu
         public async Task<IActionResult> Put(string id, [FromBody] string status)
         {
             var request = await _service.GetById(id);
@@ -91,7 +91,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = $"Request has been {status.ToLower()}." });
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteEnrollmentRequest/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

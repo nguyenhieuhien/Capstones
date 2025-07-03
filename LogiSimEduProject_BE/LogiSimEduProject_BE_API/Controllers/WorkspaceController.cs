@@ -17,20 +17,20 @@ namespace LogiSimEduProject_BE_API.Controllers
         public WorkspaceController(IWorkspaceService service) => _service = service;
 
         // GET: api/<WorkspaceController>
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllWorkSpace")]
         public async Task<IEnumerable<WorkSpace>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetWorkSpace/{id}")]
         public async Task<WorkSpace> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateWorkSpace/")]
         public async Task<IActionResult> Post(WorkspaceDTOCreate request)
         {
             var workspace = new WorkSpace
@@ -56,7 +56,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateWorkSpace/{id}")]
         public async Task<IActionResult> Put(string id, WorkspaceDTOUpdate request)
         {
             var existingWorkSpace = await _service.GetById(id);
@@ -89,7 +89,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteWorkSpace/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

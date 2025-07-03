@@ -17,13 +17,13 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ClassController(IClassService service) => _service = service;
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllClass")]
         public async Task<IEnumerable<Class>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetClass/{id}")]
         public async Task<Class> Get(string id)
         {
             return await _service.GetById(id);
@@ -31,7 +31,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateClass")]
         public async Task<IActionResult> Post(ClassDTOCreate request)
         {
             var course = new Class
@@ -54,7 +54,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateClass/{id}")]
         public async Task<IActionResult> Put(string id, ClassDTOUpdate request)
         {
             var existingClass = await _service.GetById(id);
@@ -84,7 +84,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteClass/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

@@ -12,20 +12,20 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IAccountOfClassService _service;
         public AccountOfClassController(IAccountOfClassService service) => _service = service;
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllAccountOfClass")]
         public async Task<IEnumerable<AccountOfClass>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetAccountOfClass/{id}")]
         public async Task<AccountOfClass> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateAccountOfClass")]
         public async Task<IActionResult> Post(AccountOfClassDTOCreate request)
         {
             var answer = new AccountOfClass
@@ -46,7 +46,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpPost("AssignStudentToClass")]
+        [HttpPost("AssignStudentToClass/{classId},{studentId}")]
         public async Task<IActionResult> AssignStudentToClass(Guid classId, Guid studentId)
         {
             try
@@ -61,7 +61,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateAccountOfClass/{id}")]
         public async Task<IActionResult> Put(string id, AccountOfClassDTOUpdate request)
         {
             var existingAcCl = await _service.GetById(id);
@@ -88,7 +88,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpDelete("RemoveStudent")]
+        [HttpDelete("RemoveStudent/{classId},{studentId}")]
         public async Task<IActionResult> RemoveStudent(Guid classId, Guid studentId)
         {
             try

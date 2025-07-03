@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    [HttpPost("google-login")]
+    [HttpPost("LoginGoogle")]
     public async Task<IActionResult> GoogleLogin([FromBody] TokenRequest request)
     {
         try
