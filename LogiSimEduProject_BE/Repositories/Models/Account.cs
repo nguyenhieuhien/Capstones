@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Repositories.Models;
 
@@ -13,6 +14,7 @@ public partial class Account
 
     public string UserName { get; set; }
 
+    [JsonIgnore]
     public string Password { get; set; }
 
     public string FullName { get; set; }
