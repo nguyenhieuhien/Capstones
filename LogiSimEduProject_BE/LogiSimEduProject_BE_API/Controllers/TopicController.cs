@@ -22,20 +22,20 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         // GET: api/<TopicController>
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllTopic")]
         public async Task<IEnumerable<Topic>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetTopic/{id}")]
         public async Task<Topic> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateTopic")]
         public async Task<IActionResult> Post([FromForm] TopicDTOCreate request)
         {
             string imgUrl = null;
@@ -78,7 +78,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateTopic/{id}")]
         public async Task<IActionResult> Put(string id, TopicDTOUpdate request)
         {
             var existingTopic = await _service.GetById(id);
@@ -140,7 +140,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteTopic/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

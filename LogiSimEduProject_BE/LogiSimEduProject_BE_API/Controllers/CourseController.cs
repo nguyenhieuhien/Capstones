@@ -22,27 +22,27 @@ namespace LogiSimEduProject_BE_API.Controllers
             _env = env;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllCourse")]
         public async Task<IEnumerable<Course>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetCourse/{id}")]
         public async Task<Course> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1, 2")]
-        [HttpGet("Search")]
+        [HttpGet("SearchCourse/{name},{description}")]
         public async Task<IEnumerable<Course>> Get(string name, string description)
         {
             return await _service.Search(name, description);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateCourse")]
         public async Task<IActionResult> Post([FromForm] CourseDTOCreate request)
         {
             string imgUrl = null;
@@ -87,7 +87,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateCourse/{id}")]
         public async Task<IActionResult> Put(string id, CourseDTOUpdate request)
         {
             var existingCourse = await _service.GetById(id);
@@ -152,7 +152,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteCourse/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

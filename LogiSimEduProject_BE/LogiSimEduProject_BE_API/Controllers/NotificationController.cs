@@ -14,20 +14,20 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly INotificationService _service;
         public NotificationController(INotificationService service) => _service = service;
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllNotification")]
         public async Task<IEnumerable<Notification>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetNotification/{id}")]
         public async Task<Notification> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateNotification")]
         public async Task<IActionResult> Post(NotificationDTOCreate request)
         {
             var question = new Notification
@@ -50,7 +50,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateNotification/{id}")]
         public async Task<IActionResult> Put(string id, NotificationDTOUpdate request)
         {
             var existingNotification = await _service.GetById(id);
@@ -80,7 +80,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteNotification/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);
