@@ -84,9 +84,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        
 
-      
         [HttpPost("register")]
         public async Task<IActionResult> Register(AccountDTOCreate request)
         {
