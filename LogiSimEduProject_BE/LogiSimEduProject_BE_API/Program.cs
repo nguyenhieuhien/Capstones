@@ -133,10 +133,10 @@ builder.Services.AddSwaggerGen(option =>
 
 var app = builder.Build();
 
-app.UseCors("AllowAllOrigins");
-
+//app.UseCors("AllowAllOrigins");
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 // Configure the HTTP request pipeline.
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
