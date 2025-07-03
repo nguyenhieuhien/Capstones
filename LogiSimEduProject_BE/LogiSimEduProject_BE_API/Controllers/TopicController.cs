@@ -12,10 +12,14 @@ namespace LogiSimEduProject_BE_API.Controllers
     [ApiController]
     public class TopicController : ControllerBase
     {
-
+        private readonly IWebHostEnvironment _env;
         private readonly ITopicService _service;
 
-        public TopicController(ITopicService service) => _service = service;
+        public TopicController(ITopicService service, IWebHostEnvironment env)
+        {
+            _service = service;
+            _env = env;
+        }
 
         // GET: api/<TopicController>
         [HttpGet("GetAll")]
@@ -32,14 +36,32 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "1")]
         [HttpPost("Create")]
-        public async Task<IActionResult> Post(TopicDTOCreate request)
+        public async Task<IActionResult> Post([FromForm] TopicDTOCreate request)
         {
+            string imgUrl = null;
+
+            if (request.ImgUrl != null)
+            {
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/topics");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.ImgUrl.CopyToAsync(stream);
+                }
+
+                imgUrl = $"/uploads/topics/{fileName}";
+            }
             var topic = new Topic
             {
                 SceneId = request.SceneId,
                 CourseId = request.CourseId,
                 TopicName = request.TopicName,
-                ImgUrl = request.ImgUrl,
+                ImgUrl = imgUrl,
                 Description = request.Description,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -64,10 +86,40 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 return NotFound(new { Message = $"Topic with ID {id} was not found." });
             }
+            string imgUrl = existingTopic.ImgUrl;
+
+            if (request.ImgUrl != null)
+            {
+                // Nếu có file ảnh mới thì lưu ảnh mới
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/topics");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.ImgUrl.CopyToAsync(stream);
+                }
+
+                // Nếu muốn xóa ảnh cũ khỏi ổ đĩa, có thể thêm đoạn sau:
+                if (!string.IsNullOrEmpty(existingTopic.ImgUrl))
+                {
+                    var oldFilePath = Path.Combine(_env.WebRootPath, existingTopic.ImgUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+
+                imgUrl = $"/uploads/topics/{fileName}";
+            }
+
             existingTopic.SceneId = request.SceneId;
             existingTopic.CourseId = request.CourseId;
             existingTopic.TopicName = request.TopicName;
-            existingTopic.ImgUrl = request.ImgUrl;
+            existingTopic.ImgUrl = imgUrl;
             existingTopic.Description = request.Description;
             existingTopic.UpdatedAt = DateTime.UtcNow;
 

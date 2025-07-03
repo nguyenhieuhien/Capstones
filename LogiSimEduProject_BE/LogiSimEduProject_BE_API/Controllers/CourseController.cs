@@ -13,9 +13,14 @@ namespace LogiSimEduProject_BE_API.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
+        private readonly IWebHostEnvironment _env;
         private readonly ICourseService _service;
 
-        public CourseController(ICourseService service) => _service = service;
+        public CourseController(ICourseService service, IWebHostEnvironment env)
+        {
+            _service = service;
+            _env = env;
+        }
 
         [HttpGet("GetAll")]
         public async Task<IEnumerable<Course>> Get()
@@ -38,8 +43,27 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "1")]
         [HttpPost("Create")]
-        public async Task<IActionResult> Post(CourseDTOCreate request)
+        public async Task<IActionResult> Post([FromForm] CourseDTOCreate request)
         {
+            string imgUrl = null;
+
+            if (request.ImgUrl != null)
+            {
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/topics");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.ImgUrl.CopyToAsync(stream);
+                }
+
+                imgUrl = $"/uploads/topics/{fileName}";
+            }
+
             var course = new Course
             {
                 CategoryId = request.CategoryId,
@@ -47,7 +71,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 CourseName = request.CourseName,
                 Description = request.Description,
                 RatingAverage = request.RatingAverage,
-                ImgUrl = request.ImgUrl,
+                ImgUrl = imgUrl,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -71,13 +95,42 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 return NotFound(new { Message = $"Course with ID {id} was not found." });
             }
+            string imgUrl = existingCourse.ImgUrl;
+
+            if (request.ImgUrl != null)
+            {
+                // Nếu có file ảnh mới thì lưu ảnh mới
+                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/courses");
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.ImgUrl.CopyToAsync(stream);
+                }
+
+                // Nếu muốn xóa ảnh cũ khỏi ổ đĩa, có thể thêm đoạn sau:
+                if (!string.IsNullOrEmpty(existingCourse.ImgUrl))
+                {
+                    var oldFilePath = Path.Combine(_env.WebRootPath, existingCourse.ImgUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+
+                imgUrl = $"/uploads/courses/{fileName}";
+            }
 
             existingCourse.CategoryId = request.CategoryId;
             existingCourse.WorkSpaceId = request.WorkSpaceId;
             existingCourse.CourseName = request.CourseName;
             existingCourse.Description = request.Description;
             existingCourse.RatingAverage = request.RatingAverage;
-            existingCourse.ImgUrl = request.ImgUrl;
+            existingCourse.ImgUrl = imgUrl;
             existingCourse.UpdatedAt = DateTime.UtcNow;
 
             await _service.Update(existingCourse);

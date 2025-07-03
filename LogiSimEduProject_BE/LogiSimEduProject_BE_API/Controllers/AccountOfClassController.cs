@@ -1,4 +1,4 @@
-using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfClass;
+﻿using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfClass;
 using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfWorkSpace;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
@@ -46,6 +46,20 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+        [HttpPost("AssignStudentToClass")]
+        public async Task<IActionResult> AssignStudentToClass(Guid classId, Guid studentId)
+        {
+            try
+            {
+                var result = await _service.AddStudentToClass(classId, studentId);
+                return Ok(new { Message = "Thêm học sinh vào lớp thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         //[Authorize(Roles = "1")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, AccountOfClassDTOUpdate request)
@@ -74,11 +88,18 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
-        public async Task<bool> Delete(string id)
+        [HttpDelete("RemoveStudent")]
+        public async Task<IActionResult> RemoveStudent(Guid classId, Guid studentId)
         {
-            return await _service.Delete(id);
+            try
+            {
+                var result = await _service.RemoveStudentFromClass(classId, studentId);
+                return Ok(new { Message = "Đã xoá học sinh khỏi lớp." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 }

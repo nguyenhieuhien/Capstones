@@ -19,5 +19,17 @@ namespace Repositories
 
             return acCl;
         }
+
+        public async Task<bool> IsStudentInClass(Guid classId, Guid studentId)
+        {
+            return await _context.AccountOfClasses
+                .AnyAsync(x => x.ClassId == classId && x.AccountId == studentId);
+        }
+
+        public async Task<AccountOfClass?> GetStudentInClass(Guid classId, Guid studentId)
+        {
+            return await _context.AccountOfClasses
+                .FirstOrDefaultAsync(x => x.ClassId == classId && x.AccountId == studentId);
+        }
     }
 }

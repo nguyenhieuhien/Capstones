@@ -1,4 +1,6 @@
-﻿namespace LogiSimEduProject_BE_API.Controllers.DTO.Course
+﻿using System.Text.Json.Serialization;
+
+namespace LogiSimEduProject_BE_API.Controllers.DTO.Course
 {
     public class CourseDTOCreate
     {
@@ -12,6 +14,7 @@
 
         public double? RatingAverage { get; set; }
 
-        public string ImgUrl { get; set; }
+        [JsonIgnore]
+        public IFormFile ImgUrl { get; set; }
     }
 }

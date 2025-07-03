@@ -279,3 +279,18 @@ CREATE TABLE ConversationParticipant (
     FOREIGN KEY (ConversationId) REFERENCES Conversation(Id),
     FOREIGN KEY (AccountId) REFERENCES Account(Id)
 );
+
+CREATE TABLE EnrollmentRequest (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    StudentId UNIQUEIDENTIFIER NOT NULL,
+    CourseId UNIQUEIDENTIFIER NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'pending', -- accepted | denied | pending
+    RequestedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    RespondedAt DATETIME2 NULL,
+
+    CONSTRAINT FK_EnrollmentRequest_Student FOREIGN KEY (StudentId)
+        REFERENCES Account(Id) ON DELETE CASCADE,
+
+    CONSTRAINT FK_EnrollmentRequest_Course FOREIGN KEY (CourseId)
+        REFERENCES Course(Id) ON DELETE CASCADE
+);

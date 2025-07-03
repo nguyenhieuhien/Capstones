@@ -1,4 +1,5 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Category;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -19,6 +20,7 @@ namespace Controllers
             _categoryService = new CategoryService();
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet]
         public async Task<ActionResult<List<Category>>> GetAll()
         {

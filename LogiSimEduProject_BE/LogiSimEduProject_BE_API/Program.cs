@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.EntityFrameworkCore;
+using Repositories.DBContext;
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -25,7 +27,7 @@ if (FirebaseApp.DefaultInstance == null)
 // Add services to the container.
 
 builder.Services.AddControllers();
-
+builder.Services.AddSingleton<FirebaseStorageService>();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddMemoryCache();
@@ -56,6 +58,10 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
+builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+
+builder.Services.AddDbContext<LogiSimEduContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {
@@ -134,7 +140,6 @@ app.UseSwagger();
     app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
 
 app.UseStaticFiles();  // <--- thêm dòng này nếu chưa có
 app.UseRouting(); //(Firebase)//
