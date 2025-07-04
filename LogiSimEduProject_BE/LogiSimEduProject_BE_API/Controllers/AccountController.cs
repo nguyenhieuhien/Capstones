@@ -82,9 +82,6 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-
-
-
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -269,8 +266,6 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok("Mã xác thực đã được gửi lại.");
         }
-
-
 
 
         [HttpPut("UpdateAccount/{id}")]
