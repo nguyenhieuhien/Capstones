@@ -95,6 +95,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     account.Id,
                     account.UserName,
+                    account.Password,
                     account.Email
                 }
             });
