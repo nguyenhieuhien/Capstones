@@ -5,25 +5,19 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Question
+public partial class QuizSubmission
 {
     public Guid Id { get; set; }
 
     public Guid QuizId { get; set; }
 
-    public string Description { get; set; }
+    public Guid AccountId { get; set; }
 
-    public bool? IsCorrect { get; set; }
+    public DateTime? SubmittedAt { get; set; }
 
-    public bool? IsActive { get; set; }
+    public int? ScoreObtained { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
-
-    public DateTime? DeleteAt { get; set; }
-
-    public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+    public virtual Account Account { get; set; }
 
     public virtual Quiz Quiz { get; set; }
 

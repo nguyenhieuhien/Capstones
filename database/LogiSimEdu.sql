@@ -1,4 +1,4 @@
--- Tạo database mới
+﻿-- Tạo database mới
 CREATE DATABASE LogisimEdu;
 GO
 
@@ -7,7 +7,7 @@ GO
 
 -- Bảng Role
 CREATE TABLE [Role] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     RoleName NVARCHAR(100) NOT NULL,
     IsActive BIT,
     Created_At DATETIME,
@@ -17,13 +17,16 @@ CREATE TABLE [Role] (
 
 -- Bảng Account
 CREATE TABLE [Account] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     RoleId UNIQUEIDENTIFIER NOT NULL,
     UserName NVARCHAR(100) NOT NULL,
     [Password] NVARCHAR(255) NOT NULL,
+	IsEmailVerify BIT DEFAULT 0,
     FullName NVARCHAR(100),
     Email NVARCHAR(100),
     Phone NVARCHAR(20),
+	Gender NVARCHAR(10),
+    Address NVARCHAR(255),
     AvtURL NVARCHAR(255),
     IsActive BIT,
     Created_At DATETIME,
@@ -34,7 +37,7 @@ CREATE TABLE [Account] (
 
 -- Bảng WorkSpace
 CREATE TABLE [WorkSpace] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     OrderId UNIQUEIDENTIFIER NULL,
     OrganizationId UNIQUEIDENTIFIER NULL,
     WorkSpaceName NVARCHAR(100) NOT NULL,
@@ -50,7 +53,7 @@ CREATE TABLE [WorkSpace] (
 
 -- Bảng AccountOfWorkSpace
 CREATE TABLE [AccountOfWorkSpace] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     AccountId UNIQUEIDENTIFIER NOT NULL,
     WorkSpaceId UNIQUEIDENTIFIER NOT NULL,
     IsActive BIT,
@@ -63,7 +66,7 @@ CREATE TABLE [AccountOfWorkSpace] (
 
 -- Bảng Category
 CREATE TABLE [Category] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CategoryName NVARCHAR(100),
     IsActive BIT,
     Created_At DATETIME,
@@ -73,7 +76,7 @@ CREATE TABLE [Category] (
 
 -- Bảng Course
 CREATE TABLE [Course] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CategoryId UNIQUEIDENTIFIER NOT NULL,
     WorkSpaceId UNIQUEIDENTIFIER NOT NULL,
     CourseName NVARCHAR(100),
@@ -90,7 +93,7 @@ CREATE TABLE [Course] (
 
 -- Bảng Scene
 CREATE TABLE [Scene] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     SceneName NVARCHAR(100),
     [Description] NVARCHAR(255),
     ImgURL NVARCHAR(255),
@@ -102,7 +105,7 @@ CREATE TABLE [Scene] (
 
 -- Bảng Topic
 CREATE TABLE [Topic] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     SceneId UNIQUEIDENTIFIER NOT NULL,
     CourseId UNIQUEIDENTIFIER NOT NULL,
     TopicName NVARCHAR(100),
@@ -118,7 +121,7 @@ CREATE TABLE [Topic] (
 
 -- Bảng SceneOfWorkSpace
 CREATE TABLE [SceneOfWorkSpace] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     SceneId UNIQUEIDENTIFIER NOT NULL,
     WorkSpaceId UNIQUEIDENTIFIER NOT NULL,
     IsActive BIT,
@@ -131,7 +134,7 @@ CREATE TABLE [SceneOfWorkSpace] (
 
 -- Bảng Scenario
 CREATE TABLE [Scenario] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     SceneId UNIQUEIDENTIFIER NOT NULL,
     ScenarioName NVARCHAR(100),
     [Description] NVARCHAR(255),
@@ -144,7 +147,7 @@ CREATE TABLE [Scenario] (
 
 -- Bảng Quiz
 CREATE TABLE [Quiz] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     TopicId UNIQUEIDENTIFIER NOT NULL,
     QuizName NVARCHAR(100),
     Score FLOAT,
@@ -158,7 +161,7 @@ CREATE TABLE [Quiz] (
 
 -- Bảng Question
 CREATE TABLE [Question] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     QuizId UNIQUEIDENTIFIER NOT NULL,
     [Description] NVARCHAR(255),
     IsCorrect BIT,
@@ -171,7 +174,7 @@ CREATE TABLE [Question] (
 
 -- Bảng Answer
 CREATE TABLE [Answer] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     QuestionId UNIQUEIDENTIFIER NOT NULL,
     [Description] NVARCHAR(255),
     IsAnswerCorrect BIT,
@@ -184,7 +187,7 @@ CREATE TABLE [Answer] (
 
 -- Bảng Class
 CREATE TABLE [Class] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     CourseId UNIQUEIDENTIFIER NOT NULL,
     ClassName NVARCHAR(100),
     NumberOfStudent INT,
@@ -197,7 +200,7 @@ CREATE TABLE [Class] (
 
 -- Bảng AccountOfClass
 CREATE TABLE [AccountOfClass] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     AccountId UNIQUEIDENTIFIER NOT NULL,
     ClassId UNIQUEIDENTIFIER NOT NULL,
     IsActive BIT,
@@ -210,7 +213,7 @@ CREATE TABLE [AccountOfClass] (
 
 -- Bảng Review
 CREATE TABLE [Review] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     AccountId UNIQUEIDENTIFIER NOT NULL,
     CourseId UNIQUEIDENTIFIER NOT NULL,
     [Description] NVARCHAR(255),
@@ -225,7 +228,7 @@ CREATE TABLE [Review] (
 
 -- Bảng Notification
 CREATE TABLE [Notification] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     AccountId UNIQUEIDENTIFIER NOT NULL,
     Title NVARCHAR(255),
     [Description] NVARCHAR(255),
@@ -294,3 +297,101 @@ CREATE TABLE EnrollmentRequest (
     CONSTRAINT FK_EnrollmentRequest_Course FOREIGN KEY (CourseId)
         REFERENCES Course(Id) ON DELETE CASCADE
 );
+ ---------------------------------------------------------------
+CREATE TABLE Organization (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrganizationName NVARCHAR(255),
+    Email NVARCHAR(100),
+    Phone NVARCHAR(20),
+    Address NVARCHAR(255),
+    Password NVARCHAR(255),
+    IsEmailVerified NVARCHAR(10),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE [Order] (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrganizationId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Organization(Id),
+    WorkSpaceId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES WorkSpace(Id),
+    Description NVARCHAR(MAX),
+    TotalPrice FLOAT,
+    BookingTime DATETIME,
+    Status NVARCHAR(50),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE Payment (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrderId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [Order](Id),
+    OrderCode NVARCHAR(100),
+    Amount FLOAT,
+    Description NVARCHAR(MAX),
+    Items NVARCHAR(MAX),
+    ReturnUrl NVARCHAR(255),
+    CancelUrl NVARCHAR(255),
+    PaymentLink NVARCHAR(255),
+    Status NVARCHAR(50),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE PackageType (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    PackageName NVARCHAR(100),
+    Description NVARCHAR(MAX),
+    Price FLOAT,
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE Package (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrderId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [Order](Id),
+    WorkSpaceId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES WorkSpace(Id),
+    PackageTypeId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES PackageType(Id),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE PackageOfScene (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    PackageId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Package(Id),
+    SceneId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Scene(Id),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE QuizSubmission (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    QuizId UNIQUEIDENTIFIER NOT NULL,
+    AccountId UNIQUEIDENTIFIER NOT NULL,
+    SubmittedAt DATETIME,
+    ScoreObtained INT,
+    FOREIGN KEY (QuizId) REFERENCES Quiz(Id),
+    FOREIGN KEY (AccountId) REFERENCES Account(Id)
+);
+
+CREATE TABLE QuizSubmissionAnswer (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    QuizSubmissionId UNIQUEIDENTIFIER NOT NULL,
+    QuestionId UNIQUEIDENTIFIER NOT NULL,
+    AnswerId UNIQUEIDENTIFIER NOT NULL,
+    FOREIGN KEY (QuizSubmissionId) REFERENCES QuizSubmission(Id),
+    FOREIGN KEY (QuestionId) REFERENCES Question(Id),
+    FOREIGN KEY (AnswerId) REFERENCES Answer(Id)
+);
+

@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Question
+public partial class PackageType
 {
     public Guid Id { get; set; }
 
-    public Guid QuizId { get; set; }
+    public string PackageName { get; set; }
 
     public string Description { get; set; }
 
-    public bool? IsCorrect { get; set; }
+    public double? Price { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -23,9 +23,5 @@ public partial class Question
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
-
-    public virtual Quiz Quiz { get; set; }
-
-    public virtual ICollection<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; } = new List<QuizSubmissionAnswer>();
+    public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
 }
