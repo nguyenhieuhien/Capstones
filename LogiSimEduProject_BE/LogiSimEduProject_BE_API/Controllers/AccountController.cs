@@ -1,7 +1,7 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Account;
+using LogiSimEduProject_BE_API.Controllers.Request.AccountRequest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +12,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
@@ -34,8 +33,6 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountRepository = accountRepository;
         }
 
-
-        // GET: api/<AccountController>
         [HttpGet("GetAllAccount")]
         public async Task<IEnumerable<Account>> Get()
         {
@@ -48,30 +45,45 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _accountService.GetById(id);
        }
 
-        [HttpGet("VerifyEmail")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+         [HttpPost("VerifyEmail")]
+        public async Task<IActionResult> VerifyEmailOtp([FromBody] string otp)
         {
-            if (!_cache.TryGetValue($"verify_{token}", out string? email) || email == null)
-                return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
+            if (!_cache.TryGetValue($"verify_email_token_{otp}", out string? email) || string.IsNullOrEmpty(email))
+                return BadRequest("Mã xác thực không hợp lệ hoặc đã hết hạn.");
 
             var user = await _accountRepository.GetByEmailAsync(email);
             if (user == null)
                 return BadRequest("Không tìm thấy tài khoản.");
 
-            user.IsActive = true;
+            user.IsEmailVerify = true;
             await _accountService.Update(user);
+            _cache.Remove($"verify_email_token_{otp}");
 
-            _cache.Remove($"verify_{token}");
-
-            return Ok("Tài khoản đã được xác thực thành công.");
+            return Ok("Xác thực email thành công.");
         }
 
 
-        //[HttpGet("Search")]
-        //public async Task<IEnumerable<Account>> Get(string username, string fullname, string email, string phone)
-        //{
-        //    return await _accountService.Search(username, fullname, email, phone);
-        //}
+        [HttpPost("ConfirmChangeEmail")]
+        public async Task<IActionResult> ConfirmChangeEmailOtp([FromBody] string otp)
+        {
+            if (!_cache.TryGetValue($"change_email_token_{otp}", out dynamic? data) || data == null)
+                return BadRequest("Mã OTP không hợp lệ hoặc đã hết hạn.");
+
+            var user = await _accountRepository.GetByEmailAsync((string)data.OldEmail);
+            if (user == null)
+                return BadRequest("Không tìm thấy người dùng.");
+
+            user.Email = data.NewEmail;
+            user.IsEmailVerify = true;
+            await _accountService.Update(user);
+            _cache.Remove($"change_email_token_{otp}");
+
+            return Ok("Email đã được cập nhật thành công.");
+        }
+
+
+
+
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -79,13 +91,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Invalid login data");
 
-            var account = await _accountService.Authenticate(request.Email, request.Password);
+            var account = await _accountService.Authenticate(request.UserName, request.Password);
 
             if (account == null)
-                return Unauthorized("Invalid email or password");
-
-            // ✅ Thêm dòng này: Kiểm tra xác thực email
+                return Unauthorized("Invalid username or password");
             if (!(account.IsActive ?? false))
+                return Unauthorized("Tài khoản đã bị khóa vui lòng liên hệ admin.");
+            if (!(account.IsEmailVerify ?? false))
                 return Unauthorized("Tài khoản chưa được xác thực. Vui lòng kiểm tra email để xác thực.");
 
             var token = GenerateJSONWebToken(account);
@@ -101,7 +113,8 @@ namespace LogiSimEduProject_BE_API.Controllers
                 }
             });
         }
-        [HttpPost("RegisterAccount")]
+
+        [HttpPost("SignUp")]
         public async Task<IActionResult> Register(AccountDTOCreate request)
         {
             var passwordHasher = new PasswordHasher<Account>();
@@ -112,7 +125,8 @@ namespace LogiSimEduProject_BE_API.Controllers
                 FullName = request.FullName,
                 Email = request.Email,
                 Phone = request.Phone,
-                IsActive = false, // ban đầu là chưa kích hoạt
+                IsActive = true,
+                IsEmailVerify = false,
                 CreatedAt = DateTime.UtcNow,
                 Password = passwordHasher.HashPassword(new Account(), request.Password)
             };
@@ -121,21 +135,19 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (result <= 0)
                 return BadRequest("Đăng ký thất bại");
 
-            // Tạo token xác thực và lưu vào cache
-            var token = Guid.NewGuid().ToString();
-            _cache.Set($"verify_{token}", account.Email, TimeSpan.FromHours(1));
-
-            var verifyLink = $"https://www.facebook.com/NguyenHieuHien.Profile?token={token}";
+            // Tạo mã OTP và lưu email theo mã
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.Set($"verify_email_token_{otp}", account.Email, TimeSpan.FromMinutes(10));
 
             await _emailService.SendEmailAsync(
                 account.Email,
                 "Xác thực email - LogiSimEdu",
-                $"<p>Nhấn vào liên kết sau để xác thực email:</p><a href='{verifyLink}'>{verifyLink}</a>"
+                $"<p>Mã xác thực email của bạn là: <strong>{otp}</strong>. Mã này sẽ hết hạn sau 10 phút.</p>"
             );
 
-            return Ok("Tài khoản đã được tạo. Vui lòng kiểm tra email để xác thực.");
+            return Ok("Tài khoản đã được tạo. Vui lòng kiểm tra email để lấy mã xác thực.");
         }
-        
+
 
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest model)
@@ -205,6 +217,60 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok(new { message });
         }
+
+
+        [HttpPost("RequestChangeEmail")]
+        [Authorize]
+        public async Task<IActionResult> RequestChangeEmail([FromBody] ChangeEmailRequest request)
+        {
+            var currentEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (string.IsNullOrEmpty(currentEmail))
+                return Unauthorized("Email not found in token");
+
+            if (currentEmail.Equals(request.NewEmail, StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Email mới phải khác email hiện tại.");
+
+            if (await _accountRepository.GetByEmailAsync(request.NewEmail) != null)
+                return BadRequest("Email mới đã được sử dụng bởi tài khoản khác.");
+
+            var user = await _accountRepository.GetByEmailAsync(currentEmail);
+            if (user == null)
+                return Unauthorized("Không tìm thấy người dùng.");
+
+            var result = new PasswordHasher<Account>().VerifyHashedPassword(user, user.Password, request.Password);
+            if (result != PasswordVerificationResult.Success)
+                return BadRequest("Mật khẩu hiện tại không đúng.");
+
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.Set($"change_email_token_{otp}", new { OldEmail = currentEmail, request.NewEmail }, TimeSpan.FromMinutes(10));
+
+            await _emailService.SendEmailAsync(
+                request.NewEmail,
+                "Mã xác nhận đổi email - LogiSimEdu",
+                $"<p>Mã xác thực để đổi email là: <strong>{otp}</strong>. Mã này sẽ hết hạn sau 10 phút.</p>");
+
+            return Ok("Mã xác nhận đã được gửi đến email mới của bạn.");
+        }
+
+        [HttpPost("ResendVerify")]
+        public async Task<IActionResult> ResendVerifyOtp([FromBody] string email)
+        {
+            var user = await _accountRepository.GetByEmailAsync(email);
+            if (user == null || user.IsEmailVerify == true)
+                return BadRequest("Tài khoản không hợp lệ hoặc đã xác thực.");
+
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.Set($"verify_email_token_{otp}", email, TimeSpan.FromMinutes(10));
+
+            await _emailService.SendEmailAsync(
+                email,
+                "Gửi lại mã xác thực - LogiSimEdu",
+                $"<p>Mã xác thực mới của bạn là: <strong>{otp}</strong>. Mã này có hiệu lực trong 10 phút.</p>");
+
+            return Ok("Mã xác thực đã được gửi lại.");
+        }
+
+
 
 
         [HttpPut("UpdateAccount/{id}")]
@@ -283,20 +349,121 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-        public class ForgotPasswordRequest
-        {
-            public required string Email { get; set; }
-        }
-
-        public class ResetPasswordRequest
-        {
-            public required string Token { get; set; }
-            public required string NewPassword { get; set; }
-        }
-
-        public sealed record LoginRequest(string Email, string Password);
-
-        public sealed record RegisterRequest(string UserName, string FullName, string Email, string Password, string Phone);
     }
 }
+//[HttpGet("ConfirmChangeEmail")]
+//public async Task<IActionResult> ConfirmChangeEmail([FromQuery] string token)
+//{
+//    if (!_cache.TryGetValue($"change_email_{token}", out dynamic? data) || data == null)
+//        return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
+
+//    string oldEmail = data.OldEmail;
+//    string newEmail = data.NewEmail;
+
+//    var user = await _accountRepository.GetByEmailAsync(oldEmail);
+//    if (user == null)
+//        return BadRequest("Không tìm thấy người dùng.");
+
+//    user.Email = newEmail;
+//    user.IsEmailVerify = true; // hoặc false nếu muốn bắt xác thực lại
+//    await _accountService.Update(user);
+
+//    _cache.Remove($"change_email_{token}");
+
+//    return Ok("Email của bạn đã được cập nhật thành công.");
+//}
+
+//[HttpGet("Search")]
+//public async Task<IEnumerable<Account>> Get(string username, string fullname, string email, string phone)
+//{
+//    return await _accountService.Search(username, fullname, email, phone);
+//}
+
+//[Authorize]
+//[HttpPost("RequestChangeEmail")]
+//public async Task<IActionResult> RequestChangeEmail([FromBody] ChangeEmailRequest request)
+//{
+//    var email = User.FindFirstValue(ClaimTypes.Email)
+//        ?? User.FindFirstValue(JwtRegisteredClaimNames.Email)
+//        ?? User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+
+//    if (string.IsNullOrEmpty(email))
+//        return Unauthorized("Email not found in token");
+
+//    var user = await _accountRepository.GetByEmailAsync(email);
+//    if (user == null)
+//        return Unauthorized("User not found");
+
+//    var passwordHasher = new PasswordHasher<Account>();
+//    var verify = passwordHasher.VerifyHashedPassword(user, user.Password, request.Password);
+
+//    if (verify != PasswordVerificationResult.Success)
+//        return BadRequest("Current password is incorrect.");
+
+//    // ✅ Tạo token xác nhận đổi email
+//    var token = Guid.NewGuid().ToString();
+//    _cache.Set($"change_email_{token}", new { OldEmail = email, NewEmail = request.NewEmail }, TimeSpan.FromHours(1));
+
+//    var confirmLink = $"https://yourfrontend.com/confirm-change-email?token={token}";
+
+//    await _emailService.SendEmailAsync(
+//        request.NewEmail,
+//        "Xác nhận đổi email - LogiSimEdu",
+//        $"<p>Nhấn vào liên kết sau để xác nhận đổi email:</p><a href='{confirmLink}'>{confirmLink}</a>"
+//    );
+
+//    return Ok("Một liên kết xác nhận đã được gửi đến email mới của bạn. Vui lòng kiểm tra hộp thư.");
+//}
+
+//[HttpPost("RegisterAccount")]
+//public async Task<IActionResult> Register(AccountDTOCreate request)
+//{
+//    var passwordHasher = new PasswordHasher<Account>();
+
+//    var account = new Account
+//    {
+//        UserName = request.UserName,
+//        FullName = request.FullName,
+//        Email = request.Email,
+//        Phone = request.Phone,
+//        IsActive = true,
+//        IsEmailVerify = false, // ban đầu là chưa kích hoạt
+//        CreatedAt = DateTime.UtcNow,
+//        Password = passwordHasher.HashPassword(new Account(), request.Password)
+//    };
+
+//    var result = await _accountService.Register(account);
+//    if (result <= 0)
+//        return BadRequest("Đăng ký thất bại");
+
+//    // Tạo token xác thực và lưu vào cache
+//    var token = Guid.NewGuid().ToString();
+//    _cache.Set($"verify_{token}", account.Email, TimeSpan.FromHours(1));
+
+//    var verifyLink = $"https://www.facebook.com/NguyenHieuHien.Profile?token={token}";
+
+//    await _emailService.SendEmailAsync(
+//        account.Email,
+//        "Xác thực email - LogiSimEdu",
+//        $"<p>Nhấn vào liên kết sau để xác thực email:</p><a href='{verifyLink}'>{verifyLink}</a>"
+//    );
+
+//    return Ok("Tài khoản đã được tạo. Vui lòng kiểm tra email để xác thực.");
+//}
+//[HttpGet("VerifyEmail")]
+//public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+//{
+//    if (!_cache.TryGetValue($"verify_{token}", out string? email) || email == null)
+//        return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
+
+//    var user = await _accountRepository.GetByEmailAsync(email);
+//    if (user == null)
+//        return BadRequest("Không tìm thấy tài khoản.");
+
+//    user.IsEmailVerify = true;
+//    await _accountService.Update(user);
+
+//    _cache.Remove($"verify_{token}");
+
+//    return Ok("Tài khoản đã được xác thực thành công.");
+//}

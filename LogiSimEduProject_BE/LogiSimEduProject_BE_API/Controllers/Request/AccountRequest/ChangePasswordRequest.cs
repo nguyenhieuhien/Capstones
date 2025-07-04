@@ -1,4 +1,4 @@
-﻿namespace LogiSimEduProject_BE_API.Controllers.DTO.Account
+﻿namespace LogiSimEduProject_BE_API.Controllers.Request.AccountRequest
 {
     public class ChangePasswordRequest
     {  

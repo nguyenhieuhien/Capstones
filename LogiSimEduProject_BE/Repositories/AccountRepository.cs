@@ -14,9 +14,9 @@ namespace Repositories
     {
         public AccountRepository() { }
 
-        public async Task<Account?> GetAccountByEmail(string email)
+        public async Task<Account?> GetAccountByUserName(string username)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Accounts.FirstOrDefaultAsync(u => u.UserName == username);
         }
 
 
