@@ -23,6 +23,8 @@ public partial class Scene
 
     public DateTime? DeleteAt { get; set; }
 
+    public virtual ICollection<PackageOfScene> PackageOfScenes { get; set; } = new List<PackageOfScene>();
+
     public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
 
     public virtual ICollection<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; } = new List<SceneOfWorkSpace>();
