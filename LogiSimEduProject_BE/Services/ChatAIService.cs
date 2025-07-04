@@ -23,7 +23,7 @@ namespace Services
         public async Task<string> GetChatResponse(string userMessage)
         {
             var apiKey = _config["HuggingFace:ApiKey"];
-            var url = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-125M";
+            var url = "//";
             var requestData = new
             {
                 inputs = $"User: {userMessage}\nAI:"
