@@ -19,5 +19,12 @@ namespace Repositories
 
             return accWs;
         }
+
+        public async Task<List<AccountOfWorkSpace>> GetByWorkspaceIdAsync(Guid workSpaceId)
+        {
+            return await _context.AccountOfWorkSpaces
+                .Where(a => a.WorkSpaceId == workSpaceId)
+                .ToListAsync();
+        }
     }
 }

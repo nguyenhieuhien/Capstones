@@ -20,7 +20,7 @@ namespace Services
     public class SceneService : ISceneService
     {
         private SceneRepository _repository;
-
+        private SceneOfWorkSpaceRepository _sceneWpRepo;
         public SceneService()
         {
             _repository = new SceneRepository();
@@ -36,6 +36,11 @@ namespace Services
             var item = await _repository.GetByIdAsync(id);
             if (item != null)
             {
+                var sceneList = await _sceneWpRepo.GetBySceneIdAsync(Guid.Parse(id));
+                foreach (var scene in sceneList)
+                {
+                    await _sceneWpRepo.RemoveAsync(scene);
+                }
                 return await _repository.RemoveAsync(item);
             }
 
