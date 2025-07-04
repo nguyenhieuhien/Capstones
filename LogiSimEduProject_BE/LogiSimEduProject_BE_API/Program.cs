@@ -10,6 +10,7 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
+using System.Reflection;
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -59,6 +60,10 @@ builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
+
+builder.Services.AddHttpClient<ChatAIService>();
+builder.Services.AddScoped<ChatAIService>();
 
 builder.Services.AddDbContext<LogiSimEduContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -129,6 +134,10 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    option.IncludeXmlComments(xmlPath);
 });
 
 var app = builder.Build();

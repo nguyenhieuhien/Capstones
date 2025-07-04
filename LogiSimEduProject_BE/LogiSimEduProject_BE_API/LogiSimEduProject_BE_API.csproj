@@ -6,6 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<!-- ẩn warning cho phần thiếu comment -->
+	</PropertyGroup>
+
   <ItemGroup>
     <None Include="wwwroot\firebase\Login.html" />
   </ItemGroup>
