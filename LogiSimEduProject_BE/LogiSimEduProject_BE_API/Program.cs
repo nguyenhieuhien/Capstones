@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.DBContext;
 using System.Reflection;
 
-JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+//JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,8 +64,8 @@ builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IPackageTypeService, PackageTypeService>();
 
-builder.Services.AddHttpClient<ChatAIService>();
-builder.Services.AddScoped<ChatAIService>();
+//builder.Services.AddHttpClient<ChatAIService>();
+//builder.Services.AddScoped<ChatAIService>();
 
 builder.Services.AddDbContext<LogiSimEduContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -136,10 +136,6 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
-
-    //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    //option.IncludeXmlComments(xmlPath);
 });
 
 var app = builder.Build();
