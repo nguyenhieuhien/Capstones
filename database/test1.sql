@@ -294,3 +294,100 @@ CREATE TABLE EnrollmentRequest (
     CONSTRAINT FK_EnrollmentRequest_Course FOREIGN KEY (CourseId)
         REFERENCES Course(Id) ON DELETE CASCADE
 );
+
+CREATE TABLE Organization (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrganizationName NVARCHAR(255),
+    Email NVARCHAR(100),
+    Phone NVARCHAR(20),
+    Address NVARCHAR(255),
+    Password NVARCHAR(255),
+    IsEmailVerified NVARCHAR(10),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE [Order] (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrganizationId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Organization(Id),
+    WorkSpaceId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES WorkSpace(Id),
+    Description NVARCHAR(MAX),
+    TotalPrice FLOAT,
+    BookingTime DATETIME,
+    Status NVARCHAR(50),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE Payment (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrderId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [Order](Id),
+    OrderCode NVARCHAR(100),
+    Amount FLOAT,
+    Description NVARCHAR(MAX),
+    Items NVARCHAR(MAX),
+    ReturnUrl NVARCHAR(255),
+    CancelUrl NVARCHAR(255),
+    PaymentLink NVARCHAR(255),
+    Status NVARCHAR(50),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE PackageType (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    PackageName NVARCHAR(100),
+    Description NVARCHAR(MAX),
+    Price FLOAT,
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE Package (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrderId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [Order](Id),
+    WorkSpaceId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES WorkSpace(Id),
+    PackageTypeId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES PackageType(Id),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE PackageOfScene (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    PackageId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Package(Id),
+    SceneId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Scene(Id),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME
+);
+
+CREATE TABLE QuizSubmission (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    QuizId UNIQUEIDENTIFIER NOT NULL,
+    AccountId UNIQUEIDENTIFIER NOT NULL,
+    SubmittedAt DATETIME,
+    ScoreObtained INT,
+    FOREIGN KEY (QuizId) REFERENCES Quiz(Id),
+    FOREIGN KEY (AccountId) REFERENCES Account(Id)
+);
+
+CREATE TABLE QuizSubmissionAnswer (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    QuizSubmissionId UNIQUEIDENTIFIER NOT NULL,
+    QuestionId UNIQUEIDENTIFIER NOT NULL,
+    AnswerId UNIQUEIDENTIFIER NOT NULL,
+    FOREIGN KEY (QuizSubmissionId) REFERENCES QuizSubmission(Id),
+    FOREIGN KEY (QuestionId) REFERENCES Question(Id),
+    FOREIGN KEY (AnswerId) REFERENCES Answer(Id)
+);
