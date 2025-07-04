@@ -33,12 +33,12 @@ namespace Services
             _repository = new AccountRepository();
         }
 
-        public async Task<Account?> Authenticate(string email, string password)
+        public async Task<Account?> Authenticate(string username, string password)
         {
-            var account = await _repository.GetAccountByEmail(email);
+            var account = await _repository.GetAccountByUserName(username);
             if (account == null)
             {
-                Console.WriteLine($"[Auth] Không tìm thấy tài khoản với email: {email}");
+                Console.WriteLine($"[Auth] Không tìm thấy tài khoản với username: {username}");
                 return null;
             }
 
@@ -58,9 +58,9 @@ namespace Services
         }
 
 
-        public async Task<(bool success, string message)> ResetPasswordAsync(string email, string newPassword)
+        public async Task<(bool success, string message)> ResetPasswordAsync(string username, string newPassword)
         {
-            var account = await _repository.GetAccountByEmail(email);
+            var account = await _repository.GetAccountByUserName(username);
             if (account == null)
                 return (false, "Tài khoản không tồn tại.");
 
@@ -72,9 +72,9 @@ namespace Services
         }
 
 
-        public async Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword)
+        public async Task<(bool Success, string Message)> ChangePasswordAsync(string username, string currentPassword, string newPassword)
         {
-            var account = await _repository.GetAccountByEmail(email);
+            var account = await _repository.GetAccountByUserName(username);
             if (account == null)
                 return (false, "Account not found.");
 
