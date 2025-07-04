@@ -5,15 +5,21 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Question
+public partial class Organization
 {
     public Guid Id { get; set; }
 
-    public Guid QuizId { get; set; }
+    public string OrganizationName { get; set; }
 
-    public string Description { get; set; }
+    public string Email { get; set; }
 
-    public bool? IsCorrect { get; set; }
+    public string Phone { get; set; }
+
+    public string Address { get; set; }
+
+    public string Password { get; set; }
+
+    public string IsEmailVerified { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -23,9 +29,5 @@ public partial class Question
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
-
-    public virtual Quiz Quiz { get; set; }
-
-    public virtual ICollection<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; } = new List<QuizSubmissionAnswer>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

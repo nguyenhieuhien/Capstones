@@ -2,7 +2,6 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Repositories.Models;
 
@@ -14,14 +13,19 @@ public partial class Account
 
     public string UserName { get; set; }
 
-    [JsonIgnore]
     public string Password { get; set; }
+
+    public bool? IsEmailVerify { get; set; }
 
     public string FullName { get; set; }
 
     public string Email { get; set; }
 
     public string Phone { get; set; }
+
+    public string Gender { get; set; }
+
+    public string Address { get; set; }
 
     public string AvtUrl { get; set; }
 
@@ -44,6 +48,8 @@ public partial class Account
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<QuizSubmission> QuizSubmissions { get; set; } = new List<QuizSubmission>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
