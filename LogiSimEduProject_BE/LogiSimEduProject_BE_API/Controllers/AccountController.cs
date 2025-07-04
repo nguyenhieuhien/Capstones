@@ -45,7 +45,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _accountService.GetById(id);
        }
 
-         [HttpPost("VerifyEmailOtp")]
+         [HttpPost("VerifyEmail")]
         public async Task<IActionResult> VerifyEmailOtp([FromBody] string otp)
         {
             if (!_cache.TryGetValue($"verify_email_token_{otp}", out string? email) || string.IsNullOrEmpty(email))
@@ -63,7 +63,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPost("ConfirmChangeEmailOtp")]
+        [HttpPost("ConfirmChangeEmail")]
         public async Task<IActionResult> ConfirmChangeEmailOtp([FromBody] string otp)
         {
             if (!_cache.TryGetValue($"change_email_token_{otp}", out dynamic? data) || data == null)
@@ -252,7 +252,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Mã xác nhận đã được gửi đến email mới của bạn.");
         }
 
-        [HttpPost("ResendVerifyOtp")]
+        [HttpPost("ResendVerify")]
         public async Task<IActionResult> ResendVerifyOtp([FromBody] string email)
         {
             var user = await _accountRepository.GetByEmailAsync(email);
