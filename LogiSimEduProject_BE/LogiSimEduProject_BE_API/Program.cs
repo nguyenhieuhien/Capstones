@@ -61,6 +61,8 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
 builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IPackageTypeService, PackageTypeService>();
 
 builder.Services.AddHttpClient<ChatAIService>();
 builder.Services.AddScoped<ChatAIService>();
