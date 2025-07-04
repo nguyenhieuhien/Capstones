@@ -19,5 +19,12 @@ namespace Repositories
 
             return questions;
         }
+
+        public async Task<Question> GetByIdAsync(string id)
+        {
+            return await _context.Questions
+                .Include(q => q.Answers)
+                .FirstOrDefaultAsync(q => q.Id.ToString() == id);
+        }
     }
 }

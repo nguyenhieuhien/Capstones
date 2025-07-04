@@ -20,7 +20,6 @@ namespace Controllers
             _categoryService = new CategoryService();
         }
 
-        [Authorize(Roles = "Instructor")]
         [HttpGet("GetAllCategory")]
         public async Task<ActionResult<List<Category>>> GetAll()
         {
