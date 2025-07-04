@@ -46,6 +46,10 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Quiz> Quizzes { get; set; }
 
+    public virtual DbSet<QuizSubmission> QuizSubmissions { get; set; }
+
+    public virtual DbSet<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; }
+
     public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -447,6 +451,50 @@ public partial class LogiSimEduContext : DbContext
                 .HasForeignKey(d => d.TopicId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Quiz_Topic");
+        });
+
+        modelBuilder.Entity<QuizSubmission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07057EDEA8");
+
+            entity.ToTable("QuizSubmission");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.SubmittedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.QuizSubmissions)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__QuizSubmi__Accou__1BC821DD");
+
+            entity.HasOne(d => d.Quiz).WithMany(p => p.QuizSubmissions)
+                .HasForeignKey(d => d.QuizId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__QuizSubmi__QuizI__1AD3FDA4");
+        });
+
+        modelBuilder.Entity<QuizSubmissionAnswer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC0718EEBCA2");
+
+            entity.ToTable("QuizSubmissionAnswer");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Answer).WithMany(p => p.QuizSubmissionAnswers)
+                .HasForeignKey(d => d.AnswerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__QuizSubmi__Answe__208CD6FA");
+
+            entity.HasOne(d => d.Question).WithMany(p => p.QuizSubmissionAnswers)
+                .HasForeignKey(d => d.QuestionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__QuizSubmi__Quest__1F98B2C1");
+
+            entity.HasOne(d => d.QuizSubmission).WithMany(p => p.QuizSubmissionAnswers)
+                .HasForeignKey(d => d.QuizSubmissionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__QuizSubmi__QuizS__1EA48E88");
         });
 
         modelBuilder.Entity<Review>(entity =>

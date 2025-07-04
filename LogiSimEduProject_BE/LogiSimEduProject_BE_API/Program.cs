@@ -60,7 +60,10 @@ builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
 
+builder.Services.AddHttpClient<ChatAIService>();
+builder.Services.AddScoped<ChatAIService>();
 
 builder.Services.AddDbContext<LogiSimEduContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

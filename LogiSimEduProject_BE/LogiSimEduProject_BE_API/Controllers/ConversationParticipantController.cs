@@ -17,13 +17,13 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ConversationParticipantController(IConversationParticipantService service) => _service = service;
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllConversationParticipant")]
         public async Task<IEnumerable<ConversationParticipant>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetConversationParticipant/{id}")]
         public async Task<ConversationParticipant> Get(string id)
         {
             return await _service.GetById(id);
@@ -31,7 +31,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateConversationParticipant")]
         public async Task<IActionResult> Post(ConversationParticipantDTOCreate request)
         {
             var conPar = new ConversationParticipant
@@ -55,7 +55,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateConversationParticipant/{id}")]
         public async Task<IActionResult> Put(string id, ConversationParticipantDTOUpdate request)
         {
             var existingconPar = await _service.GetById(id);
@@ -87,7 +87,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteConversationParticipant/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

@@ -14,20 +14,20 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IQuestionService _service;
         public QuestionController(IQuestionService service) => _service = service;
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllQuestion")]
         public async Task<IEnumerable<Question>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetQuestion/{id}")]
         public async Task<Question> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateQuestion")]
         public async Task<IActionResult> Post(QuestionDTOCreate request)
         {
             var question = new Question
@@ -50,7 +50,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateQuestion/{id}")]
         public async Task<IActionResult> Put(string id,QuestionDTOUpdate request)
         {
             var existingQuestion = await _service.GetById(id);
@@ -80,7 +80,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteQuestion/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

@@ -34,29 +34,45 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountRepository = accountRepository;
         }
 
+
         // GET: api/<AccountController>
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllAccount")]
         public async Task<IEnumerable<Account>> Get()
         {
             return await _accountService.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetAccount/{id}")]
         public async Task<Account> Get(string id)
         {
             return await _accountService.GetById(id);
-        
        }
 
-        [HttpGet("Search")]
-        public async Task<IEnumerable<Account>> Get(string username, string fullname, string email, string phone)
+        [HttpGet("VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
         {
-            return await _accountService.Search(username, fullname, email, phone);
+            if (!_cache.TryGetValue($"verify_{token}", out string? email) || email == null)
+                return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
+
+            var user = await _accountRepository.GetByEmailAsync(email);
+            if (user == null)
+                return BadRequest("Không tìm thấy tài khoản.");
+
+            user.IsActive = true;
+            await _accountService.Update(user);
+
+            _cache.Remove($"verify_{token}");
+
+            return Ok("Tài khoản đã được xác thực thành công.");
         }
 
-        /// <summary>
-        /// Đăng nhập tài khoản bằng email và mật khẩu.
-        /// </summary>
+
+        //[HttpGet("Search")]
+        //public async Task<IEnumerable<Account>> Get(string username, string fullname, string email, string phone)
+        //{
+        //    return await _accountService.Search(username, fullname, email, phone);
+        //}
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -86,7 +102,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 }
             });
         }
-        [HttpPost("register")]
+        [HttpPost("RegisterAccount")]
         public async Task<IActionResult> Register(AccountDTOCreate request)
         {
             var passwordHasher = new PasswordHasher<Account>();
@@ -120,62 +136,9 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok("Tài khoản đã được tạo. Vui lòng kiểm tra email để xác thực.");
         }
-        [HttpPut("Update/{id}")]
-        public async Task<ActionResult> Put(string Id, AccountDTOUpdate request)
-        {
-            var existingAccount = await _accountService.GetById(Id);
-            if (existingAccount == null)
-            {
-                return NotFound(new { Message = $"Account with ID {Id} was not found." });
-            }
-            existingAccount.UserName = request.UserName;
-            existingAccount.FullName = request.FullName;
-            //existingAccount.Password = request.Password;
-            existingAccount.Email = request.Email;
-            existingAccount.Phone = request.Phone;
+        
 
-            await _accountService.Update(existingAccount);
-
-            return Ok(new
-            {
-                Message = "Account updated successfully.",
-                Data = new
-                {
-                    Id = existingAccount.Id,
-                    RoleId = existingAccount.RoleId,
-                    UserName = existingAccount.UserName,
-                    FullName = existingAccount.FullName,
-                    //Password = existingAccount.Password,
-                    Email = existingAccount.Email,
-                    Phone = existingAccount.Phone,
-                    IsActive = existingAccount.IsActive,
-                }
-            });
-        }
-
-        [HttpGet("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
-        {
-            if (!_cache.TryGetValue($"verify_{token}", out string? email) || email == null)
-                return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
-
-            var user = await _accountRepository.GetByEmailAsync(email);
-            if (user == null)
-                return BadRequest("Không tìm thấy tài khoản.");
-
-            user.IsActive = true;
-            await _accountService.Update(user);
-
-            _cache.Remove($"verify_{token}");
-
-            return Ok("Tài khoản đã được xác thực thành công.");
-        }
-
-
-        //[Authorize(Roles = "1")]
-       
-
-        [HttpPost("forgot-password")]
+        [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest model)
         {
             var user = await _accountRepository.GetByEmailAsync(model.Email);
@@ -199,7 +162,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPost("reset-password")]
+        [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
             // Kiểm tra token
@@ -244,8 +207,43 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { message });
         }
 
+
+        [HttpPut("UpdateAccount/{id}")]
+        public async Task<ActionResult> Put(string Id, AccountDTOUpdate request)
+        {
+            var existingAccount = await _accountService.GetById(Id);
+            if (existingAccount == null)
+            {
+                return NotFound(new { Message = $"Account with ID {Id} was not found." });
+            }
+            existingAccount.UserName = request.UserName;
+            existingAccount.FullName = request.FullName;
+            //existingAccount.Password = request.Password;
+            existingAccount.Email = request.Email;
+            existingAccount.Phone = request.Phone;
+
+            await _accountService.Update(existingAccount);
+
+            return Ok(new
+            {
+                Message = "Account updated successfully.",
+                Data = new
+                {
+                    Id = existingAccount.Id,
+                    RoleId = existingAccount.RoleId,
+                    UserName = existingAccount.UserName,
+                    FullName = existingAccount.FullName,
+                    //Password = existingAccount.Password,
+                    Email = existingAccount.Email,
+                    Phone = existingAccount.Phone,
+                    IsActive = existingAccount.IsActive,
+                }
+            });
+        }
+
+
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteAccount/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _accountService.Delete(id);

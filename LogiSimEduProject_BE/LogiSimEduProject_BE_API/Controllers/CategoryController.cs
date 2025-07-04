@@ -21,14 +21,14 @@ namespace Controllers
         }
 
         [Authorize(Roles = "Instructor")]
-        [HttpGet]
+        [HttpGet("GetAllCategory")]
         public async Task<ActionResult<List<Category>>> GetAll()
         {
             var categories = await _categoryService.GetAll();
             return Ok(categories);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetCategory/{id}")]
         public async Task<ActionResult<Category>> GetById(string id)
         {
             var category = await _categoryService.GetById(id);
@@ -37,7 +37,7 @@ namespace Controllers
             return Ok(category);
         }
 
-        [HttpPost]
+        [HttpPost("CreateCategory")]
         public async Task<ActionResult<int>> Create([FromBody] CategoryCreateDTO categoryDto)
         {
             if (categoryDto == null)
@@ -59,7 +59,7 @@ namespace Controllers
             return Ok(result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateCategory/{id}")]
         public async Task<ActionResult<int>> Update(string id, [FromBody] CategoryUpdateDTO categoryDto)
         {
             if (categoryDto == null || string.IsNullOrEmpty(id))
@@ -76,7 +76,7 @@ namespace Controllers
 
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteCategory/{id}")]
         public async Task<ActionResult<bool>> Delete(string id)
         {
             var result = await _categoryService.Delete(id);

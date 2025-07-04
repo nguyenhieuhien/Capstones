@@ -12,20 +12,20 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IAccountOfWorkSpaceService _service;
         public AccountOfWorkspaceController(IAccountOfWorkSpaceService service) => _service = service;
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllAccountOfWorkSpace")]
         public async Task<IEnumerable<AccountOfWorkSpace>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetAccountOfWorkSpace/{id}")]
         public async Task<AccountOfWorkSpace> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateAccountOfWorkSpace")]
         public async Task<IActionResult> Post(AccountOfWorkSpaceDTOCreate request)
         {
             var answer = new AccountOfWorkSpace
@@ -47,7 +47,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateAccountOfWorkSpace/{id}")]
         public async Task<IActionResult> Put(string id, AccountOfWorkSpaceDTOUpdate request)
         {
             var existingAccWs = await _service.GetById(id);
@@ -75,7 +75,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteAccountOfWorkSpace/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

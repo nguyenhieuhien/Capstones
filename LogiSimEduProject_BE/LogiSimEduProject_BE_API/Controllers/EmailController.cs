@@ -11,7 +11,7 @@ public class TestEmailController : ControllerBase
         _emailService = emailService;
     }
 
-    [HttpGet("send-test")]
+    [HttpGet("SendTestEmail")]
     public async Task<IActionResult> SendTestEmail()
     {
         await _emailService.SendEmailAsync(

@@ -17,20 +17,20 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ScenarioController(IScenarioService service) => _service = service;
         // GET: api/<ScenarioController>
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllScenario")]
         public async Task<IEnumerable<Scenario>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetScenario/{id}")]
         public async Task<Scenario> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateScenario")]
         public async Task<IActionResult> Post(ScenarioDTOCreate request)
         {
             var scenario = new Scenario
@@ -53,7 +53,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateScenario/{id}")]
         public async Task<IActionResult> Put(string id,ScenarioDTOUpdate request)
         {
             var existingScenario = await _service.GetById(id);
@@ -81,7 +81,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteScenario/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

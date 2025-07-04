@@ -16,13 +16,13 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ConversationController(IConversationService service) => _service = service;
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetAllConversation")]
         public async Task<IEnumerable<Conversation>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetConversation/{id}")]
         public async Task<Conversation> Get(string id)
         {
             return await _service.GetById(id);
@@ -30,7 +30,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
         //[Authorize(Roles = "1")]
-        [HttpPost("Create")]
+        [HttpPost("CreateConversation")]
         public async Task<IActionResult> Post(ConversationDTOCreate request)
         {
             var course = new Conversation
@@ -53,7 +53,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("{id}")]
+        [HttpPut("UpdateConversation/{id}")]
         public async Task<IActionResult> Put(string id, ConversationDTOUpdate request)
         {
             var existingConversation = await _service.GetById(id);
@@ -83,7 +83,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteConversation/{id}")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

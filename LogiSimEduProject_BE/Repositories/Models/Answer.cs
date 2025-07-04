@@ -24,4 +24,6 @@ public partial class Answer
     public DateTime? DeleteAt { get; set; }
 
     public virtual Question Question { get; set; }
+
+    public virtual ICollection<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; } = new List<QuizSubmissionAnswer>();
 }
