@@ -1,7 +1,6 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -33,7 +32,6 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cache = memoryCache;
             _accountRepository = accountRepository;
         }
-
 
         // GET: api/<AccountController>
         [HttpGet("GetAllAccount")]
@@ -77,12 +75,12 @@ namespace LogiSimEduProject_BE_API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Invalid login data");
+                return BadRequest("Dữ liệu đăng nhập không hợp lệ");
 
             var account = await _accountService.Authenticate(request.Email, request.Password);
 
             if (account == null)
-                return Unauthorized("Invalid email or password");
+                return Unauthorized("Email hoặc mật khẩu không hợp lệ");
 
             // ✅ Thêm dòng này: Kiểm tra xác thực email
             if (!(account.IsActive ?? false))
