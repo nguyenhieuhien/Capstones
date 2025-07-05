@@ -18,5 +18,22 @@ namespace Repositories
 
             return conversations;
         }
+
+        public async Task<List<Conversation>> GetConversationsByUserId(Guid userId)
+        {
+            return await _context.Conversations
+                .Where(c => c.ConversationParticipants.Any(p => p.AccountId == userId))
+                .ToListAsync();
+        }
+
+        public async Task<Conversation> FindOneToOneConversation(Guid userId1, Guid userId2)
+        {
+            return await _context.Conversations
+                .Include(c => c.ConversationParticipants)
+                .FirstOrDefaultAsync(c =>
+                    !c.IsGroup &&
+                    c.ConversationParticipants.Any(p => p.AccountId == userId1) &&
+                    c.ConversationParticipants.Any(p => p.AccountId == userId2));
+        }
     }
 }
