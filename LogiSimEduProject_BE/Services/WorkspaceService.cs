@@ -20,10 +20,11 @@ namespace Services
     public class WorkspaceService : IWorkspaceService
     {
         private WorkspaceRepository _repository;
-
+        private AccountOfWorkSpaceRepository _accountWp;
         public WorkspaceService()
         {
             _repository = new WorkspaceRepository();
+            _accountWp = new AccountOfWorkSpaceRepository();
         }
         public async Task<int> Create(WorkSpace workspace)
         {
@@ -36,6 +37,11 @@ namespace Services
             var item = await _repository.GetByIdAsync(id);
             if (item != null)
             {
+                var workSpaceList = await _accountWp.GetByWorkspaceIdAsync(Guid.Parse(id));
+                foreach (var workSpace in workSpaceList)
+                {
+                    await _accountWp.RemoveAsync(workSpace);
+                }
                 return await _repository.RemoveAsync(item);
             }
 

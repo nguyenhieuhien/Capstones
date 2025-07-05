@@ -19,5 +19,12 @@ namespace Repositories
 
             return scWs;
         }
+
+        public async Task<List<SceneOfWorkSpace>> GetBySceneIdAsync(Guid sceneId)
+        {
+            return await _context.SceneOfWorkSpaces
+                .Where(a => a.SceneId == sceneId)
+                .ToListAsync();
+        }
     }
 }

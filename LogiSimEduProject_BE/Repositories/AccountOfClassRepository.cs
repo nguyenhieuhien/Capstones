@@ -31,5 +31,12 @@ namespace Repositories
             return await _context.AccountOfClasses
                 .FirstOrDefaultAsync(x => x.ClassId == classId && x.AccountId == studentId);
         }
+
+        public async Task<List<AccountOfClass>> GetByClassIdAsync(Guid classId)
+        {
+            return await _context.AccountOfClasses
+                .Where(a => a.ClassId == classId)
+                .ToListAsync();
+        }
     }
 }

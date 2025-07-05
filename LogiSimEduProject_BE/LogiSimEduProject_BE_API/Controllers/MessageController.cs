@@ -1,8 +1,11 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Message;
 using LogiSimEduProject_BE_API.Controllers.DTO.Notification;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Repositories.DBContext;
 using Repositories.Models;
 using Services;
+using System;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,7 +16,12 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class MessageController : ControllerBase
     {
         private readonly IMessageService _service;
-        public MessageController(IMessageService service) => _service = service;
+        private readonly LogiSimEduContext _dbContext;
+        public MessageController(LogiSimEduContext dbContext, IMessageService service)
+        {
+            _dbContext = dbContext;
+            _service = service;
+        }
         [HttpGet("GetAllMessage")]
         public async Task<IEnumerable<Message>> Get()
         {
@@ -51,6 +59,69 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 Data = request
             });
+        }
+
+        [HttpPost("SendMessageOneToOne")]
+        public async Task<IActionResult> SendMessageOneToOne(SendOneToOneMessageRequest request)
+        {
+            var message = await _service.SendMessageOneToOne(
+                request.SenderId,
+                request.ReceiverId,
+                request.MessageType,
+                request.Content,
+                request.AttachmentUrl
+            );
+
+            await _dbContext.Entry(message).Reference(m => m.Sender).LoadAsync();
+            await _dbContext.Entry(message).Reference(m => m.Conversation).LoadAsync();
+            await _dbContext.Entry(message.Conversation)
+                .Collection(c => c.ConversationParticipants).Query()
+                .Include(cp => cp.Account).LoadAsync();
+
+            var response = new SendOneToOneMessageResponse
+            {
+                Id = message.Id,
+                SenderId = message.SenderId,
+                ConversationId = message.ConversationId,
+                MessageType = message.MessageType,
+                Content = message.Content,
+                AttachmentUrl = message.AttachmentUrl,
+                CreatedAt = message.CreatedAt,
+                Conversation = new ConversationDto
+                {
+                    Id = message.Conversation.Id,
+                    IsGroup = message.Conversation.IsGroup,
+                    Participants = message.Conversation.ConversationParticipants
+                .Select(p => new ConversationParticipantDto
+                {
+                    AccountId = p.AccountId,
+                    UserName = p.Account?.UserName,
+                    Email = p.Account?.Email
+                }).ToList()
+                },
+                Sender = new SenderDto
+                {
+                    Id = message.Sender.Id,
+                    UserName = message.Sender.UserName,
+                    Email = message.Sender.Email
+                }
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPost("SendMessageGroup")]
+        public async Task<IActionResult> SendMessageGroup(SendGroupMessageRequest request)
+        {
+            var message = await _service.SendMessageToGroup(
+                request.ConversationId,
+                request.SenderId,
+                request.MessageType,
+                request.Content,
+                request.AttachmentUrl
+            );
+
+            return Ok(message);
         }
 
         //[Authorize(Roles = "1")]
