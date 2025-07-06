@@ -120,6 +120,13 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSwaggerGen(option =>
 {
+    option.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "LogiSimEduProject_BE_API",
+        Version = "v1",
+        Description = "API documentation for LogiSimEduProject"
+    });
+
     option.EnableAnnotations();
     ////JWT Config
     option.DescribeAllParametersInCamelCase();
@@ -155,7 +162,10 @@ var app = builder.Build();
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LogiSimEduProject_BE_API v1");
+});
 
 app.UseHttpsRedirection();
 
