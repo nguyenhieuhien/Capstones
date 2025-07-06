@@ -3,31 +3,35 @@ using LogiSimEduProject_BE_API.Controllers.DTO.Question;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/question")]
     [ApiController]
     public class QuestionController : ControllerBase
     {
         private readonly IQuestionService _service;
         public QuestionController(IQuestionService service) => _service = service;
-        [HttpGet("GetAllQuestion")]
+        [HttpGet("get_all_question")]
+        [SwaggerOperation(Summary = "Get all questions", Description = "Returns a list of all questions.")]
         public async Task<IEnumerable<Question>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetQuestion/{id}")]
+        [HttpGet("get_question/{id}")]
+        [SwaggerOperation(Summary = "Get a question by ID", Description = "Returns a specific question using the provided ID.")]
         public async Task<Question> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateQuestion")]
+        [HttpPost("create_question")]
+        [SwaggerOperation(Summary = "Create a new question", Description = "Creates and saves a new question to the database.")]
         public async Task<IActionResult> Post(QuestionDTOCreate request)
         {
             var question = new Question
@@ -50,7 +54,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateQuestion/{id}")]
+        [HttpPut("update_question/{id}")]
+        [SwaggerOperation(Summary = "Update a question", Description = "Updates the quiz ID, description, or correctness of an existing question.")]
         public async Task<IActionResult> Put(string id,QuestionDTOUpdate request)
         {
             var existingQuestion = await _service.GetById(id);
@@ -80,7 +85,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteQuestion/{id}")]
+        [HttpDelete("delete_question/{id}")]
+        [SwaggerOperation(Summary = "Delete a question", Description = "Deletes a question by its ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

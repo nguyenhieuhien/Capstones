@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Repositories;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,7 +16,7 @@ using System.Text;
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/account")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -33,19 +34,25 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountRepository = accountRepository;
         }
 
-        [HttpGet("GetAllAccount")]
+        [HttpGet("get_all")]
+        [SwaggerOperation(Summary = "Get all accounts", Description = "Retrieve a list of all registered accounts")]
+
         public async Task<IEnumerable<Account>> Get()
         {
             return await _accountService.GetAll();
         }
 
-        [HttpGet("GetAccount/{id}")]
+        [HttpGet("get_account/{id}")]
+        [SwaggerOperation(Summary = "Get account by ID", Description = "Retrieve detailed account information using the account ID")]
+
         public async Task<Account> Get(string id)
         {
             return await _accountService.GetById(id);
        }
 
-         [HttpPost("VerifyEmail")]
+         [HttpPost("verify_email")]
+        [SwaggerOperation(Summary = "Verify email via OTP", Description = "Verify user's email address using the OTP sent via email")]
+
         public async Task<IActionResult> VerifyEmailOtp([FromBody] string otp)
         {
             if (!_cache.TryGetValue($"verify_email_token_{otp}", out string? email) || string.IsNullOrEmpty(email))
@@ -63,7 +70,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPost("ConfirmChangeEmail")]
+        [HttpPost("confirm_change_email")]
+        [SwaggerOperation(Summary = "Confirm email change via OTP", Description = "Verify and update new email using a one-time password (OTP)")]
+
         public async Task<IActionResult> ConfirmChangeEmailOtp([FromBody] string otp)
         {
             if (!_cache.TryGetValue($"change_email_token_{otp}", out dynamic? data) || data == null)
@@ -82,7 +91,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
+        [SwaggerOperation(Summary = "Login Account", Description = "Login by username and password to generate JWT token")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid)
@@ -111,7 +121,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpPost("SignUp")]
+        [HttpPost("sign_up")]
+        [SwaggerOperation(Summary = "Register new account", Description = "Create a new user account and send OTP for email verification")]
+
         public async Task<IActionResult> Register(AccountDTOCreate request)
         {
             var passwordHasher = new PasswordHasher<Account>();
@@ -146,7 +158,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPost("ForgotPassword")]
+        [HttpPost("forgot_password")]
+        [SwaggerOperation(Summary = "Reset password", Description = "Reset password using token from email")]
+
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest model)
         {
             var user = await _accountRepository.GetByEmailAsync(model.Email);
@@ -170,7 +184,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPost("ResetPassword")]
+        [HttpPost("reset-password")]
+        [SwaggerOperation(Summary = "Reset password", Description = "Reset password using token from email")]
+
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
             // Kiểm tra token
@@ -195,7 +211,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         [Authorize]
-        [HttpPost("ChangePassword")]
+        [HttpPost("change_password")]
+        [SwaggerOperation(Summary = "Change password", Description = "Authenticated user changes their password")]
+
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             var email = User.FindFirstValue(ClaimTypes.Email)
@@ -215,9 +233,10 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { message });
         }
 
-
-        [HttpPost("RequestChangeEmail")]
         [Authorize]
+        [HttpPost("request_change_email")]
+        [SwaggerOperation(Summary = "Request email change", Description = "Send OTP to new email for verification before updating email address")]
+
         public async Task<IActionResult> RequestChangeEmail([FromBody] ChangeEmailRequest request)
         {
             var currentEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(JwtRegisteredClaimNames.Email);
@@ -249,7 +268,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Mã xác nhận đã được gửi đến email mới của bạn.");
         }
 
-        [HttpPost("ResendVerify")]
+        [HttpPost("resend_verify")]
+        [SwaggerOperation(Summary = "Resend verification OTP", Description = "Resend email verification code to user's email")]
+
         public async Task<IActionResult> ResendVerifyOtp([FromBody] string email)
         {
             var user = await _accountRepository.GetByEmailAsync(email);
@@ -268,7 +289,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [HttpPut("UpdateAccount/{id}")]
+        [HttpPut("update_account/{id}")]
+        [SwaggerOperation(Summary = "Update account by ID", Description = "Update existing account information using account ID")]
+
         public async Task<ActionResult> Put(string Id, AccountDTOUpdate request)
         {
             var existingAccount = await _accountService.GetById(Id);
@@ -303,7 +326,9 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteAccount/{id}")]
+        [HttpDelete("delete_account/{id}")]
+        [SwaggerOperation(Summary = "Delete account", Description = "Delete an account by its ID")]
+
         public async Task<bool> Delete(string id)
         {
             return await _accountService.Delete(id);

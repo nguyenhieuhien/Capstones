@@ -10,7 +10,7 @@
 
         public string Content { get; set; }
 
-        public string AttachmentUrl { get; set; }
+        public IFormFile? AttachmentUrl { get; set; }
 
         public bool? IsEdited { get; set; }
 

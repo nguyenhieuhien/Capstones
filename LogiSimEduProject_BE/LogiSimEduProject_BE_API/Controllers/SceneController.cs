@@ -1,59 +1,70 @@
 ﻿using Azure.Core;
+using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
 using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
 using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/scene")]
     [ApiController]
     public class SceneController : ControllerBase
     {
         private readonly ISceneService _service;
-        private readonly IWebHostEnvironment _env;
+        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
 
-        public SceneController(ISceneService service, IWebHostEnvironment env)
+        public SceneController(ISceneService service, CloudinaryDotNet.Cloudinary cloudinary)
         {
             _service = service;
-            _env = env;
+            _cloudinary = cloudinary;
         }
 
-        [HttpGet("GetAllScene")]
+        [HttpGet("get_all_scene")]
+        [SwaggerOperation(Summary = "Get all scenes", Description = "Returns a list of all available scenes.")]
         public async Task<IEnumerable<Scene>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetScene/{id}")]
+        [HttpGet("get_scene/{id}")]
+        [SwaggerOperation(Summary = "Get a scene by ID", Description = "Returns a scene object by its unique identifier.")]
         public async Task<Scene> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateScene")]
+        [HttpPost("create_scene")]
+        [SwaggerOperation(Summary = "Create a new scene", Description = "Uploads a ZIP file and creates a new scene entry.")]
         public async Task<IActionResult> Post([FromForm] SceneDTOCreate request)
         {
             string imgUrl = null;
+
             if (request.ImgUrl != null)
             {
-                var uploadsPath = Path.Combine(_env.WebRootPath, "uploads/zip");
-                if (!Directory.Exists(uploadsPath))
-                    Directory.CreateDirectory(uploadsPath);
-
-                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
-                var filePath = Path.Combine(uploadsPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                await using var stream = request.ImgUrl.OpenReadStream();
+                var uploadParams = new RawUploadParams
                 {
-                    await request.ImgUrl.CopyToAsync(stream);
-                }
+                    File = new FileDescription(request.ImgUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Scenes",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true,
+                };
 
-                imgUrl = $"/uploads/zip/{fileName}";
+                var result = await _cloudinary.UploadAsync(uploadParams);
+
+                if (result.StatusCode != HttpStatusCode.OK)
+                    return StatusCode((int)result.StatusCode, result.Error?.Message);
+
+                imgUrl = result.SecureUrl.ToString();
             }
 
             var scene  = new Scene
@@ -64,9 +75,9 @@ namespace LogiSimEduProject_BE_API.Controllers
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
-            var result = await _service.Create(scene);
 
-            if (result <= 0)
+            var saveResult = await _service.Create(scene);
+            if (saveResult <= 0)
                 return BadRequest("Fail Create");
 
             return Ok(new
@@ -76,7 +87,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateScene/{id}")]
+        [HttpPut("update_scene/{id}")]
+        [SwaggerOperation(Summary = "Update scene info", Description = "Updates the name, description or ZIP file of a scene.")]
         public async Task<IActionResult> Put(string id, [FromForm] SceneDTOUpdate request)
         {
             var existingScene = await _service.GetById(id);
@@ -87,19 +99,22 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             if (request.ImgUrl != null)
             {
-                var uploadsPath = Path.Combine(_env.WebRootPath, "uploads/zip");
-                if (!Directory.Exists(uploadsPath))
-                    Directory.CreateDirectory(uploadsPath);
-
-                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
-                var filePath = Path.Combine(uploadsPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                await using var stream = request.ImgUrl.OpenReadStream();
+                var uploadParams = new RawUploadParams
                 {
-                    await request.ImgUrl.CopyToAsync(stream);
-                }
+                    File = new FileDescription(request.ImgUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Scenes",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
 
-                existingScene.ImgUrl = $"/uploads/zip/{fileName}";
+                var result = await _cloudinary.UploadAsync(uploadParams);
+
+                if (result.StatusCode != HttpStatusCode.OK)
+                    return StatusCode((int)result.StatusCode, result.Error?.Message);
+
+                existingScene.ImgUrl = result.SecureUrl.ToString();
             }
 
             existingScene.SceneName = request.SceneName;
@@ -120,26 +135,20 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpGet("DownloadScene/{id}")]
+        [HttpGet("download_scene/{id}")]
+        [SwaggerOperation(Summary = "Download ZIP file of a scene", Description = "Downloads the uploaded ZIP file of the given scene.")]
         public async Task<IActionResult> Download(string id)
         {
             var scene = await _service.GetById(id);
             if (scene == null || string.IsNullOrEmpty(scene.ImgUrl))
                 return NotFound("Scene or file not found.");
 
-            // Đường dẫn vật lý đến file ZIP
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", scene.ImgUrl.TrimStart('/'));
-
-            if (!System.IO.File.Exists(filePath))
-                return NotFound("File not found on server.");
-
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-            var fileName = Path.GetFileName(filePath);
-            return File(fileBytes, "application/zip", fileName);
+            return Redirect(scene.ImgUrl);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteScene/{id}")]
+        [HttpDelete("delete_scene/{id}")]
+        [SwaggerOperation(Summary = "Delete a scene", Description = "Removes a scene from the system by ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

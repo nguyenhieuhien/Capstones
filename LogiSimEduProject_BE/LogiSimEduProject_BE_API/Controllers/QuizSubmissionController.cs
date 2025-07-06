@@ -1,12 +1,13 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.QuizSubmission;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/quizSubmission")]
     [ApiController]
     public class QuizSubmissionController : ControllerBase
     {
@@ -17,7 +18,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        [HttpPost("SubmitQuiz")]
+        [HttpPost("submit_quiz")]
+        [SwaggerOperation(Summary = "Submit quiz answers", Description = "Student submits their answers to a quiz and receives score.")]
         public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionRequest request)
         {
             if (request.QuizId == Guid.Empty || request.AccountId == Guid.Empty || request.Answers.Count == 0)

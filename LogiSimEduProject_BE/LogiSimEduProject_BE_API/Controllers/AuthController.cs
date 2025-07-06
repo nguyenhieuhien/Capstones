@@ -1,11 +1,16 @@
 ﻿using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    [HttpPost("LoginGoogle")]
+    [HttpPost("login_google")]
+    [SwaggerOperation(
+    Summary = "Login with Google (Firebase)",
+    Description = "Authenticate user using Firebase ID Token from Google Sign-In"
+    )]
     public async Task<IActionResult> GoogleLogin([FromBody] TokenRequest request)
     {
         try

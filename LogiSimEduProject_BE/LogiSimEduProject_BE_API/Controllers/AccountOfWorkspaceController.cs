@@ -3,29 +3,34 @@ using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfWorkSpace;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accountOfWorkSpace")]
     [ApiController]
     public class AccountOfWorkspaceController : ControllerBase
     {
         private readonly IAccountOfWorkSpaceService _service;
         public AccountOfWorkspaceController(IAccountOfWorkSpaceService service) => _service = service;
-        [HttpGet("GetAllAccountOfWorkSpace")]
+
+        [HttpGet("get_all_accountOfWorkSpace")]
+        [SwaggerOperation(Summary = "Get all account-workspace relations", Description = "Retrieve all records of accounts assigned to workspaces")]
         public async Task<IEnumerable<AccountOfWorkSpace>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetAccountOfWorkSpace/{id}")]
+        [HttpGet("get_accountOfWorkSpace/{id}")]
+        [SwaggerOperation(Summary = "Get account-workspace relation by ID", Description = "Retrieve a specific account-workspace relation by ID")]
         public async Task<AccountOfWorkSpace> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateAccountOfWorkSpace")]
+        [HttpPost("create_accountOfWorkSpace")]
+        [SwaggerOperation(Summary = "Create account-workspace relation", Description = "Assign an account to a workspace")]
         public async Task<IActionResult> Post(AccountOfWorkSpaceDTOCreate request)
         {
             var answer = new AccountOfWorkSpace
@@ -47,7 +52,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateAccountOfWorkSpace/{id}")]
+        [HttpPut("update_accountOfWorkSpace/{id}")]
+        [SwaggerOperation(Summary = "Update account-workspace relation", Description = "Update an existing account-workspace record by ID")]
         public async Task<IActionResult> Put(string id, AccountOfWorkSpaceDTOUpdate request)
         {
             var existingAccWs = await _service.GetById(id);
@@ -75,7 +81,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteAccountOfWorkSpace/{id}")]
+        [HttpDelete("delete_accountOfWorkSpace/{id}")]
+        [SwaggerOperation(Summary = "Delete account-workspace relation", Description = "Delete an account-workspace relation by its ID")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);
