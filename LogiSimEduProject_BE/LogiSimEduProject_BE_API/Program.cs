@@ -120,6 +120,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSwaggerGen(option =>
 {
+    option.EnableAnnotations();
     ////JWT Config
     option.DescribeAllParametersInCamelCase();
     option.ResolveConflictingActions(conf => conf.First());

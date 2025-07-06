@@ -3,10 +3,11 @@ using LogiSimEduProject_BE_API.Controllers.DTO.SceneOfWorkSpace;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/sceneOfWorkSpace")]
     [ApiController]
     public class SceneOfWorkspaceController : ControllerBase
     {
@@ -14,20 +15,23 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public SceneOfWorkspaceController(ISceneOfWorkSpaceService service) => _service = service;
 
-        [HttpGet("GetAllSceneOfWorkSpace")]
+        [HttpGet("get_all_sceneOfWorkSpace")]
+        [SwaggerOperation(Summary = "Get all SceneOfWorkSpace", Description = "Returns a list of all Scene-WorkSpace relationships.")]
         public async Task<IEnumerable<SceneOfWorkSpace>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetSceneOfWorkSpace/{id}")]
+        [HttpGet("get_sceneOfWorkSpace/{id}")]
+        [SwaggerOperation(Summary = "Get SceneOfWorkSpace by ID", Description = "Returns a specific SceneOfWorkSpace entry by its ID.")]
         public async Task<SceneOfWorkSpace> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateSceneOfWorkSpace")]
+        [HttpPost("create_sceneOfWorkSpace")]
+        [SwaggerOperation(Summary = "Create new SceneOfWorkSpace", Description = "Creates a new relationship between a scene and a workspace.")]
         public async Task<IActionResult> Post(SceneOfWorkSpaceDTOCreate request)
         {
             var scWs = new SceneOfWorkSpace
@@ -49,7 +53,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateSceneOfWorkSpace/{id}")]
+        [HttpPut("update_sceneOfWorkSpace/{id}")]
+        [SwaggerOperation(Summary = "Update SceneOfWorkSpace", Description = "Updates the workspace or scene of an existing SceneOfWorkSpace entry.")]
         public async Task<IActionResult> Put(string id, SceneOfWorkSpaceDTOUpdate request)
         {
             var existingScWs = await _service.GetById(id);
@@ -75,7 +80,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteSceneOfWorkSpace/{id}")]
+        [HttpDelete("delete_sceneOfWorkSpace/{id}")]
+        [SwaggerOperation(Summary = "Delete SceneOfWorkSpace", Description = "Deletes a SceneOfWorkSpace entry by its ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

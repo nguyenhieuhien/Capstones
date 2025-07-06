@@ -5,31 +5,35 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/quiz")]
     [ApiController]
     public class QuizController : ControllerBase
     {
         private readonly IQuizService _service;
         public QuizController(IQuizService service) => _service = service;
-        [HttpGet("GetAllQuiz")]
+        [HttpGet("get_all_quiz")]
+        [SwaggerOperation(Summary = "Get all quizzes", Description = "Returns a list of all quizzes.")]
         public async Task<IEnumerable<Quiz>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetQuiz/{id}")]
+        [HttpGet("get_quiz/{id}")]
+        [SwaggerOperation(Summary = "Get quiz by ID", Description = "Returns quiz details by quiz ID.")]
         public async Task<Quiz> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateQuiz")]
+        [HttpPost("create_quiz")]
+        [SwaggerOperation(Summary = "Create a new quiz", Description = "Creates a basic quiz with topic and score.")]
         public async Task<IActionResult> Post(QuizDTOCreate request)
         {
             var quiz = new Quiz
@@ -51,7 +55,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpPost("CreateFullQuiz")]
+        [HttpPost("create_full_quiz")]
+        [SwaggerOperation(Summary = "Create quiz with full questions & answers", Description = "Creates a quiz including its questions and answers in one go.")]
         public async Task<IActionResult> CreateFullQuiz([FromBody] QuizDTO dto)
         {
             var quizId = Guid.NewGuid();
@@ -92,7 +97,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateQuiz/{id}")]
+        [HttpPut("update_quiz/{id}")]
+        [SwaggerOperation(Summary = "Update quiz", Description = "Update topic, name or score of the quiz.")]
         public async Task<IActionResult> Put(string id, QuizDTOUpdate request)
         {
             var existingQuiz = await _service.GetById(id);
@@ -122,7 +128,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteQuiz/{id}")]
+        [HttpDelete("delete_quiz/{id}")]
+        [SwaggerOperation(Summary = "Delete quiz", Description = "Delete a quiz by its ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/conversationParticipant")]
     [ApiController]
     public class ConversationParticipantController : ControllerBase
     {
@@ -17,13 +18,15 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ConversationParticipantController(IConversationParticipantService service) => _service = service;
 
-        [HttpGet("GetAllConversationParticipant")]
+        [HttpGet("get_all_conversationParticipant")]
+        [SwaggerOperation(Summary = "Get all conversation participants", Description = "Return a list of all participants in conversations.")]
         public async Task<IEnumerable<ConversationParticipant>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetConversationParticipant/{id}")]
+        [HttpGet("get_conversationParticipant/{id}")]
+        [SwaggerOperation(Summary = "Get participant by ID", Description = "Return a conversation participant by their ID.")]
         public async Task<ConversationParticipant> Get(string id)
         {
             return await _service.GetById(id);
@@ -31,7 +34,8 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateConversationParticipant")]
+        [HttpPost("create_conversationParticipant")]
+        [SwaggerOperation(Summary = "Add a participant to a conversation", Description = "Create a new participant entry for a conversation.")]
         public async Task<IActionResult> Post(ConversationParticipantDTOCreate request)
         {
             var conPar = new ConversationParticipant
@@ -55,7 +59,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateConversationParticipant/{id}")]
+        [HttpPut("update_conversationParticipant/{id}")]
+        [SwaggerOperation(Summary = "Update a participant", Description = "Update information about a participant in a conversation.")]
         public async Task<IActionResult> Put(string id, ConversationParticipantDTOUpdate request)
         {
             var existingconPar = await _service.GetById(id);
@@ -87,7 +92,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteConversationParticipant/{id}")]
+        [HttpDelete("delete_conversationParticipant/{id}")]
+        [SwaggerOperation(Summary = "Delete a participant", Description = "Remove a participant from a conversation by ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

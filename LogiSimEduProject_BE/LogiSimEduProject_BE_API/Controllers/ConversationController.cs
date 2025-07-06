@@ -3,12 +3,13 @@ using LogiSimEduProject_BE_API.Controllers.DTO.Conversation;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/conversation")]
     [ApiController]
     public class ConversationController : ControllerBase
     {
@@ -16,13 +17,15 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ConversationController(IConversationService service) => _service = service;
 
-        [HttpGet("GetAllConversation")]
+        [HttpGet("get_all_conversation")]
+        [SwaggerOperation(Summary = "Get all conversations", Description = "Return a list of all conversations.")]
         public async Task<IEnumerable<Conversation>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetConversation/{id}")]
+        [HttpGet("get_conversation/{id}")]
+        [SwaggerOperation(Summary = "Get conversation by ID", Description = "Return a specific conversation by its ID.")]
         public async Task<Conversation> Get(string id)
         {
             return await _service.GetById(id);
@@ -30,7 +33,8 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateConversation")]
+        [HttpPost("create_conversation")]
+        [SwaggerOperation(Summary = "Create a conversation", Description = "Create a new conversation (group or private).")]
         public async Task<IActionResult> Post(ConversationDTOCreate request)
         {
             var course = new Conversation
@@ -53,7 +57,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateConversation/{id}")]
+        [HttpPut("update_conversation/{id}")]
+        [SwaggerOperation(Summary = "Update a conversation", Description = "Update a conversation's group status or title.")]
         public async Task<IActionResult> Put(string id, ConversationDTOUpdate request)
         {
             var existingConversation = await _service.GetById(id);
@@ -83,7 +88,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteConversation/{id}")]
+        [HttpDelete("delete_conversation/{id}")]
+        [SwaggerOperation(Summary = "Delete a conversation", Description = "Delete a conversation using its ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

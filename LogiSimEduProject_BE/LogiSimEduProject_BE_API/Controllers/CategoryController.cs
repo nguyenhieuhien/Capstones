@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/category")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -20,14 +21,16 @@ namespace Controllers
             _categoryService = new CategoryService();
         }
 
-        [HttpGet("GetAllCategory")]
+        [HttpGet("get_all_category")]
+        [SwaggerOperation(Summary = "Get all categories", Description = "Returns a list of all active categories.")]
         public async Task<ActionResult<List<Category>>> GetAll()
         {
             var categories = await _categoryService.GetAll();
             return Ok(categories);
         }
 
-        [HttpGet("GetCategory/{id}")]
+        [HttpGet("Get_category/{id}")]
+        [SwaggerOperation(Summary = "Get category by ID", Description = "Retrieve a single category by its unique ID.")]
         public async Task<ActionResult<Category>> GetById(string id)
         {
             var category = await _categoryService.GetById(id);
@@ -36,7 +39,8 @@ namespace Controllers
             return Ok(category);
         }
 
-        [HttpPost("CreateCategory")]
+        [HttpPost("create_category")]
+        [SwaggerOperation(Summary = "Create new category", Description = "Create a new category and return its ID.")]
         public async Task<ActionResult<int>> Create([FromBody] CategoryCreateDTO categoryDto)
         {
             if (categoryDto == null)
@@ -58,7 +62,8 @@ namespace Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateCategory/{id}")]
+        [HttpPut("update_category/{id}")]
+        [SwaggerOperation(Summary = "Update category", Description = "Update an existing category by ID.")]
         public async Task<ActionResult<int>> Update(string id, [FromBody] CategoryUpdateDTO categoryDto)
         {
             if (categoryDto == null || string.IsNullOrEmpty(id))
@@ -75,7 +80,8 @@ namespace Controllers
 
         }
 
-        [HttpDelete("DeleteCategory/{id}")]
+        [HttpDelete("delete_category/{id}")]
+        [SwaggerOperation(Summary = "Delete category", Description = "Delete a category by its ID.")]
         public async Task<ActionResult<bool>> Delete(string id)
         {
             var result = await _categoryService.Delete(id);

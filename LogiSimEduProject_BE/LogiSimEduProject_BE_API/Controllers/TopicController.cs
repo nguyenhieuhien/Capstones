@@ -3,58 +3,70 @@ using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/topic")]
     [ApiController]
     public class TopicController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
         private readonly ITopicService _service;
 
-        public TopicController(ITopicService service, IWebHostEnvironment env)
+        public TopicController(ITopicService service, CloudinaryDotNet.Cloudinary cloudinary)
         {
             _service = service;
-            _env = env;
+            _cloudinary = cloudinary;
         }
 
         // GET: api/<TopicController>
-        [HttpGet("GetAllTopic")]
+        [HttpGet("get_all_topic")]
+        [SwaggerOperation(Summary = "Get all topics", Description = "Returns a list of all topics.")]
         public async Task<IEnumerable<Topic>> Get()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetTopic/{id}")]
+        [HttpGet("get_topic/{id}")]
+        [SwaggerOperation(Summary = "Get topic by ID", Description = "Returns a specific topic by its ID.")]
         public async Task<Topic> Get(string id)
         {
             return await _service.GetById(id);
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPost("CreateTopic")]
+        [HttpPost("create_topic")]
+        [SwaggerOperation(Summary = "Create new topic", Description = "Creates a new topic and uploads image if provided.")]
         public async Task<IActionResult> Post([FromForm] TopicDTOCreate request)
         {
             string imgUrl = null;
 
             if (request.ImgUrl != null)
             {
-                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/topics");
-                if (!Directory.Exists(uploadPath))
-                    Directory.CreateDirectory(uploadPath);
-
-                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
-                var filePath = Path.Combine(uploadPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                await using var stream = request.ImgUrl.OpenReadStream();
+                var uploadParams = new ImageUploadParams
                 {
-                    await request.ImgUrl.CopyToAsync(stream);
-                }
+                    File = new FileDescription(request.ImgUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Topics",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
 
-                imgUrl = $"/uploads/topics/{fileName}";
+                var result = await _cloudinary.UploadAsync(uploadParams);
+                if (result.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    imgUrl = result.SecureUrl.ToString();
+                }
+                else
+                {
+                    return StatusCode((int)result.StatusCode, result.Error?.Message);
+                }
             }
             var topic = new Topic
             {
@@ -66,19 +78,17 @@ namespace LogiSimEduProject_BE_API.Controllers
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
-            var result = await _service.Create(topic);
 
-            if (result <= 0)
+            var resultCreate = await _service.Create(topic);
+            if (resultCreate <= 0)
                 return BadRequest("Fail Create");
 
-            return Ok(new
-            {
-                Data = request
-            });
+            return Ok(new { Data = request });
         }
 
         //[Authorize(Roles = "1")]
-        [HttpPut("UpdateTopic/{id}")]
+        [HttpPut("update_topic/{id}")]
+        [SwaggerOperation(Summary = "Update topic", Description = "Updates an existing topic, including uploading a new image if provided.")]
         public async Task<IActionResult> Put(string id, TopicDTOUpdate request)
         {
             var existingTopic = await _service.GetById(id);
@@ -90,30 +100,25 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             if (request.ImgUrl != null)
             {
-                // Nếu có file ảnh mới thì lưu ảnh mới
-                var uploadPath = Path.Combine(_env.WebRootPath, "uploads/topics");
-                if (!Directory.Exists(uploadPath))
-                    Directory.CreateDirectory(uploadPath);
-
-                var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{request.ImgUrl.FileName}";
-                var filePath = Path.Combine(uploadPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                await using var stream = request.ImgUrl.OpenReadStream();
+                var uploadParams = new ImageUploadParams
                 {
-                    await request.ImgUrl.CopyToAsync(stream);
-                }
+                    File = new FileDescription(request.ImgUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Topics",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
 
-                // Nếu muốn xóa ảnh cũ khỏi ổ đĩa, có thể thêm đoạn sau:
-                if (!string.IsNullOrEmpty(existingTopic.ImgUrl))
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    var oldFilePath = Path.Combine(_env.WebRootPath, existingTopic.ImgUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
-                    if (System.IO.File.Exists(oldFilePath))
-                    {
-                        System.IO.File.Delete(oldFilePath);
-                    }
+                    imgUrl = uploadResult.SecureUrl.ToString();
                 }
-
-                imgUrl = $"/uploads/topics/{fileName}";
+                else
+                {
+                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
+                }
             }
 
             existingTopic.SceneId = request.SceneId;
@@ -140,7 +145,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "1")]
-        [HttpDelete("DeleteTopic/{id}")]
+        [HttpDelete("delete_topic/{id}")]
+        [SwaggerOperation(Summary = "Delete topic", Description = "Deletes a topic by ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

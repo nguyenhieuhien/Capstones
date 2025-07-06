@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/enrollmentRequest")]
     [ApiController]
     public class EnrollmentRequestController : ControllerBase
     {
@@ -23,19 +24,22 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet("GetAllEnrollmentRequest")]
+        [HttpGet("get_all_enrollmentRequest")]
+        [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
         public async Task<IEnumerable<EnrollmentRequest>> GetAll()
         {
             return await _service.GetAll();
         }
 
-        [HttpGet("GetEnrollmentRequestBy/{courseId}")] // Lấy tất cả yêu cầu theo course
+        [HttpGet("get_enrollmentRequest_by_corse/{courseId}")] // Lấy tất cả yêu cầu theo course
+        [SwaggerOperation(Summary = "Get requests by course", Description = "Get all enrollment requests submitted for a specific course.")]
         public async Task<IEnumerable<EnrollmentRequest>> GetByCourse(string courseId)
         {
             return await _service.GetByCourseId(courseId);
         }
 
-        [HttpGet("GetEnrollmentRequest/{id}")]
+        [HttpGet("get_enrollmentRequest/{id}")]
+        [SwaggerOperation(Summary = "Get enrollment request by ID", Description = "Retrieve a specific enrollment request by its ID.")]
         public async Task<ActionResult<EnrollmentRequest>> Get(string id)
         {
             var item = await _service.GetById(id);
@@ -45,7 +49,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         [Authorize(Roles = "Student")]
-        [HttpPost("CreateEnrollmentRequest")] // Student gửi yêu cầu
+        [HttpPost("create_enrollmentRequest")] // Student gửi yêu cầu
+        [SwaggerOperation(Summary = "Create enrollment request", Description = "Submit a request to enroll in a course (only for students).")]
         public async Task<IActionResult> Post([FromBody] EnrollmentRequestDTOCreate request)
         {
             // Kiểm tra tài khoản tồn tại
@@ -73,7 +78,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "Instructor")]
-        [HttpPut("UpdateEnrollmentRequest/{id}")] // Instructor duyệt hoặc từ chối yêu cầu
+        [HttpPut("update_enrollmentRequest/{id}")] // Instructor duyệt hoặc từ chối yêu cầu
+        [SwaggerOperation(Summary = "Update request status", Description = "Approve or deny an enrollment request (only for instructors).")]
         public async Task<IActionResult> Put(string id, [FromBody] string status)
         {
             var request = await _service.GetById(id);
@@ -91,7 +97,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = $"Request has been {status.ToLower()}." });
         }
 
-        [HttpDelete("DeleteEnrollmentRequest/{id}")]
+        [HttpDelete("delete_enrollmentRequest/{id}")]
+        [SwaggerOperation(Summary = "Delete enrollment request", Description = "Delete an enrollment request by ID.")]
         public async Task<bool> Delete(string id)
         {
             return await _service.Delete(id);

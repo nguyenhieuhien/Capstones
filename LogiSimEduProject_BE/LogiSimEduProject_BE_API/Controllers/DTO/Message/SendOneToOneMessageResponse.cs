@@ -7,7 +7,7 @@
         public Guid SenderId { get; set; }
         public string MessageType { get; set; }
         public string Content { get; set; }
-        public string AttachmentUrl { get; set; }
+        public IFormFile? AttachmentUrl { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public ConversationDto Conversation { get; set; }
