@@ -51,7 +51,7 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -120,6 +120,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSwaggerGen(option =>
 {
+    option.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "LogiSimEduProject_BE_API",
+        Version = "v1"
+    });
+
     option.EnableAnnotations();
     ////JWT Config
     option.DescribeAllParametersInCamelCase();
@@ -155,7 +161,11 @@ var app = builder.Build();
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LogiSimEduProject_BE_API v1");
+    //c.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
 
