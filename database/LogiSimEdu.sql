@@ -20,7 +20,7 @@ CREATE TABLE Organization (
 -- Bảng Account
 CREATE TABLE [Account] (
     Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    OrganizationId UNIQUEIDENTIFIER NOT NULL,
+    OrganizationId UNIQUEIDENTIFIER NULL,
 	SystemMode BIT DEFAULT 0,
     OrganizationRole NVARCHAR(50),
     UserName NVARCHAR(100) NOT NULL,
