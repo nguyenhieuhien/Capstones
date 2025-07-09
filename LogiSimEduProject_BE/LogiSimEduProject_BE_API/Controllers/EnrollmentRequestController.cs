@@ -58,9 +58,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (account == null)
                 return BadRequest("Tài khoản không tồn tại.");
 
-            var roleName = account.Role?.RoleName?.ToLower();
-            if (roleName != "student")
-                return Unauthorized("Chỉ có tài khoản Student mới được gửi yêu cầu đăng ký.");
+            if (account.SystemMode != true || account.OrganizationRole?.ToLower() != "student")
+                return Unauthorized("Chỉ tài khoản Student mới được gửi yêu cầu.");
+
 
             var model = new EnrollmentRequest
             {

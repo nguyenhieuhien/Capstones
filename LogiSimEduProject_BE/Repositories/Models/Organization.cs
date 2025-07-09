@@ -17,10 +17,6 @@ public partial class Organization
 
     public string Address { get; set; }
 
-    public string Password { get; set; }
-
-    public string IsEmailVerified { get; set; }
-
     public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
@@ -28,6 +24,8 @@ public partial class Organization
     public DateTime? UpdatedAt { get; set; }
 
     public DateTime? DeleteAt { get; set; }
+
+    public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

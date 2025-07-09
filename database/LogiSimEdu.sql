@@ -5,10 +5,12 @@ GO
 USE LogisimEdu;
 GO
 
--- Bảng Role
-CREATE TABLE [Role] (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    RoleName NVARCHAR(100) NOT NULL,
+CREATE TABLE Organization (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    OrganizationName NVARCHAR(255),
+    Email NVARCHAR(100),
+    Phone NVARCHAR(20),
+    Address NVARCHAR(255),
     IsActive BIT,
     Created_At DATETIME,
     Updated_At DATETIME,
@@ -18,7 +20,9 @@ CREATE TABLE [Role] (
 -- Bảng Account
 CREATE TABLE [Account] (
     Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    RoleId UNIQUEIDENTIFIER NOT NULL,
+    OrganizationId UNIQUEIDENTIFIER NOT NULL,
+	SystemMode BIT DEFAULT 0,
+    OrganizationRole NVARCHAR(50),
     UserName NVARCHAR(100) NOT NULL,
     [Password] NVARCHAR(255) NOT NULL,
 	IsEmailVerify BIT DEFAULT 0,
@@ -32,7 +36,7 @@ CREATE TABLE [Account] (
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME,
-    CONSTRAINT FK_Account_Role FOREIGN KEY (RoleId) REFERENCES [Role](Id)
+    FOREIGN KEY (OrganizationId) REFERENCES Organization(Id)
 );
 
 -- Bảng WorkSpace
@@ -298,19 +302,6 @@ CREATE TABLE EnrollmentRequest (
         REFERENCES Course(Id) ON DELETE CASCADE
 );
  ---------------------------------------------------------------
-CREATE TABLE Organization (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
-    OrganizationName NVARCHAR(255),
-    Email NVARCHAR(100),
-    Phone NVARCHAR(20),
-    Address NVARCHAR(255),
-    Password NVARCHAR(255),
-    IsEmailVerified NVARCHAR(10),
-    IsActive BIT,
-    Created_At DATETIME,
-    Updated_At DATETIME,
-    Delete_At DATETIME
-);
 
 CREATE TABLE [Order] (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -326,22 +317,6 @@ CREATE TABLE [Order] (
     Delete_At DATETIME
 );
 
-CREATE TABLE Payment (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
-    OrderId UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [Order](Id),
-    OrderCode NVARCHAR(100),
-    Amount FLOAT,
-    Description NVARCHAR(MAX),
-    Items NVARCHAR(MAX),
-    ReturnUrl NVARCHAR(255),
-    CancelUrl NVARCHAR(255),
-    PaymentLink NVARCHAR(255),
-    Status NVARCHAR(50),
-    IsActive BIT,
-    Created_At DATETIME,
-    Updated_At DATETIME,
-    Delete_At DATETIME
-);
 
 CREATE TABLE PackageType (
     Id UNIQUEIDENTIFIER PRIMARY KEY,

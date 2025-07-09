@@ -52,8 +52,6 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<PackageType> PackageTypes { get; set; }
 
-    public virtual DbSet<Payment> Payments { get; set; }
-
     public virtual DbSet<Question> Questions { get; set; }
 
     public virtual DbSet<Quiz> Quizzes { get; set; }
@@ -63,8 +61,6 @@ public partial class LogiSimEduContext : DbContext
     public virtual DbSet<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
-
-    public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Scenario> Scenarios { get; set; }
 
@@ -94,7 +90,7 @@ public partial class LogiSimEduContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC0748A17B36");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07F2F5E261");
 
             entity.ToTable("Account");
 
@@ -113,10 +109,12 @@ public partial class LogiSimEduContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsEmailVerify).HasDefaultValue(false);
+            entity.Property(e => e.OrganizationRole).HasMaxLength(50);
             entity.Property(e => e.Password)
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.SystemMode).HasDefaultValue(false);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
@@ -124,15 +122,15 @@ public partial class LogiSimEduContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
-            entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
-                .HasForeignKey(d => d.RoleId)
+            entity.HasOne(d => d.Organization).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.OrganizationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Account_Role");
+                .HasConstraintName("FK__Account__Organiz__47DBAE45");
         });
 
         modelBuilder.Entity<AccountOfClass>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07687A646A");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC070216D6FF");
 
             entity.ToTable("AccountOfClass");
 
@@ -160,7 +158,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<AccountOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC076AA6E00B");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07D75E92BD");
 
             entity.ToTable("AccountOfWorkSpace");
 
@@ -188,7 +186,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07AE9FFB5C");
+            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07149A2C3C");
 
             entity.ToTable("Answer");
 
@@ -212,7 +210,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07F48EA429");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC0743057F17");
 
             entity.ToTable("Category");
 
@@ -231,7 +229,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Class>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC0794B3C9E3");
+            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07C8FB80F8");
 
             entity.ToTable("Class");
 
@@ -255,7 +253,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Conversation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC0702C9BB46");
+            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC0767E481D6");
 
             entity.ToTable("Conversation");
 
@@ -275,7 +273,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<ConversationParticipant>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC07FB9627C4");
+            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC077E616AD1");
 
             entity.ToTable("ConversationParticipant");
 
@@ -296,17 +294,17 @@ public partial class LogiSimEduContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.ConversationParticipants)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Conversat__Accou__07C12930");
+                .HasConstraintName("FK__Conversat__Accou__1332DBDC");
 
             entity.HasOne(d => d.Conversation).WithMany(p => p.ConversationParticipants)
                 .HasForeignKey(d => d.ConversationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Conversat__Conve__06CD04F7");
+                .HasConstraintName("FK__Conversat__Conve__123EB7A3");
         });
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC07C1C65486");
+            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC077EA826CA");
 
             entity.ToTable("Course");
 
@@ -339,7 +337,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<EnrollmentRequest>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC0773130E60");
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC073607F496");
 
             entity.ToTable("EnrollmentRequest");
 
@@ -361,7 +359,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Message>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Message__3214EC07F237588B");
+            entity.HasKey(e => e.Id).HasName("PK__Message__3214EC073D5EC5BE");
 
             entity.ToTable("Message");
 
@@ -386,17 +384,17 @@ public partial class LogiSimEduContext : DbContext
             entity.HasOne(d => d.Conversation).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.ConversationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Message__Convers__02084FDA");
+                .HasConstraintName("FK__Message__Convers__0D7A0286");
 
             entity.HasOne(d => d.Sender).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.SenderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Message__SenderI__02FC7413");
+                .HasConstraintName("FK__Message__SenderI__0E6E26BF");
         });
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC074B0C189F");
+            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC076BBF3B7C");
 
             entity.ToTable("Notification");
 
@@ -421,7 +419,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07D59E4D49");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07CF4F96EF");
 
             entity.ToTable("Order");
 
@@ -440,16 +438,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.OrganizationId)
-                .HasConstraintName("FK__Order__Organizat__1332DBDC");
+                .HasConstraintName("FK__Order__Organizat__1CBC4616");
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .HasConstraintName("FK__Order__WorkSpace__14270015");
+                .HasConstraintName("FK__Order__WorkSpace__1DB06A4F");
         });
 
         modelBuilder.Entity<Organization>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC0738841CC7");
+            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC07F6D274EE");
 
             entity.ToTable("Organization");
 
@@ -462,9 +460,7 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
             entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.IsEmailVerified).HasMaxLength(10);
             entity.Property(e => e.OrganizationName).HasMaxLength(255);
-            entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
@@ -473,7 +469,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Package>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Package__3214EC07685D496A");
+            entity.HasKey(e => e.Id).HasName("PK__Package__3214EC0796A4E536");
 
             entity.ToTable("Package");
 
@@ -490,20 +486,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.Packages)
                 .HasForeignKey(d => d.OrderId)
-                .HasConstraintName("FK__Package__OrderId__1BC821DD");
+                .HasConstraintName("FK__Package__OrderId__22751F6C");
 
             entity.HasOne(d => d.PackageType).WithMany(p => p.Packages)
                 .HasForeignKey(d => d.PackageTypeId)
-                .HasConstraintName("FK__Package__Package__1DB06A4F");
+                .HasConstraintName("FK__Package__Package__245D67DE");
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.Packages)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .HasConstraintName("FK__Package__WorkSpa__1CBC4616");
+                .HasConstraintName("FK__Package__WorkSpa__236943A5");
         });
 
         modelBuilder.Entity<PackageOfScene>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PackageO__3214EC07AF13A1DF");
+            entity.HasKey(e => e.Id).HasName("PK__PackageO__3214EC076DA720B8");
 
             entity.ToTable("PackageOfScene");
 
@@ -520,16 +516,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackageOfScenes)
                 .HasForeignKey(d => d.PackageId)
-                .HasConstraintName("FK__PackageOf__Packa__208CD6FA");
+                .HasConstraintName("FK__PackageOf__Packa__2739D489");
 
             entity.HasOne(d => d.Scene).WithMany(p => p.PackageOfScenes)
                 .HasForeignKey(d => d.SceneId)
-                .HasConstraintName("FK__PackageOf__Scene__2180FB33");
+                .HasConstraintName("FK__PackageOf__Scene__282DF8C2");
         });
 
         modelBuilder.Entity<PackageType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PackageT__3214EC07416F0098");
+            entity.HasKey(e => e.Id).HasName("PK__PackageT__3214EC0798A222FA");
 
             entity.ToTable("PackageType");
 
@@ -546,36 +542,9 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnName("Updated_At");
         });
 
-        modelBuilder.Entity<Payment>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC076BF94C28");
-
-            entity.ToTable("Payment");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CancelUrl).HasMaxLength(255);
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.OrderCode).HasMaxLength(100);
-            entity.Property(e => e.PaymentLink).HasMaxLength(255);
-            entity.Property(e => e.ReturnUrl).HasMaxLength(255);
-            entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.OrderId)
-                .HasConstraintName("FK__Payment__OrderId__17036CC0");
-        });
-
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07E11C69B8");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC0732D70062");
 
             entity.ToTable("Question");
 
@@ -599,7 +568,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC079ACFB70D");
+            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC07B6B5DD4C");
 
             entity.ToTable("Quiz");
 
@@ -624,7 +593,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<QuizSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07B016774E");
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07FA919BA7");
 
             entity.ToTable("QuizSubmission");
 
@@ -634,17 +603,17 @@ public partial class LogiSimEduContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.QuizSubmissions)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__Accou__2FCF1A8A");
+                .HasConstraintName("FK__QuizSubmi__Accou__2BFE89A6");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.QuizSubmissions)
                 .HasForeignKey(d => d.QuizId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__QuizI__2EDAF651");
+                .HasConstraintName("FK__QuizSubmi__QuizI__2B0A656D");
         });
 
         modelBuilder.Entity<QuizSubmissionAnswer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07B1D6FBA4");
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07426B0D2D");
 
             entity.ToTable("QuizSubmissionAnswer");
 
@@ -653,22 +622,22 @@ public partial class LogiSimEduContext : DbContext
             entity.HasOne(d => d.Answer).WithMany(p => p.QuizSubmissionAnswers)
                 .HasForeignKey(d => d.AnswerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__Answe__3493CFA7");
+                .HasConstraintName("FK__QuizSubmi__Answe__30C33EC3");
 
             entity.HasOne(d => d.Question).WithMany(p => p.QuizSubmissionAnswers)
                 .HasForeignKey(d => d.QuestionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__Quest__339FAB6E");
+                .HasConstraintName("FK__QuizSubmi__Quest__2FCF1A8A");
 
             entity.HasOne(d => d.QuizSubmission).WithMany(p => p.QuizSubmissionAnswers)
                 .HasForeignKey(d => d.QuizSubmissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__QuizS__32AB8735");
+                .HasConstraintName("FK__QuizSubmi__QuizS__2EDAF651");
         });
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC072D894B25");
+            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC079B7DB16A");
 
             entity.ToTable("Review");
 
@@ -695,30 +664,9 @@ public partial class LogiSimEduContext : DbContext
                 .HasConstraintName("FK_Review_Course");
         });
 
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC0787582363");
-
-            entity.ToTable("Role");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.RoleName)
-                .IsRequired()
-                .HasMaxLength(100);
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-        });
-
         modelBuilder.Entity<Scenario>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC0740D03327");
+            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC07AAB79259");
 
             entity.ToTable("Scenario");
 
@@ -743,7 +691,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Scene>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC077F4CF3D1");
+            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC07962B332F");
 
             entity.ToTable("Scene");
 
@@ -766,7 +714,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<SceneOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC07FDA551B9");
+            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC07AD58DCF6");
 
             entity.ToTable("SceneOfWorkSpace");
 
@@ -794,7 +742,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Topic>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC07ADE572C4");
+            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC0713E505D0");
 
             entity.ToTable("Topic");
 
@@ -827,7 +775,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<WorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC0723BD2CFC");
+            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC0714DDDA70");
 
             entity.ToTable("WorkSpace");
 

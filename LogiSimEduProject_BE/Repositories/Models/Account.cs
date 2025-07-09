@@ -9,7 +9,11 @@ public partial class Account
 {
     public Guid Id { get; set; }
 
-    public Guid RoleId { get; set; }
+    public Guid OrganizationId { get; set; }
+
+    public bool? SystemMode { get; set; }
+
+    public string OrganizationRole { get; set; }
 
     public string UserName { get; set; }
 
@@ -49,9 +53,9 @@ public partial class Account
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+    public virtual Organization Organization { get; set; }
+
     public virtual ICollection<QuizSubmission> QuizSubmissions { get; set; } = new List<QuizSubmission>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-
-    public virtual Role Role { get; set; }
 }
