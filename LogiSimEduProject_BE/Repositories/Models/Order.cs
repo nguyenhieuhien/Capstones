@@ -33,7 +33,5 @@ public partial class Order
 
     public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
 
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
-
     public virtual WorkSpace WorkSpace { get; set; }
 }

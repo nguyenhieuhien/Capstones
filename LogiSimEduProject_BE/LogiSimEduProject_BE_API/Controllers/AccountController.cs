@@ -126,10 +126,19 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public async Task<IActionResult> Register(AccountDTOCreate request)
         {
+            var systemMode = true;
+            var organizationRole = "Student";
+
+            if (string.IsNullOrEmpty(request.OrganizationId.ToString()) || request.OrganizationId == Guid.Empty)
+                return BadRequest("Phải cung cấp OrganizationId");
+
             var passwordHasher = new PasswordHasher<Account>();
 
             var account = new Account
             {
+                SystemMode = systemMode,
+                OrganizationId = request.OrganizationId,
+                OrganizationRole = organizationRole,
                 UserName = request.UserName,
                 FullName = request.FullName,
                 Email = request.Email,
@@ -299,11 +308,19 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 return NotFound(new { Message = $"Account with ID {Id} was not found." });
             }
+            existingAccount.OrganizationId = request.OrganizationId;
             existingAccount.UserName = request.UserName;
             existingAccount.FullName = request.FullName;
             //existingAccount.Password = request.Password;
             existingAccount.Email = request.Email;
             existingAccount.Phone = request.Phone;
+
+            if (existingAccount.SystemMode == true && !string.IsNullOrEmpty(request.OrganizationRole))
+            {
+                if (!new[] { "Admin", "Instructor", "Student" }.Contains(request.OrganizationRole))
+                    return BadRequest("Vai trò không hợp lệ.");
+                existingAccount.OrganizationRole = request.OrganizationRole;
+            }
 
             await _accountService.Update(existingAccount);
 
@@ -313,7 +330,9 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Data = new
                 {
                     Id = existingAccount.Id,
-                    RoleId = existingAccount.RoleId,
+                    OrganizationId = existingAccount.OrganizationId,
+                    SystemMode = existingAccount.SystemMode,
+                    OrganizationRole = existingAccount.OrganizationRole,
                     UserName = existingAccount.UserName,
                     FullName = existingAccount.FullName,
                     //Password = existingAccount.Password,
@@ -349,7 +368,22 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var roleName = account.Role?.RoleName ?? "Student";
+
+            string roleName;
+            if (account.SystemMode == false)
+            {
+                roleName = "SuperAdmin";
+            }
+            else
+            {
+                roleName = account.OrganizationRole switch
+                {
+                    "Admin" => "Admin",
+                    "Instructor" => "Instructor",
+                    "Student" => "Student",
+                    _ => "Student" // fallback mặc định
+                };
+            }
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, account.Email),

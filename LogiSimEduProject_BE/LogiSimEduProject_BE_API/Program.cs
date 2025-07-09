@@ -66,7 +66,6 @@ builder.Services.AddScoped<IScenarioService, ScenarioService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService>();
 builder.Services.AddScoped<IAccountOfClassService, AccountOfClassService>();
 builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();

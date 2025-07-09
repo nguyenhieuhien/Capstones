@@ -107,13 +107,7 @@ namespace Services
 
         public async Task<int> Register(Account account)
         {
-
-            var studentRole = await _repository.GetRoleByNameAsync("Student");
-            if (studentRole == null)
-                throw new Exception("Role 'Student' does not exist");
             account.Id = Guid.NewGuid();
-            account.RoleId = studentRole.Id;
-
             return await _repository.CreateAsync(account);
         }
 

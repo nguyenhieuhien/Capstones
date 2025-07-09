@@ -25,10 +25,6 @@ namespace Repositories
             return await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
         }
 
-        public async Task<Role> GetRoleByNameAsync(string roleName)
-        {
-            return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
-        }
 
         public async Task InsertAsync(Account account)
         {
@@ -46,7 +42,6 @@ namespace Repositories
         public async Task<Account> GetById(string id)
         {
             return await _context.Accounts
-                .Include(a => a.Role)
                 .FirstOrDefaultAsync(a => a.Id.ToString() == id);
         }
 
