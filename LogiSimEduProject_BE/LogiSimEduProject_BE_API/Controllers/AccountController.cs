@@ -126,19 +126,14 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public async Task<IActionResult> Register(AccountDTOCreate request)
         {
-            var systemMode = true;
-            var organizationRole = "Student";
-
-            if (string.IsNullOrEmpty(request.OrganizationId.ToString()) || request.OrganizationId == Guid.Empty)
-                return BadRequest("Phải cung cấp OrganizationId");
 
             var passwordHasher = new PasswordHasher<Account>();
 
             var account = new Account
             {
-                SystemMode = systemMode,
-                OrganizationId = request.OrganizationId,
-                OrganizationRole = organizationRole,
+                SystemMode = true,
+                OrganizationId = null,
+                OrganizationRole = "Student",
                 UserName = request.UserName,
                 FullName = request.FullName,
                 Email = request.Email,
