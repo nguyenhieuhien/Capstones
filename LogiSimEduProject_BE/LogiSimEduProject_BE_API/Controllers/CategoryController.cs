@@ -26,8 +26,14 @@ namespace Controllers
         public async Task<ActionResult<List<Category>>> GetAll()
         {
             var categories = await _categoryService.GetAll();
-            return Ok(categories);
+
+            // Nếu null (trong trường hợp service bị sai), thì trả về danh sách rỗng
+            if (categories == null)
+                return Ok(new List<Category>());
+
+            return Ok(categories); // Trả về [] nếu danh sách rỗng
         }
+
 
         [HttpGet("Get_category/{id}")]
         [SwaggerOperation(Summary = "Get category by ID", Description = "Retrieve a single category by its unique ID.")]
