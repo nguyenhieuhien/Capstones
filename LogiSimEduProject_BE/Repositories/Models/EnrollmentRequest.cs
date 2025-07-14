@@ -13,13 +13,15 @@ public partial class EnrollmentRequest
 
     public Guid CourseId { get; set; }
 
-    public string Status { get; set; }
+    public int StatusId { get; set; }
 
     public DateTime RequestedAt { get; set; }
 
     public DateTime? RespondedAt { get; set; }
 
     public virtual Course Course { get; set; }
+
+    public virtual EnrollmentStatus Status { get; set; }
 
     public virtual Account Student { get; set; }
 }

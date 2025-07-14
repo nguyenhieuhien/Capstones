@@ -42,7 +42,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         {
             var quiz = new Quiz
             {
-                TopicId = request.TopicId,
+                LessonId = request.LessonId,
                 QuizName = request.QuizName,
                 Score = request.Score,
                 IsActive = true,
@@ -68,7 +68,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var quiz = new Quiz
             {
                 Id = quizId,
-                TopicId = dto.TopicId,
+                LessonId = dto.LessonId,
                 QuizName = dto.QuizName,
                 Score = dto.Score,
                 IsActive = true,
@@ -112,7 +112,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound(new { Message = $"Question with ID {id} was not found." });
             }
 
-            existingQuiz.TopicId = request.TopicId;
+            existingQuiz.LessonId = request.LessonId;
             existingQuiz.QuizName = request.QuizName;
             existingQuiz.Score = request.Score;
             existingQuiz.UpdatedAt = DateTime.UtcNow;
@@ -124,7 +124,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Message = "Quiz updated successfully.",
                 Data = new
                 {
-                    TopicId = existingQuiz.TopicId,
+                    LessonId = existingQuiz.LessonId,
                     QuizName = existingQuiz.QuizName,
                     Score = existingQuiz.Score,
                     IsActive = existingQuiz.IsActive,

@@ -2,7 +2,7 @@
 {
     public class QuizDTOUpdate
     {
-        public Guid TopicId { get; set; }
+        public Guid LessonId { get; set; }
         public string QuizName { get; set; }
         public double? Score { get; set; }
         public string Status { get; set; }

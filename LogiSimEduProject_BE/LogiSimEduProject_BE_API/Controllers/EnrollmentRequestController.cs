@@ -61,7 +61,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (account == null)
                 return BadRequest("Tài khoản không tồn tại.");
 
-            if (account.SystemMode != true || account.OrganizationRole?.ToLower() != "student")
+            if (account.SystemMode != true || account.OrganizationRoleId != 3)
                 return Unauthorized("Chỉ tài khoản Student mới được gửi yêu cầu.");
 
 
@@ -69,7 +69,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 StudentId = request.StudentId,
                 CourseId = request.CourseId,
-                Status = "Pending",
+                StatusId = 1,
                 RequestedAt = DateTime.UtcNow
             };
 
@@ -83,21 +83,23 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Authorize(Roles = "Instructor")]
         [HttpPut("update_enrollmentRequest/{id}")] // Instructor duyệt hoặc từ chối yêu cầu
         [SwaggerOperation(Summary = "Update request status", Description = "Approve or deny an enrollment request (only for instructors).")]
-        public async Task<IActionResult> Put(string id, [FromBody] string status)
+        public async Task<IActionResult> Put(string id, [FromBody] int status)
         {
             var request = await _service.GetById(id);
             if (request == null)
                 return NotFound();
 
-            if (status != "Accepted" && status != "Denied")
+            if (status != 2  && status != 3 )
                 return BadRequest("Invalid status");
 
-            request.Status = status;
+            request.StatusId = status;
             request.RespondedAt = DateTime.UtcNow;
 
             await _service.Update(request);
 
-            return Ok(new { Message = $"Request has been {status.ToLower()}." });
+            var statusName = status == 2 ? "accepted" : "rejected";
+
+            return Ok(new { Message = $"Request has been {statusName}." });
         }
 
         [Authorize(Roles = "Student")]

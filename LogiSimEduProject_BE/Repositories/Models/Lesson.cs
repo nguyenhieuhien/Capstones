@@ -5,19 +5,19 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Topic
+public partial class Lesson
 {
     public Guid Id { get; set; }
 
-    public Guid SceneId { get; set; }
+    public Guid TopicId { get; set; }
 
-    public Guid CourseId { get; set; }
+    public string LessonName { get; set; }
 
-    public string TopicName { get; set; }
-
-    public string ImgUrl { get; set; }
+    public string Title { get; set; }
 
     public string Description { get; set; }
+
+    public int? StatusId { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -27,9 +27,9 @@ public partial class Topic
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual Course Course { get; set; }
+    public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
 
-    public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+    public virtual LessonStatus Status { get; set; }
 
-    public virtual Scene Scene { get; set; }
+    public virtual Topic Topic { get; set; }
 }

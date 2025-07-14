@@ -135,7 +135,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 SystemMode = true,
                 OrganizationId = null,
-                OrganizationRole = "Admin",
+                OrganizationRoleId = 4,
                 UserName = request.UserName,
                 FullName = request.FullName,
                 Email = request.Email,
@@ -179,7 +179,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Phone = request.Phone,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
-                OrganizationRole = "Organization_Admin",
+                OrganizationRoleId = 1,
                 IsActive = true,
                 IsEmailVerify = true,
                 SystemMode = false,
@@ -217,7 +217,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Phone = request.Phone,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
-                OrganizationRole = "Instructor",
+                OrganizationRoleId = 2,
                 IsActive = true,
                 IsEmailVerify = true,
                 SystemMode = false,
@@ -255,7 +255,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Phone = request.Phone,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
-                OrganizationRole = "Student",
+                OrganizationRoleId = 3,
                 IsActive = true,
                 IsEmailVerify = true,
                 SystemMode = false,
@@ -428,11 +428,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             existingAccount.Email = request.Email;
             existingAccount.Phone = request.Phone;
 
-            if (existingAccount.SystemMode == true && !string.IsNullOrEmpty(request.OrganizationRole))
+            if (request.OrganizationRoleId is > 0 and <= 4) // Giả sử có 4 role
             {
-                if (!new[] { "Admin", "Instructor", "Student" }.Contains(request.OrganizationRole))
-                    return BadRequest("Vai trò không hợp lệ.");
-                existingAccount.OrganizationRole = request.OrganizationRole;
+                existingAccount.OrganizationRoleId = request.OrganizationRoleId;
+            }
+            else
+            {
+                return BadRequest("Vai trò không hợp lệ. RoleId hợp lệ là 1 đến 4.");
             }
 
             await _accountService.Update(existingAccount);
@@ -482,21 +484,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            string roleName;
-            if (account.SystemMode == true)
+            string roleName = account.OrganizationRoleId switch
             {
-                roleName = "Admin";
-            }
-            else
-            {
-                roleName = account.OrganizationRole switch
-                {
-                    "Organization_Admin" => "Organization_Admin",
-                    "Instructor" => "Instructor",
-                    "Student" => "Student",
-                    _ => "Student" // fallback mặc định
-                };
-            }
+                4 => "Admin",
+                1 => "Organization_Admin",
+                2 => "Instructor",
+                3 => "Student",
+                _ => "Student"
+            };
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, account.Email),

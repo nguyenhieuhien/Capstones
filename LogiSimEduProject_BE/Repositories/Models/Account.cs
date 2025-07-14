@@ -13,7 +13,7 @@ public partial class Account
 
     public bool? SystemMode { get; set; }
 
-    public string OrganizationRole { get; set; }
+    public int OrganizationRoleId { get; set; }
 
     public string UserName { get; set; }
 
@@ -27,7 +27,7 @@ public partial class Account
 
     public string Phone { get; set; }
 
-    public string Gender { get; set; }
+    public int? GenderId { get; set; }
 
     public string Address { get; set; }
 
@@ -49,11 +49,15 @@ public partial class Account
 
     public virtual ICollection<EnrollmentRequest> EnrollmentRequests { get; set; } = new List<EnrollmentRequest>();
 
+    public virtual GenderType Gender { get; set; }
+
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual Organization Organization { get; set; }
+
+    public virtual OrganizationRoleStatus OrganizationRole { get; set; }
 
     public virtual ICollection<QuizSubmission> QuizSubmissions { get; set; } = new List<QuizSubmission>();
 
