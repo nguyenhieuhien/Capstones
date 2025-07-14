@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Util;
 using LogiSimEduProject_BE_API.Controllers.DTO.Class;
 using LogiSimEduProject_BE_API.Controllers.DTO.Course;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -18,6 +19,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         public ClassController(IClassService service) => _service = service;
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_class")]
         [SwaggerOperation(Summary = "Get all classes", Description = "Return a list of all classes.")]
         public async Task<IEnumerable<Class>> Get()
@@ -25,6 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_class/{id}")]
         [SwaggerOperation(Summary = "Get class by ID", Description = "Return class details by its ID.")]
         public async Task<Class> Get(string id)
@@ -33,7 +36,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_class")]
         [SwaggerOperation(Summary = "Create a new class", Description = "Create a new class with course ID, name, and number of students.")]
         public async Task<IActionResult> Post(ClassDTOCreate request)
@@ -57,7 +60,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_class/{id}")]
         [SwaggerOperation(Summary = "Update class", Description = "Update class details like name or number of students.")]
         public async Task<IActionResult> Put(string id, ClassDTOUpdate request)
@@ -88,7 +91,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_class/{id}")]
         [SwaggerOperation(Summary = "Delete class", Description = "Remove a class from the system using its ID.")]
         public async Task<bool> Delete(string id)

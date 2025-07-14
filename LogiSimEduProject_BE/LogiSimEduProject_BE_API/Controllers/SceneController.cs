@@ -8,6 +8,7 @@ using Repositories.Models;
 using Services;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,6 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_scene")]
         [SwaggerOperation(Summary = "Get all scenes", Description = "Returns a list of all available scenes.")]
         public async Task<IEnumerable<Scene>> Get()
@@ -33,6 +35,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_scene/{id}")]
         [SwaggerOperation(Summary = "Get a scene by ID", Description = "Returns a scene object by its unique identifier.")]
         public async Task<Scene> Get(string id)
@@ -40,7 +43,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetById(id);
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
         [SwaggerOperation(Summary = "Create a new scene", Description = "Uploads a ZIP file and creates a new scene entry.")]
         public async Task<IActionResult> Post([FromForm] SceneDTOCreate request)
@@ -86,7 +89,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_scene/{id}")]
         [SwaggerOperation(Summary = "Update scene info", Description = "Updates the name, description or ZIP file of a scene.")]
         public async Task<IActionResult> Put(string id, [FromForm] SceneDTOUpdate request)
@@ -135,6 +138,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("download_scene/{id}")]
         [SwaggerOperation(Summary = "Download ZIP file of a scene", Description = "Downloads the uploaded ZIP file of the given scene.")]
         public async Task<IActionResult> Download(string id)

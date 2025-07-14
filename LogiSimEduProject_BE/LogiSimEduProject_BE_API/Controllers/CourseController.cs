@@ -25,6 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_course")]
         [SwaggerOperation(Summary = "Get all courses", Description = "Retrieve a list of all available courses.")]
         public async Task<IEnumerable<Course>> Get()
@@ -32,6 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_course/{id}")]
         [SwaggerOperation(Summary = "Get course by ID", Description = "Get detailed information about a course by its ID.")]
         public async Task<Course> Get(string id)
@@ -46,7 +48,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         //    return await _service.Search(name, description);
         //}
 
-        
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_course")]
         [SwaggerOperation(Summary = "Create new course", Description = "Create a new course with optional image upload.")]
         public async Task<IActionResult> Post([FromForm] CourseDTOCreate request)
@@ -95,7 +97,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_course/{id}")]
         [SwaggerOperation(Summary = "Update course", Description = "Update an existing course and replace image if provided.")]
         public async Task<IActionResult> Put(string id, [FromForm] CourseDTOUpdate request)
@@ -151,7 +153,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_course/{id}")]
         [SwaggerOperation(Summary = "Delete course", Description = "Delete a course by its ID.")]
         public async Task<bool> Delete(string id)

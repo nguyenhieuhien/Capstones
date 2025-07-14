@@ -34,6 +34,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountRepository = accountRepository;
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all accounts", Description = "Retrieve a list of all registered accounts")]
 
@@ -42,6 +43,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _accountService.GetAll();
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet("get_account/{id}")]
         [SwaggerOperation(Summary = "Get account by ID", Description = "Retrieve detailed account information using the account ID")]
 
@@ -162,7 +164,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("register-organization-admin-account")]
         public async Task<IActionResult> RegisterOrganizationAdmin([FromBody] AccountDTOCreateOg request)
         {
@@ -200,6 +202,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Tài khoản Organization_Admin đã được tạo và gửi email thành công.");
         }
 
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-instructor-account")]
         public async Task<IActionResult> RegisterInstructor([FromBody] AccountDTOCreateOg request)
         {
@@ -237,6 +240,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Tài khoản Instructor đã được tạo và gửi email thành công.");
         }
 
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-student-account")]
         public async Task<IActionResult> RegisterStudent([FromBody] AccountDTOCreateOg request)
         {
@@ -273,7 +277,6 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok("Tài khoản Student đã được tạo và gửi email thành công.");
         }
-
 
 
 
@@ -454,7 +457,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete_account/{id}")]
         [SwaggerOperation(Summary = "Delete account", Description = "Delete an account by its ID")]
 
@@ -480,15 +483,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             string roleName;
-            if (account.SystemMode == false)
+            if (account.SystemMode == true)
             {
-                roleName = "SuperAdmin";
+                roleName = "Admin";
             }
             else
             {
                 roleName = account.OrganizationRole switch
                 {
-                    "Admin" => "Admin",
+                    "Organization_Admin" => "Organization_Admin",
                     "Instructor" => "Instructor",
                     "Student" => "Student",
                     _ => "Student" // fallback mặc định
