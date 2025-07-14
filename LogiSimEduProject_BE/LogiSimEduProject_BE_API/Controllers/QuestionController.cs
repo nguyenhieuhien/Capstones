@@ -1,5 +1,6 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Answer;
 using LogiSimEduProject_BE_API.Controllers.DTO.Question;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -15,6 +16,8 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IQuestionService _service;
         public QuestionController(IQuestionService service) => _service = service;
+
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_question")]
         [SwaggerOperation(Summary = "Get all questions", Description = "Returns a list of all questions.")]
         public async Task<IEnumerable<Question>> Get()
@@ -22,6 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_question/{id}")]
         [SwaggerOperation(Summary = "Get a question by ID", Description = "Returns a specific question using the provided ID.")]
         public async Task<Question> Get(string id)
@@ -29,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetById(id);
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_question")]
         [SwaggerOperation(Summary = "Create a new question", Description = "Creates and saves a new question to the database.")]
         public async Task<IActionResult> Post(QuestionDTOCreate request)
@@ -53,7 +57,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_question/{id}")]
         [SwaggerOperation(Summary = "Update a question", Description = "Updates the quiz ID, description, or correctness of an existing question.")]
         public async Task<IActionResult> Put(string id,QuestionDTOUpdate request)
@@ -84,7 +88,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_question/{id}")]
         [SwaggerOperation(Summary = "Delete a question", Description = "Deletes a question by its ID.")]
         public async Task<bool> Delete(string id)

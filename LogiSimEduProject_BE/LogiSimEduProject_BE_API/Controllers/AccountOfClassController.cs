@@ -1,5 +1,6 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfClass;
 using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfWorkSpace;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -13,6 +14,8 @@ namespace LogiSimEduProject_BE_API.Controllers
     {
         private readonly IAccountOfClassService _service;
         public AccountOfClassController(IAccountOfClassService service) => _service = service;
+
+
         [HttpGet("GetAllAccountOfClass")]
         [SwaggerOperation(Summary = "Get all account-class relations", Description = "Retrieve all account-class relationship records")]
         public async Task<IEnumerable<AccountOfClass>> Get()
@@ -20,12 +23,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+
         [HttpGet("get_account0fClass/{id}")]
         [SwaggerOperation(Summary = "Get account-class relation by ID", Description = "Retrieve a specific account-class relationship by its ID")]
         public async Task<AccountOfClass> Get(string id)
         {
             return await _service.GetById(id);
         }
+
 
         //[Authorize(Roles = "1")]
         [HttpPost("create_account0fClass")]
@@ -50,6 +55,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpPost("assign_student_to_class/{classId},{studentId}")]
         [SwaggerOperation(Summary = "Assign student to class", Description = "Assign a student to a class by their IDs")]
         public async Task<IActionResult> AssignStudentToClass(Guid classId, Guid studentId)
@@ -65,7 +71,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             }
         }
 
-        //[Authorize(Roles = "1")]
+
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_accountOfClass/{id}")]
         [SwaggerOperation(Summary = "Update account-class relation", Description = "Update an existing account-class relationship by ID")]
         public async Task<IActionResult> Put(string id, AccountOfClassDTOUpdate request)
@@ -94,6 +101,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpDelete("remove_student/{classId},{studentId}")]
         [SwaggerOperation(Summary = "Remove student from class", Description = "Remove a student from a class by their IDs")]
         public async Task<IActionResult> RemoveStudent(Guid classId, Guid studentId)

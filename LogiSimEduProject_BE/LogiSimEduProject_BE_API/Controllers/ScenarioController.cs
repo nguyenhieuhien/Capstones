@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using LogiSimEduProject_BE_API.Controllers.DTO.Scenario;
 using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -17,7 +18,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         private readonly IScenarioService _service;
 
         public ScenarioController(IScenarioService service) => _service = service;
-        // GET: api/<ScenarioController>
+
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_scenario")]
         [SwaggerOperation(Summary = "Get all scenarios", Description = "Returns a list of all scenarios.")]
         public async Task<IEnumerable<Scenario>> Get()
@@ -25,6 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_scenario/{id}")]
         [SwaggerOperation(Summary = "Get a scenario by ID", Description = "Returns a scenario based on its unique ID.")]
         public async Task<Scenario> Get(string id)
@@ -32,7 +35,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetById(id);
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
         [SwaggerOperation(Summary = "Create a new scenario", Description = "Creates a new scenario with provided data.")]
         public async Task<IActionResult> Post(ScenarioDTOCreate request)
@@ -56,7 +59,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_scenario/{id}")]
         [SwaggerOperation(Summary = "Update a scenario", Description = "Updates an existing scenario by ID.")]
         public async Task<IActionResult> Put(string id,ScenarioDTOUpdate request)
@@ -85,7 +88,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_scenario/{id}")]
         [SwaggerOperation(Summary = "Delete a scenario", Description = "Deletes a scenario based on its ID.")]
         public async Task<bool> Delete(string id)

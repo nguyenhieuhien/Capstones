@@ -24,6 +24,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_enrollmentRequest")]
         [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
         public async Task<IEnumerable<EnrollmentRequest>> GetAll()
@@ -31,6 +32,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest_by_corse/{courseId}")] // Lấy tất cả yêu cầu theo course
         [SwaggerOperation(Summary = "Get requests by course", Description = "Get all enrollment requests submitted for a specific course.")]
         public async Task<IEnumerable<EnrollmentRequest>> GetByCourse(string courseId)
@@ -38,6 +40,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetByCourseId(courseId);
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Get enrollment request by ID", Description = "Retrieve a specific enrollment request by its ID.")]
         public async Task<ActionResult<EnrollmentRequest>> Get(string id)
@@ -77,7 +80,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = "Enrollment request sent successfully." });
         }
 
-        //[Authorize(Roles = "Instructor")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_enrollmentRequest/{id}")] // Instructor duyệt hoặc từ chối yêu cầu
         [SwaggerOperation(Summary = "Update request status", Description = "Approve or deny an enrollment request (only for instructors).")]
         public async Task<IActionResult> Put(string id, [FromBody] string status)
@@ -97,6 +100,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = $"Request has been {status.ToLower()}." });
         }
 
+        [Authorize(Roles = "Student")]
         [HttpDelete("delete_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Delete enrollment request", Description = "Delete an enrollment request by ID.")]
         public async Task<bool> Delete(string id)

@@ -1,4 +1,5 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Organization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -20,6 +21,7 @@ namespace Controllers
             _organizationService = new OrganizationService();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("get_all_organization")]
         [SwaggerOperation(Summary = "Get all organizations", Description = "Returns a list of all active organizations.")]
         public async Task<ActionResult<List<Organization>>> GetAll()
@@ -30,6 +32,7 @@ namespace Controllers
             return Ok(organizations);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("get_organization/{id}")]
         [SwaggerOperation(Summary = "Get organization by ID", Description = "Retrieve a single organization by its unique ID.")]
         public async Task<ActionResult<Organization>> GetById(string id)
@@ -40,6 +43,7 @@ namespace Controllers
             return Ok(organization);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create_organization")]
         [SwaggerOperation(Summary = "Create new organization", Description = "Create a new organization and return its ID.")]
         public async Task<ActionResult<int>> Create([FromBody] OrganizationCreateDTO dto)
@@ -65,6 +69,7 @@ namespace Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpPut("update_organization/{id}")]
         [SwaggerOperation(Summary = "Update organization", Description = "Update an existing organization by ID.")]
         public async Task<ActionResult<int>> Update(string id, [FromBody] OrganizationUpdateDTO dto)
@@ -88,6 +93,7 @@ namespace Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete_organization/{id}")]
         [SwaggerOperation(Summary = "Delete organization", Description = "Delete an organization by its ID.")]
         public async Task<ActionResult<bool>> Delete(string id)
