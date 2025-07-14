@@ -30,7 +30,7 @@ namespace Services
         public async Task<int> Create(EnrollmentRequest request)
         {
             request.Id = Guid.NewGuid();
-            request.Status = "Pending";
+            request.StatusId = 1;
             request.RequestedAt = DateTime.UtcNow;
             return await _repository.CreateAsync(request);
         }

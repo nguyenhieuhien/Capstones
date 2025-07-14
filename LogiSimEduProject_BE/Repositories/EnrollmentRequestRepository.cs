@@ -38,7 +38,7 @@ namespace Repositories
         public async Task<EnrollmentRequest?> GetAcceptedRequest(Guid studentId)
         {
             return await _context.EnrollmentRequests
-                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.Status == "Accepted");
+                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.StatusId == 2);
         }
     }
 }

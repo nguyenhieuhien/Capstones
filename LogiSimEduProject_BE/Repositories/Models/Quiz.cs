@@ -9,7 +9,7 @@ public partial class Quiz
 {
     public Guid Id { get; set; }
 
-    public Guid TopicId { get; set; }
+    public Guid LessonId { get; set; }
 
     public string QuizName { get; set; }
 
@@ -25,9 +25,9 @@ public partial class Quiz
 
     public DateTime? DeleteAt { get; set; }
 
+    public virtual Lesson Lesson { get; set; }
+
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 
     public virtual ICollection<QuizSubmission> QuizSubmissions { get; set; } = new List<QuizSubmission>();
-
-    public virtual Topic Topic { get; set; }
 }

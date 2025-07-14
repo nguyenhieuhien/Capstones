@@ -4,7 +4,7 @@ namespace LogiSimEduProject_BE_API.Controllers.DTO.Quiz
 {
     public class QuizDTO
     {
-        public Guid TopicId { get; set; }
+        public Guid LessonId { get; set; }
         public string QuizName { get; set; }
         public double Score { get; set; }
         public List<QuestionDTO> Questions { get; set; }

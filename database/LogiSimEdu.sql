@@ -1,9 +1,29 @@
 ﻿-- Tạo database mới
-CREATE DATABASE LogisimEdu;
+CREATE DATABASE [LogisimEdu];
 GO
 
-USE LogisimEdu;
+USE [LogisimEdu];
 GO
+
+CREATE TABLE [dbo].[GenderType] (
+    [Id] INT PRIMARY KEY,
+    [Name] NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE [dbo].[EnrollmentStatus] (
+    [Id] INT PRIMARY KEY,
+    [Name] NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE [dbo].[LessonStatus] (
+    [Id] INT PRIMARY KEY,
+    [Name] NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE [dbo].[OrganizationRoleStatus] (
+    [Id] INT NOT NULL PRIMARY KEY,
+    [Name] NVARCHAR(50) NOT NULL
+);
 
 CREATE TABLE Organization (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -22,20 +42,22 @@ CREATE TABLE [Account] (
     Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     OrganizationId UNIQUEIDENTIFIER NULL,
 	SystemMode BIT DEFAULT 0,
-    OrganizationRole NVARCHAR(50),
+    OrganizationRoleId INT NOT NULL,
     UserName NVARCHAR(100) NOT NULL,
     [Password] NVARCHAR(255) NOT NULL,
 	IsEmailVerify BIT DEFAULT 0,
     FullName NVARCHAR(100),
     Email NVARCHAR(100),
     Phone NVARCHAR(20),
-	Gender NVARCHAR(10),
+	GenderId INT,
     Address NVARCHAR(255),
     AvtURL NVARCHAR(255),
     IsActive BIT,
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME,
+	FOREIGN KEY (OrganizationRoleId) REFERENCES [OrganizationRoleStatus](Id),
+	FOREIGN KEY (GenderId) REFERENCES [GenderType]([Id]),
     FOREIGN KEY (OrganizationId) REFERENCES Organization(Id)
 );
 
@@ -149,10 +171,25 @@ CREATE TABLE [Scenario] (
     CONSTRAINT FK_Scenario_Scene FOREIGN KEY (SceneId) REFERENCES [Scene](Id)
 );
 
+CREATE TABLE [dbo].[Lesson] (
+    [Id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    [TopicId] UNIQUEIDENTIFIER NOT NULL,
+    [LessonName] NVARCHAR(100),
+    [Title] NVARCHAR(255),
+    [Description] NVARCHAR(255),
+    [StatusId] INT,
+    [IsActive] BIT DEFAULT 1,
+    [Created_At] DATETIME2(3) DEFAULT SYSUTCDATETIME(),
+    [Updated_At] DATETIME2(3),
+    [Delete_At] DATETIME2(3),
+    FOREIGN KEY ([TopicId]) REFERENCES [Topic]([Id]),
+    FOREIGN KEY ([StatusId]) REFERENCES [LessonStatus]([Id])
+);
+
 -- Bảng Quiz
 CREATE TABLE [Quiz] (
     Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    TopicId UNIQUEIDENTIFIER NOT NULL,
+    LessonId UNIQUEIDENTIFIER NOT NULL,
     QuizName NVARCHAR(100),
     Score FLOAT,
     Status NVARCHAR(50),
@@ -160,7 +197,7 @@ CREATE TABLE [Quiz] (
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME,
-    CONSTRAINT FK_Quiz_Topic FOREIGN KEY (TopicId) REFERENCES [Topic](Id)
+    FOREIGN KEY (LessonId) REFERENCES [Lesson](Id)
 );
 
 -- Bảng Question
@@ -291,9 +328,10 @@ CREATE TABLE EnrollmentRequest (
     Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     StudentId UNIQUEIDENTIFIER NOT NULL,
     CourseId UNIQUEIDENTIFIER NOT NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'pending', -- accepted | denied | pending
+    StatusId INT NOT NULL, 
     RequestedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     RespondedAt DATETIME2 NULL,
+	FOREIGN KEY ([StatusId]) REFERENCES [EnrollmentStatus]([Id]),
 
     CONSTRAINT FK_EnrollmentRequest_Student FOREIGN KEY (StudentId)
         REFERENCES Account(Id) ON DELETE CASCADE,
@@ -370,3 +408,10 @@ CREATE TABLE QuizSubmissionAnswer (
     FOREIGN KEY (AnswerId) REFERENCES Answer(Id)
 );
 
+INSERT INTO GenderType VALUES (1, 'Male'), (2, 'Female'), (3, 'Other');
+
+INSERT INTO OrganizationRoleStatus VALUES (1, 'Organization_Admin'), (2, 'Instructor'), (3, 'Student'), (4, 'Admin');
+
+INSERT INTO LessonStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
+
+INSERT INTO EnrollmentStatus VALUES (1, 'Pending'), (2, 'Accepted'), (3, 'Rejected');
