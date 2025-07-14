@@ -121,10 +121,10 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [HttpPost("sign_up")]
-        [SwaggerOperation(Summary = "Register new account", Description = "Create a new user account and send OTP for email verification")]
+        [HttpPost("register-admin-account")]
+        [SwaggerOperation(Summary = "Register new admin account", Description = "Create a new admin account and send OTP for email verification")]
 
-        public async Task<IActionResult> Register(AccountDTOCreate request)
+        public async Task<IActionResult> RegisterAdminAccount(AccountDTOCreate request)
         {
 
             var passwordHasher = new PasswordHasher<Account>();
@@ -133,7 +133,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 SystemMode = true,
                 OrganizationId = null,
-                OrganizationRole = "Student",
+                OrganizationRole = "Admin",
                 UserName = request.UserName,
                 FullName = request.FullName,
                 Email = request.Email,
@@ -160,6 +160,121 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok("Tài khoản đã được tạo. Vui lòng kiểm tra email để lấy mã xác thực.");
         }
+
+
+
+        [HttpPost("register-organization-admin-account")]
+        public async Task<IActionResult> RegisterOrganizationAdmin([FromBody] AccountDTOCreateOg request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+            var rawPassword = request.Password;
+
+            var account = new Account
+            {
+                FullName = request.FullName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = passwordHasher.HashPassword(null, rawPassword),
+                OrganizationId = request.OrganizationId,
+                OrganizationRole = "Organization_Admin",
+                IsActive = true,
+                IsEmailVerify = true,
+                SystemMode = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _accountService.Register(account);
+            if (result <= 0)
+                return BadRequest("Tạo tài khoản quản trị tổ chức thất bại");
+
+            var emailBody = $@"
+            <p>Chào {account.FullName},</p>
+            <p>Bạn được chỉ định là quản trị viên tổ chức trên hệ thống LogiSimEdu.</p>
+            <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+            <p><strong>Mật khẩu:</strong> {rawPassword}</p>
+            <p>Vui lòng đăng nhập và đổi mật khẩu để đảm bảo an toàn.</p>";
+
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản quản trị tổ chức - LogiSimEdu", emailBody);
+
+            return Ok("Tài khoản Organization_Admin đã được tạo và gửi email thành công.");
+        }
+
+        [HttpPost("register-instructor-account")]
+        public async Task<IActionResult> RegisterInstructor([FromBody] AccountDTOCreateOg request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+            var rawPassword = request.Password;
+
+            var account = new Account
+            {
+                FullName = request.FullName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = passwordHasher.HashPassword(null, rawPassword),
+                OrganizationId = request.OrganizationId,
+                OrganizationRole = "Instructor",
+                IsActive = true,
+                IsEmailVerify = true,
+                SystemMode = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _accountService.Register(account);
+            if (result <= 0)
+                return BadRequest("Tạo tài khoản Instructor thất bại");
+
+            var emailBody = $@"
+        <p>Chào {account.FullName},</p>
+        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Instructor</strong> trên hệ thống LogiSimEdu.</p>
+        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
+        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản Giảng viên - LogiSimEdu", emailBody);
+
+            return Ok("Tài khoản Instructor đã được tạo và gửi email thành công.");
+        }
+
+        [HttpPost("register-student-account")]
+        public async Task<IActionResult> RegisterStudent([FromBody] AccountDTOCreateOg request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+            var rawPassword = request.Password;
+
+            var account = new Account
+            {
+                FullName = request.FullName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = passwordHasher.HashPassword(null, rawPassword),
+                OrganizationId = request.OrganizationId,
+                OrganizationRole = "Student",
+                IsActive = true,
+                IsEmailVerify = true,
+                SystemMode = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _accountService.Register(account);
+            if (result <= 0)
+                return BadRequest("Tạo tài khoản Student thất bại");
+
+            var emailBody = $@"
+        <p>Chào {account.FullName},</p>
+        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
+        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
+        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản Học viên - LogiSimEdu", emailBody);
+
+            return Ok("Tài khoản Student đã được tạo và gửi email thành công.");
+        }
+
+
 
 
         [HttpPost("forgot_password")]
