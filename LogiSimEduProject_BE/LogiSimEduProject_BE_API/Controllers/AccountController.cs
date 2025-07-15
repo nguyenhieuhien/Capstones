@@ -34,25 +34,28 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountRepository = accountRepository;
         }
 
-        [Authorize(Roles = "Admin,Organization_Admin")]
+
+        //[Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all accounts", Description = "Retrieve a list of all registered accounts")]
-
         public async Task<IEnumerable<Account>> Get()
         {
             return await _accountService.GetAll();
         }
 
-        [Authorize(Roles = "Admin,Organization_Admin")]
+
+
+        //[Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet("get_account/{id}")]
         [SwaggerOperation(Summary = "Get account by ID", Description = "Retrieve detailed account information using the account ID")]
-
         public async Task<Account> Get(string id)
         {
             return await _accountService.GetById(id);
        }
 
-         [HttpPost("verify_email")]
+
+
+        [HttpPost("verify_email")]
         [SwaggerOperation(Summary = "Verify email via OTP", Description = "Verify user's email address using the OTP sent via email")]
 
         public async Task<IActionResult> VerifyEmailOtp([FromBody] string otp)
@@ -71,10 +74,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Xác thực email thành công.");
         }
 
-
         [HttpPost("confirm_change_email")]
         [SwaggerOperation(Summary = "Confirm email change via OTP", Description = "Verify and update new email using a one-time password (OTP)")]
-
         public async Task<IActionResult> ConfirmChangeEmailOtp([FromBody] string otp)
         {
             if (!_cache.TryGetValue($"change_email_token_{otp}", out dynamic? data) || data == null)
@@ -91,6 +92,8 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok("Email đã được cập nhật thành công.");
         }
+
+
 
 
         [HttpPost("login")]
@@ -122,6 +125,9 @@ namespace LogiSimEduProject_BE_API.Controllers
                 }
             });
         }
+
+
+
 
         [HttpPost("register-admin-account")]
         [SwaggerOperation(Summary = "Register new admin account", Description = "Create a new admin account and send OTP for email verification")]
@@ -164,7 +170,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("register-organization-admin-account")]
         public async Task<IActionResult> RegisterOrganizationAdmin([FromBody] AccountDTOCreateOg request)
         {
@@ -202,7 +208,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Tài khoản Organization_Admin đã được tạo và gửi email thành công.");
         }
 
-        [Authorize(Roles = "Organization_Admin")]
+
+
+        //[Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-instructor-account")]
         public async Task<IActionResult> RegisterInstructor([FromBody] AccountDTOCreateOg request)
         {
@@ -240,7 +248,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Tài khoản Instructor đã được tạo và gửi email thành công.");
         }
 
-        [Authorize(Roles = "Organization_Admin")]
+
+
+        //[Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-student-account")]
         public async Task<IActionResult> RegisterStudent([FromBody] AccountDTOCreateOg request)
         {
@@ -282,7 +292,6 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         [HttpPost("forgot_password")]
         [SwaggerOperation(Summary = "Reset password", Description = "Reset password using token from email")]
-
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest model)
         {
             var user = await _accountRepository.GetByEmailAsync(model.Email);
@@ -308,7 +317,6 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         [HttpPost("reset-password")]
         [SwaggerOperation(Summary = "Reset password", Description = "Reset password using token from email")]
-
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
             // Kiểm tra token
@@ -332,7 +340,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Đặt lại mật khẩu thành công.");
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("change_password")]
         [SwaggerOperation(Summary = "Change password", Description = "Authenticated user changes their password")]
 
@@ -355,7 +363,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { message });
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("request_change_email")]
         [SwaggerOperation(Summary = "Request email change", Description = "Send OTP to new email for verification before updating email address")]
 
@@ -389,6 +397,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok("Mã xác nhận đã được gửi đến email mới của bạn.");
         }
+
 
         [HttpPost("resend_verify")]
         [SwaggerOperation(Summary = "Resend verification OTP", Description = "Resend email verification code to user's email")]
