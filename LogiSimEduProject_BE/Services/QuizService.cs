@@ -50,7 +50,7 @@ namespace Services
                 question.QuizId = dto.Id;
                 question.CreatedAt = DateTime.UtcNow;
 
-                int correctCount = question.Answers.Count(a => a.IsAnswerCorrect == true);
+                int correctCount = question.Answers.Count(a => a.IsCorrect == true);
                 if (correctCount != 1)
                     throw new Exception("Each question must have exactly one correct answer.");
 

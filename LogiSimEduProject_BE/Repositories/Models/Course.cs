@@ -9,9 +9,11 @@ public partial class Course
 {
     public Guid Id { get; set; }
 
-    public Guid CategoryId { get; set; }
+    public Guid? InstructorId { get; set; }
 
-    public Guid WorkSpaceId { get; set; }
+    public Guid? CategoryId { get; set; }
+
+    public Guid? WorkSpaceId { get; set; }
 
     public string CourseName { get; set; }
 
@@ -29,11 +31,19 @@ public partial class Course
 
     public DateTime? DeleteAt { get; set; }
 
+    public virtual ICollection<AccountOfCourse> AccountOfCourses { get; set; } = new List<AccountOfCourse>();
+
     public virtual Category Category { get; set; }
+
+    public virtual ICollection<CertificateTemplete> CertificateTempletes { get; set; } = new List<CertificateTemplete>();
+
+    public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 
-    public virtual ICollection<EnrollmentRequest> EnrollmentRequests { get; set; } = new List<EnrollmentRequest>();
+    public virtual ICollection<CourseProgress> CourseProgresses { get; set; } = new List<CourseProgress>();
+
+    public virtual Account Instructor { get; set; }
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 

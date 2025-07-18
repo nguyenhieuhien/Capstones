@@ -37,7 +37,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 QuestionId = request.QuestionId,
                 Description = request.Description,
-                IsAnswerCorrect = request.IsAnswerCorrect,
+                IsCorrect = request.IsCorrect,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -65,7 +65,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             existingAnswer.QuestionId = request.QuestionId;
             existingAnswer.Description = request.Description;
-            existingAnswer.IsAnswerCorrect = request.IsAnswerCorrect;
+            existingAnswer.IsCorrect = request.IsCorrect;
             existingAnswer.UpdatedAt = DateTime.UtcNow;
 
             await _service.Update(existingAnswer);
@@ -77,7 +77,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     QuestionId = existingAnswer.QuestionId,
                     Description = existingAnswer.Description,
-                    IsAnswerCorrect = existingAnswer.IsAnswerCorrect,
+                    IsAnswerCorrect = existingAnswer.IsCorrect,
                     IsActive = existingAnswer.IsActive,
                 }
             });

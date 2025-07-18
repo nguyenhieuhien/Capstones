@@ -5,15 +5,19 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class PackageType
+public partial class SubscriptionPlan
 {
     public Guid Id { get; set; }
 
-    public string PackageName { get; set; }
-
-    public string Description { get; set; }
+    public string Name { get; set; }
 
     public double? Price { get; set; }
+
+    public int? DurationInMonths { get; set; }
+
+    public int? MaxWorkSpaces { get; set; }
+
+    public string Description { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -23,5 +27,5 @@ public partial class PackageType
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

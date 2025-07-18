@@ -9,7 +9,11 @@ public partial class Scenario
 {
     public Guid Id { get; set; }
 
-    public Guid SceneId { get; set; }
+    public Guid? SceneId { get; set; }
+
+    public Guid? TopicId { get; set; }
+
+    public string FileUrl { get; set; }
 
     public string ScenarioName { get; set; }
 
@@ -24,4 +28,6 @@ public partial class Scenario
     public DateTime? DeleteAt { get; set; }
 
     public virtual Scene Scene { get; set; }
+
+    public virtual Topic Topic { get; set; }
 }

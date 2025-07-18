@@ -10,11 +10,11 @@ namespace Services
 {
     public interface IEnrollmentRequestService
     {
-        Task<List<EnrollmentRequest>> GetAll();
-        Task<EnrollmentRequest> GetById(string id);
-        Task<List<EnrollmentRequest>> GetByCourseId(string courseId);
-        Task<int> Create(EnrollmentRequest request);
-        Task<int> Update(EnrollmentRequest request);
+        Task<List<AccountOfCourse>> GetAll();
+        Task<AccountOfCourse> GetById(string id);
+        Task<List<AccountOfCourse>> GetByCourseId(string courseId);
+        Task<int> Create(AccountOfCourse request);
+        Task<int> Update(AccountOfCourse request);
         Task<bool> Delete(string id);
     }
 
@@ -27,11 +27,11 @@ namespace Services
             _repository = new EnrollmentRequestRepository();
         }
 
-        public async Task<int> Create(EnrollmentRequest request)
+        public async Task<int> Create(AccountOfCourse request)
         {
             request.Id = Guid.NewGuid();
-            request.StatusId = 1;
-            request.RequestedAt = DateTime.UtcNow;
+            request.Status = 1;
+            request.CreatedAt = DateTime.UtcNow;
             return await _repository.CreateAsync(request);
         }
 
@@ -45,22 +45,22 @@ namespace Services
             return false;
         }
 
-        public async Task<List<EnrollmentRequest>> GetAll()
+        public async Task<List<AccountOfCourse>> GetAll()
         {
             return await _repository.GetAll();
         }
 
-        public async Task<EnrollmentRequest> GetById(string id)
+        public async Task<AccountOfCourse> GetById(string id)
         {
             return await _repository.GetById(id);
         }
 
-        public async Task<List<EnrollmentRequest>> GetByCourseId(string courseId)
+        public async Task<List<AccountOfCourse>> GetByCourseId(string courseId)
         {
             return await _repository.GetByCourseId(courseId);
         }
 
-        public async Task<int> Update(EnrollmentRequest request)
+        public async Task<int> Update(AccountOfCourse request)
         {
             return await _repository.UpdateAsync(request);
         }

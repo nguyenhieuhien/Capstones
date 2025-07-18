@@ -11,6 +11,8 @@ public partial class Organization
 
     public string OrganizationName { get; set; }
 
+    public string ImgUrl { get; set; }
+
     public string Email { get; set; }
 
     public string Phone { get; set; }
@@ -27,5 +29,9 @@ public partial class Organization
 
     public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
 
+    public virtual ICollection<CertificateTemplete> CertificateTempletes { get; set; } = new List<CertificateTemplete>();
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual ICollection<WorkSpace> WorkSpaces { get; set; } = new List<WorkSpace>();
 }

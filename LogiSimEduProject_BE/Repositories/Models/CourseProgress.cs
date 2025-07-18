@@ -5,21 +5,21 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class ConversationParticipant
+public partial class CourseProgress
 {
     public Guid Id { get; set; }
 
-    public Guid ConversationId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? CourseId { get; set; }
 
-    public DateTime JoinedAt { get; set; }
+    public double? ProgressPercent { get; set; }
 
-    public DateTime? LastReadAt { get; set; }
+    public int? Status { get; set; }
 
     public bool? IsActive { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
@@ -27,5 +27,7 @@ public partial class ConversationParticipant
 
     public virtual Account Account { get; set; }
 
-    public virtual Conversation Conversation { get; set; }
+    public virtual Course Course { get; set; }
+
+    public virtual CourseProgressStatus StatusNavigation { get; set; }
 }

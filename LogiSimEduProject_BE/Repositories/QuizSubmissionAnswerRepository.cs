@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Repositories
 {
-    public class QuizSubmissionAnswerRepository : GenericRepository<QuizSubmissionAnswer>
+    public class QuizSubmissionAnswerRepository : GenericRepository<QuestionSubmission>
     {
         public QuizSubmissionAnswerRepository() { }
     }

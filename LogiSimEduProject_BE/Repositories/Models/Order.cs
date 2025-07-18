@@ -11,15 +11,21 @@ public partial class Order
 
     public Guid? OrganizationId { get; set; }
 
-    public Guid? WorkSpaceId { get; set; }
+    public Guid? AccountId { get; set; }
+
+    public Guid? SubcriptionPlanId { get; set; }
 
     public string Description { get; set; }
 
     public double? TotalPrice { get; set; }
 
-    public DateTime? BookingTime { get; set; }
+    public DateTime? OrderTime { get; set; }
 
-    public string Status { get; set; }
+    public int? Status { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -29,9 +35,13 @@ public partial class Order
 
     public DateTime? DeleteAt { get; set; }
 
+    public virtual Account Account { get; set; }
+
     public virtual Organization Organization { get; set; }
 
-    public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    public virtual WorkSpace WorkSpace { get; set; }
+    public virtual OrderStatus StatusNavigation { get; set; }
+
+    public virtual SubscriptionPlan SubcriptionPlan { get; set; }
 }

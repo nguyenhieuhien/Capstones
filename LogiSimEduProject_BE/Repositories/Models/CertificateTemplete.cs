@@ -5,19 +5,19 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class WorkSpace
+public partial class CertificateTemplete
 {
     public Guid Id { get; set; }
 
     public Guid? OrganizationId { get; set; }
 
-    public string WorkSpaceName { get; set; }
+    public Guid? CourseId { get; set; }
 
-    public int? NumberOfAccount { get; set; }
+    public string TemplateName { get; set; }
 
-    public string ImgUrl { get; set; }
+    public string BackgroundUrl { get; set; }
 
-    public string Description { get; set; }
+    public string HtmlTemplate { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -27,11 +27,9 @@ public partial class WorkSpace
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
+    public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
 
-    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+    public virtual Course Course { get; set; }
 
     public virtual Organization Organization { get; set; }
-
-    public virtual ICollection<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; } = new List<SceneOfWorkSpace>();
 }

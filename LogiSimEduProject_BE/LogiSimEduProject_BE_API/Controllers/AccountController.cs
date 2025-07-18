@@ -139,9 +139,8 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             var account = new Account
             {
-                SystemMode = true,
                 OrganizationId = null,
-                OrganizationRoleId = 4,
+                RoleId = 1,
                 UserName = request.UserName,
                 FullName = request.FullName,
                 Email = request.Email,
@@ -185,10 +184,9 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Phone = request.Phone,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
-                OrganizationRoleId = 1,
+                RoleId = 2,
                 IsActive = true,
                 IsEmailVerify = true,
-                SystemMode = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -225,10 +223,9 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Phone = request.Phone,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
-                OrganizationRoleId = 2,
+                RoleId = 3,
                 IsActive = true,
                 IsEmailVerify = true,
-                SystemMode = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -265,10 +262,9 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Phone = request.Phone,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
-                OrganizationRoleId = 3,
+                RoleId = 4,
                 IsActive = true,
                 IsEmailVerify = true,
-                SystemMode = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -437,9 +433,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             existingAccount.Email = request.Email;
             existingAccount.Phone = request.Phone;
 
-            if (request.OrganizationRoleId is > 0 and <= 4) // Giả sử có 4 role
+            if (request.RoleId is > 0 and <= 4) // Giả sử có 4 role
             {
-                existingAccount.OrganizationRoleId = request.OrganizationRoleId;
+                existingAccount.RoleId = request.RoleId;
             }
             else
             {
@@ -455,8 +451,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     Id = existingAccount.Id,
                     OrganizationId = existingAccount.OrganizationId,
-                    SystemMode = existingAccount.SystemMode,
-                    OrganizationRole = existingAccount.OrganizationRole,
+                    RoleId = existingAccount.RoleId,
                     UserName = existingAccount.UserName,
                     FullName = existingAccount.FullName,
                     //Password = existingAccount.Password,
@@ -493,12 +488,12 @@ namespace LogiSimEduProject_BE_API.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            string roleName = account.OrganizationRoleId switch
+            string roleName = account.RoleId switch
             {
-                4 => "Admin",
-                1 => "Organization_Admin",
-                2 => "Instructor",
-                3 => "Student",
+                1 => "Admin",
+                2 => "Organization_Admin",
+                3 => "Instructor",
+                4 => "Student",
                 _ => "Student"
             };
 

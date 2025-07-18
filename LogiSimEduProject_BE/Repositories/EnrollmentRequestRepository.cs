@@ -9,36 +9,36 @@ using System.Threading.Tasks;
 
 namespace Repositories
 {
-    public class EnrollmentRequestRepository : GenericRepository<EnrollmentRequest>
+    public class EnrollmentRequestRepository : GenericRepository<AccountOfCourse>
     {
         public EnrollmentRequestRepository() { }
 
-        public async Task<List<EnrollmentRequest>> GetAll()
+        public async Task<List<AccountOfCourse>> GetAll()
         {
-            return await _context.EnrollmentRequests
-                .Include(e => e.Student)
+            return await _context.AccountOfCourses
+                .Include(e => e.Account)
                 .Include(e => e.Course)
                 .ToListAsync();
         }
-        public async Task<List<EnrollmentRequest>> GetByCourseId(string courseId)
+        public async Task<List<AccountOfCourse>> GetByCourseId(string courseId)
         {
-            return await _context.EnrollmentRequests
-                .Include(e => e.Student)
+            return await _context.AccountOfCourses
+                .Include(e => e.Account)
                 .Where(e => e.CourseId == Guid.Parse(courseId))
                 .ToListAsync();
         }
-        public async Task<EnrollmentRequest> GetById(string id)
+        public async Task<AccountOfCourse> GetById(string id)
         {
-            return await _context.EnrollmentRequests
-                .Include(e => e.Student)
+            return await _context.AccountOfCourses
+                .Include(e => e.Account)
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.Id == Guid.Parse(id));
         }
 
-        public async Task<EnrollmentRequest?> GetAcceptedRequest(Guid studentId)
+        public async Task<AccountOfCourse?> GetAcceptedRequest(Guid studentId)
         {
-            return await _context.EnrollmentRequests
-                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.StatusId == 2);
+            return await _context.AccountOfCourses
+                .FirstOrDefaultAsync(x => x.AccountId == studentId && x.Status == 2);
         }
     }
 }

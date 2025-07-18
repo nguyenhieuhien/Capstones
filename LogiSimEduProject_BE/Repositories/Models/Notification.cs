@@ -9,7 +9,7 @@ public partial class Notification
 {
     public Guid Id { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? AccountId { get; set; }
 
     public string Title { get; set; }
 

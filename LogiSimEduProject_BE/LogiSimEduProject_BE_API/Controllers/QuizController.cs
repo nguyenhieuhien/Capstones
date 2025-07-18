@@ -44,7 +44,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 LessonId = request.LessonId,
                 QuizName = request.QuizName,
-                Score = request.Score,
+                TotalScore = request.TotalScore,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -70,7 +70,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Id = quizId,
                 LessonId = dto.LessonId,
                 QuizName = dto.QuizName,
-                Score = dto.Score,
+                TotalScore = dto.TotalScore,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Questions = dto.Questions.Select(q =>
@@ -87,7 +87,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                             Id = Guid.NewGuid(),
                             QuestionId = questionId,
                             Description = a.Description,
-                            IsAnswerCorrect = a.IsAnswerCorrect,
+                            IsCorrect = a.IsAnswerCorrect,
                             CreatedAt = DateTime.UtcNow
                         }).ToList()
                     };
@@ -114,7 +114,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             existingQuiz.LessonId = request.LessonId;
             existingQuiz.QuizName = request.QuizName;
-            existingQuiz.Score = request.Score;
+            existingQuiz.TotalScore = request.TotalScore;
             existingQuiz.UpdatedAt = DateTime.UtcNow;
 
             await _service.Update(existingQuiz);
@@ -126,7 +126,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     LessonId = existingQuiz.LessonId,
                     QuizName = existingQuiz.QuizName,
-                    Score = existingQuiz.Score,
+                    TotalScore = existingQuiz.TotalScore,
                     IsActive = existingQuiz.IsActive,
                 }
             });

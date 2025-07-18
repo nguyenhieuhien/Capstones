@@ -9,17 +9,25 @@ public partial class QuizSubmission
 {
     public Guid Id { get; set; }
 
-    public Guid QuizId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? QuizId { get; set; }
 
-    public DateTime? SubmittedAt { get; set; }
+    public DateTime? SubmitTime { get; set; }
 
-    public int? ScoreObtained { get; set; }
+    public double? TotalScore { get; set; }
+
+    public bool? IsActive { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public DateTime? DeleteAt { get; set; }
 
     public virtual Account Account { get; set; }
 
-    public virtual Quiz Quiz { get; set; }
+    public virtual ICollection<QuestionSubmission> QuestionSubmissions { get; set; } = new List<QuestionSubmission>();
 
-    public virtual ICollection<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; } = new List<QuizSubmissionAnswer>();
+    public virtual Quiz Quiz { get; set; }
 }

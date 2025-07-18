@@ -9,11 +9,13 @@ public partial class Question
 {
     public Guid Id { get; set; }
 
-    public Guid QuizId { get; set; }
+    public Guid? QuizId { get; set; }
+
+    public int? QuestionType { get; set; }
 
     public string Description { get; set; }
 
-    public bool? IsCorrect { get; set; }
+    public double? Score { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -25,7 +27,9 @@ public partial class Question
 
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
-    public virtual Quiz Quiz { get; set; }
+    public virtual ICollection<QuestionSubmission> QuestionSubmissions { get; set; } = new List<QuestionSubmission>();
 
-    public virtual ICollection<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; } = new List<QuizSubmissionAnswer>();
+    public virtual QuestionType QuestionTypeNavigation { get; set; }
+
+    public virtual Quiz Quiz { get; set; }
 }

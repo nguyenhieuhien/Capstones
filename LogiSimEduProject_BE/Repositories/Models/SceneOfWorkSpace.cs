@@ -9,9 +9,9 @@ public partial class SceneOfWorkSpace
 {
     public Guid Id { get; set; }
 
-    public Guid SceneId { get; set; }
+    public Guid? SceneId { get; set; }
 
-    public Guid WorkSpaceId { get; set; }
+    public Guid? WorkSpaceId { get; set; }
 
     public bool? IsActive { get; set; }
 

@@ -33,7 +33,7 @@ namespace Services
                 Id = Guid.NewGuid(),
                 QuizId = quizId,
                 AccountId = accountId,
-                SubmittedAt = DateTime.UtcNow,
+                SubmitTime = DateTime.UtcNow,
             };
 
             await _submissionRepo.CreateAsync(submission);
@@ -43,24 +43,24 @@ namespace Services
             foreach (var (questionId, answerId) in answers)
             {
                 var question = await _questionRepo.GetByIdAsync(questionId.ToString());
-                var correctAnswer = question.Answers.FirstOrDefault(a => a.IsAnswerCorrect == true);
+                var correctAnswer = question.Answers.FirstOrDefault(a => a.IsCorrect == true);
 
                 if (correctAnswer?.Id == answerId)
                     correctCount++;
 
-                var submissionAnswer = new QuizSubmissionAnswer
+                var submissionAnswer = new QuestionSubmission
                 {
                     Id = Guid.NewGuid(),
                     QuizSubmissionId = submission.Id,
                     QuestionId = questionId,
-                    AnswerId = answerId
+                    SelectedAnswerId = answerId
                 };
 
                 await _answerRepo.CreateAsync(submissionAnswer);
             }
             var totalQuestions = answers.Count;
             var score = Math.Round((double)correctCount / totalQuestions * 10, 2);
-            submission.ScoreObtained = (int)score;
+            submission.TotalScore = (int)score;
 
             await _submissionRepo.UpdateAsync(submission); 
 
