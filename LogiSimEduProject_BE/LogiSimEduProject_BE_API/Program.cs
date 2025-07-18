@@ -51,7 +51,7 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddHttpClient(); //chatai
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
