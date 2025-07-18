@@ -9,29 +9,27 @@ public partial class Account
 {
     public Guid Id { get; set; }
 
+    public int? RoleId { get; set; }
+
     public Guid? OrganizationId { get; set; }
 
-    public bool? SystemMode { get; set; }
-
-    public int OrganizationRoleId { get; set; }
-
     public string UserName { get; set; }
-
-    public string Password { get; set; }
-
-    public bool? IsEmailVerify { get; set; }
 
     public string FullName { get; set; }
 
     public string Email { get; set; }
 
+    public string Password { get; set; }
+
     public string Phone { get; set; }
 
-    public int? GenderId { get; set; }
+    public int? Gender { get; set; }
 
     public string Address { get; set; }
 
     public string AvtUrl { get; set; }
+
+    public bool? IsEmailVerify { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -41,25 +39,31 @@ public partial class Account
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<AccountOfClass> AccountOfClasses { get; set; } = new List<AccountOfClass>();
+    public virtual ICollection<AccountOfCourse> AccountOfCourses { get; set; } = new List<AccountOfCourse>();
 
     public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
 
-    public virtual ICollection<ConversationParticipant> ConversationParticipants { get; set; } = new List<ConversationParticipant>();
+    public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
 
-    public virtual ICollection<EnrollmentRequest> EnrollmentRequests { get; set; } = new List<EnrollmentRequest>();
+    public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 
-    public virtual GenderType Gender { get; set; }
+    public virtual ICollection<CourseProgress> CourseProgresses { get; set; } = new List<CourseProgress>();
 
-    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+
+    public virtual GenderType GenderNavigation { get; set; }
+
+    public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
-    public virtual Organization Organization { get; set; }
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    public virtual OrganizationRoleStatus OrganizationRole { get; set; }
+    public virtual Organization Organization { get; set; }
 
     public virtual ICollection<QuizSubmission> QuizSubmissions { get; set; } = new List<QuizSubmission>();
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+    public virtual Role Role { get; set; }
 }

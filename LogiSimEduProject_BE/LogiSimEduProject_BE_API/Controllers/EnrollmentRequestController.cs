@@ -27,7 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_enrollmentRequest")]
         [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
-        public async Task<IEnumerable<EnrollmentRequest>> GetAll()
+        public async Task<IEnumerable<AccountOfCourse>> GetAll()
         {
             return await _service.GetAll();
         }
@@ -35,7 +35,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest_by_corse/{courseId}")] // Lấy tất cả yêu cầu theo course
         [SwaggerOperation(Summary = "Get requests by course", Description = "Get all enrollment requests submitted for a specific course.")]
-        public async Task<IEnumerable<EnrollmentRequest>> GetByCourse(string courseId)
+        public async Task<IEnumerable<AccountOfCourse>> GetByCourse(string courseId)
         {
             return await _service.GetByCourseId(courseId);
         }
@@ -43,7 +43,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Get enrollment request by ID", Description = "Retrieve a specific enrollment request by its ID.")]
-        public async Task<ActionResult<EnrollmentRequest>> Get(string id)
+        public async Task<ActionResult<AccountOfCourse>> Get(string id)
         {
             var item = await _service.GetById(id);
             if (item == null)
@@ -61,16 +61,16 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (account == null)
                 return BadRequest("Tài khoản không tồn tại.");
 
-            if (account.SystemMode != true || account.OrganizationRoleId != 3)
+            if (account.RoleId != 4)
                 return Unauthorized("Chỉ tài khoản Student mới được gửi yêu cầu.");
 
 
-            var model = new EnrollmentRequest
+            var model = new AccountOfCourse
             {
-                StudentId = request.StudentId,
+                AccountId = request.StudentId,
                 CourseId = request.CourseId,
-                StatusId = 1,
-                RequestedAt = DateTime.UtcNow
+                Status = 1,
+                CreatedAt = DateTime.UtcNow
             };
 
             var result = await _service.Create(model);
@@ -92,8 +92,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (status != 2  && status != 3 )
                 return BadRequest("Invalid status");
 
-            request.StatusId = status;
-            request.RespondedAt = DateTime.UtcNow;
+            request.Status = status;
+            request.UpdatedAt = DateTime.UtcNow;
 
             await _service.Update(request);
 

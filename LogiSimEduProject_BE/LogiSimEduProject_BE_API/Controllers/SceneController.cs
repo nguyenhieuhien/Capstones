@@ -48,32 +48,10 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Create a new scene", Description = "Uploads a ZIP file and creates a new scene entry.")]
         public async Task<IActionResult> Post([FromForm] SceneDTOCreate request)
         {
-            string imgUrl = null;
-
-            if (request.ImgUrl != null)
-            {
-                await using var stream = request.ImgUrl.OpenReadStream();
-                var uploadParams = new RawUploadParams
-                {
-                    File = new FileDescription(request.ImgUrl.FileName, stream),
-                    Folder = "LogiSimEdu_Scenes",
-                    UseFilename = true,
-                    UniqueFilename = false,
-                    Overwrite = true,
-                };
-
-                var result = await _cloudinary.UploadAsync(uploadParams);
-
-                if (result.StatusCode != HttpStatusCode.OK)
-                    return StatusCode((int)result.StatusCode, result.Error?.Message);
-
-                imgUrl = result.SecureUrl.ToString();
-            }
 
             var scene  = new Scene
             {
                 SceneName = request.SceneName,
-                ImgUrl = imgUrl,
                 Description = request.Description,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -100,26 +78,6 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound(new { Message = $"Scene with ID {id} was not found." });
             }
 
-            if (request.ImgUrl != null)
-            {
-                await using var stream = request.ImgUrl.OpenReadStream();
-                var uploadParams = new RawUploadParams
-                {
-                    File = new FileDescription(request.ImgUrl.FileName, stream),
-                    Folder = "LogiSimEdu_Scenes",
-                    UseFilename = true,
-                    UniqueFilename = false,
-                    Overwrite = true
-                };
-
-                var result = await _cloudinary.UploadAsync(uploadParams);
-
-                if (result.StatusCode != HttpStatusCode.OK)
-                    return StatusCode((int)result.StatusCode, result.Error?.Message);
-
-                existingScene.ImgUrl = result.SecureUrl.ToString();
-            }
-
             existingScene.SceneName = request.SceneName;
             existingScene.Description = request.Description;
             existingScene.UpdatedAt = DateTime.UtcNow;
@@ -132,23 +90,22 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Data = new
                 {
                     SceneName = existingScene.SceneName,
-                    ImgUrl = existingScene.ImgUrl,
                     Description = existingScene.Description,
                 }
             });
         }
 
-        [Authorize(Roles = "Student,Instructor")]
-        [HttpGet("download_scene/{id}")]
-        [SwaggerOperation(Summary = "Download ZIP file of a scene", Description = "Downloads the uploaded ZIP file of the given scene.")]
-        public async Task<IActionResult> Download(string id)
-        {
-            var scene = await _service.GetById(id);
-            if (scene == null || string.IsNullOrEmpty(scene.ImgUrl))
-                return NotFound("Scene or file not found.");
+        //[Authorize(Roles = "Student,Instructor")]
+        //[HttpGet("download_scene/{id}")]
+        //[SwaggerOperation(Summary = "Download ZIP file of a scene", Description = "Downloads the uploaded ZIP file of the given scene.")]
+        //public async Task<IActionResult> Download(string id)
+        //{
+        //    var scene = await _service.GetById(id);
+        //    if (scene == null || string.IsNullOrEmpty(scene.ImgUrl))
+        //        return NotFound("Scene or file not found.");
 
-            return Redirect(scene.ImgUrl);
-        }
+        //    return Redirect(scene.ImgUrl);
+        //}
 
         //[Authorize(Roles = "1")]
         [HttpDelete("delete_scene/{id}")]

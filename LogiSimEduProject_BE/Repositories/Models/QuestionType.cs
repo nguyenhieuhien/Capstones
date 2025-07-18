@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class EnrollmentStatus
+public partial class QuestionType
 {
     public int Id { get; set; }
 
     public string Name { get; set; }
 
-    public virtual ICollection<AccountOfCourse> AccountOfCourses { get; set; } = new List<AccountOfCourse>();
+    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 }

@@ -5,13 +5,15 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Scene
+public partial class QuestionSubmission
 {
     public Guid Id { get; set; }
 
-    public string SceneName { get; set; }
+    public Guid? QuizSubmissionId { get; set; }
 
-    public string Description { get; set; }
+    public Guid? QuestionId { get; set; }
+
+    public Guid? SelectedAnswerId { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -21,7 +23,9 @@ public partial class Scene
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
+    public virtual Question Question { get; set; }
 
-    public virtual ICollection<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; } = new List<SceneOfWorkSpace>();
+    public virtual QuizSubmission QuizSubmission { get; set; }
+
+    public virtual Answer SelectedAnswer { get; set; }
 }

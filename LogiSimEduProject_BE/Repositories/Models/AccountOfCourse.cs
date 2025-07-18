@@ -5,15 +5,17 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Package
+public partial class AccountOfCourse
 {
     public Guid Id { get; set; }
 
-    public Guid? OrderId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid? WorkSpaceId { get; set; }
+    public Guid? CourseId { get; set; }
 
-    public Guid? PackageTypeId { get; set; }
+    public Guid? ClassId { get; set; }
+
+    public int? Status { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -23,11 +25,11 @@ public partial class Package
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual Order Order { get; set; }
+    public virtual Account Account { get; set; }
 
-    public virtual ICollection<PackageOfScene> PackageOfScenes { get; set; } = new List<PackageOfScene>();
+    public virtual Class Class { get; set; }
 
-    public virtual PackageType PackageType { get; set; }
+    public virtual Course Course { get; set; }
 
-    public virtual WorkSpace WorkSpace { get; set; }
+    public virtual EnrollmentStatus StatusNavigation { get; set; }
 }

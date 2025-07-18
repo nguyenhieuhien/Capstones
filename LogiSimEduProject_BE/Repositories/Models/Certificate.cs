@@ -5,13 +5,23 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class AccountOfClass
+public partial class Certificate
 {
     public Guid Id { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid ClassId { get; set; }
+    public Guid? CourseId { get; set; }
+
+    public Guid? CertiTempId { get; set; }
+
+    public string CertificateName { get; set; }
+
+    public double? Score { get; set; }
+
+    public Guid? Rank { get; set; }
+
+    public string FileUrl { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -23,5 +33,7 @@ public partial class AccountOfClass
 
     public virtual Account Account { get; set; }
 
-    public virtual Class Class { get; set; }
+    public virtual CertificateTemplete CertiTemp { get; set; }
+
+    public virtual Course Course { get; set; }
 }

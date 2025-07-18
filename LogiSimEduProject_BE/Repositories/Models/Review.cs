@@ -9,9 +9,9 @@ public partial class Review
 {
     public Guid Id { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid CourseId { get; set; }
+    public Guid? CourseId { get; set; }
 
     public string Description { get; set; }
 

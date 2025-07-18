@@ -72,7 +72,6 @@ namespace LogiSimEduProject_BE_API.Controllers
             }
             var topic = new Topic
             {
-                SceneId = request.SceneId,
                 CourseId = request.CourseId,
                 TopicName = request.TopicName,
                 ImgUrl = imgUrl,
@@ -123,7 +122,6 @@ namespace LogiSimEduProject_BE_API.Controllers
                 }
             }
 
-            existingTopic.SceneId = request.SceneId;
             existingTopic.CourseId = request.CourseId;
             existingTopic.TopicName = request.TopicName;
             existingTopic.ImgUrl = imgUrl;
@@ -137,7 +135,6 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Message = "Topic updated successfully.",
                 Data = new
                 {
-                    SceneId = existingTopic.SceneId,
                     CourseId = existingTopic.CourseId,
                     TopicName = existingTopic.TopicName,
                     ImgUrl = existingTopic.ImgUrl,

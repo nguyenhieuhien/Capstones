@@ -9,9 +9,13 @@ public partial class Class
 {
     public Guid Id { get; set; }
 
-    public Guid CourseId { get; set; }
+    public Guid? InstructorId { get; set; }
+
+    public Guid? CourseId { get; set; }
 
     public string ClassName { get; set; }
+
+    public string Description { get; set; }
 
     public int? NumberOfStudent { get; set; }
 
@@ -23,7 +27,9 @@ public partial class Class
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<AccountOfClass> AccountOfClasses { get; set; } = new List<AccountOfClass>();
+    public virtual ICollection<AccountOfCourse> AccountOfCourses { get; set; } = new List<AccountOfCourse>();
 
     public virtual Course Course { get; set; }
+
+    public virtual Account Instructor { get; set; }
 }

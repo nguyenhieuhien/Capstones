@@ -73,7 +73,6 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             var workspace = new WorkSpace
             {
-                OrderId = request.OrderId,
                 OrganizationId = request.OrganizationId,
                 WorkSpaceName = request.WorkSpaceName,
                 NumberOfAccount = request.NumberOfAccount,
@@ -123,7 +122,6 @@ namespace LogiSimEduProject_BE_API.Controllers
                     return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
                 }
             }
-            existingWorkSpace.OrderId = request.OrderId;
             existingWorkSpace.OrganizationId = request.OrganizationId;
             existingWorkSpace.WorkSpaceName = request.WorkSpaceName;
             existingWorkSpace.NumberOfAccount = request.NumberOfAccount;
@@ -138,7 +136,6 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Message = "WorkSpace updated successfully.",
                 Data = new
                 {
-                    OrderId = existingWorkSpace.OrderId,
                     CourseId = existingWorkSpace.OrganizationId,
                     WorkSpaceName = existingWorkSpace.WorkSpaceName,
                     ImgUrl = existingWorkSpace.ImgUrl,

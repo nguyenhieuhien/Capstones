@@ -9,7 +9,7 @@ public partial class Lesson
 {
     public Guid Id { get; set; }
 
-    public Guid TopicId { get; set; }
+    public Guid? TopicId { get; set; }
 
     public string LessonName { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Lesson
 
     public string Description { get; set; }
 
-    public int? StatusId { get; set; }
+    public int? Status { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -27,9 +27,11 @@ public partial class Lesson
 
     public DateTime? DeleteAt { get; set; }
 
+    public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
+
     public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
 
-    public virtual LessonStatus Status { get; set; }
+    public virtual LessonStatus StatusNavigation { get; set; }
 
     public virtual Topic Topic { get; set; }
 }

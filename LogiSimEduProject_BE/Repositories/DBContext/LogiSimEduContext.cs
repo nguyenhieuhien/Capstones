@@ -20,7 +20,7 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Account> Accounts { get; set; }
 
-    public virtual DbSet<AccountOfClass> AccountOfClasses { get; set; }
+    public virtual DbSet<AccountOfCourse> AccountOfCourses { get; set; }
 
     public virtual DbSet<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; }
 
@@ -28,15 +28,17 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<Certificate> Certificates { get; set; }
+
+    public virtual DbSet<CertificateTemplete> CertificateTempletes { get; set; }
+
     public virtual DbSet<Class> Classes { get; set; }
-
-    public virtual DbSet<Conversation> Conversations { get; set; }
-
-    public virtual DbSet<ConversationParticipant> ConversationParticipants { get; set; }
 
     public virtual DbSet<Course> Courses { get; set; }
 
-    public virtual DbSet<EnrollmentRequest> EnrollmentRequests { get; set; }
+    public virtual DbSet<CourseProgress> CourseProgresses { get; set; }
+
+    public virtual DbSet<CourseProgressStatus> CourseProgressStatuses { get; set; }
 
     public virtual DbSet<EnrollmentStatus> EnrollmentStatuses { get; set; }
 
@@ -44,39 +46,49 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Lesson> Lessons { get; set; }
 
-    public virtual DbSet<LessonStatus> LessonStatuses { get; set; }
+    public virtual DbSet<LessonProgress> LessonProgresses { get; set; }
 
-    public virtual DbSet<Message> Messages { get; set; }
+    public virtual DbSet<LessonProgressStatus> LessonProgressStatuses { get; set; }
+
+    public virtual DbSet<LessonStatus> LessonStatuses { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
+    public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
+
     public virtual DbSet<Organization> Organizations { get; set; }
 
-    public virtual DbSet<OrganizationRoleStatus> OrganizationRoleStatuses { get; set; }
+    public virtual DbSet<Payment> Payments { get; set; }
 
-    public virtual DbSet<Package> Packages { get; set; }
+    public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
 
-    public virtual DbSet<PackageOfScene> PackageOfScenes { get; set; }
-
-    public virtual DbSet<PackageType> PackageTypes { get; set; }
+    public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
 
     public virtual DbSet<Question> Questions { get; set; }
 
+    public virtual DbSet<QuestionSubmission> QuestionSubmissions { get; set; }
+
+    public virtual DbSet<QuestionType> QuestionTypes { get; set; }
+
     public virtual DbSet<Quiz> Quizzes { get; set; }
+
+    public virtual DbSet<QuizStatus> QuizStatuses { get; set; }
 
     public virtual DbSet<QuizSubmission> QuizSubmissions { get; set; }
 
-    public virtual DbSet<QuizSubmissionAnswer> QuizSubmissionAnswers { get; set; }
-
     public virtual DbSet<Review> Reviews { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Scenario> Scenarios { get; set; }
 
     public virtual DbSet<Scene> Scenes { get; set; }
 
     public virtual DbSet<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; }
+
+    public virtual DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
 
     public virtual DbSet<Topic> Topics { get; set; }
 
@@ -99,11 +111,11 @@ public partial class LogiSimEduContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07B6E808FC");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07533BF55A");
 
             entity.ToTable("Account");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.AvtUrl)
                 .HasMaxLength(255)
@@ -116,40 +128,33 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnName("Delete_At");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
-            entity.Property(e => e.IsEmailVerify).HasDefaultValue(false);
-            entity.Property(e => e.Password)
-                .IsRequired()
-                .HasMaxLength(255);
+            entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
-            entity.Property(e => e.SystemMode).HasDefaultValue(false);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
-            entity.Property(e => e.UserName)
-                .IsRequired()
-                .HasMaxLength(100);
+            entity.Property(e => e.UserName).HasMaxLength(100);
 
-            entity.HasOne(d => d.Gender).WithMany(p => p.Accounts)
-                .HasForeignKey(d => d.GenderId)
-                .HasConstraintName("FK__Account__GenderI__44FF419A");
+            entity.HasOne(d => d.GenderNavigation).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.Gender)
+                .HasConstraintName("FK__Account__Gender__5070F446");
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.OrganizationId)
-                .HasConstraintName("FK__Account__Organiz__45F365D3");
+                .HasConstraintName("FK__Account__Organiz__4F7CD00D");
 
-            entity.HasOne(d => d.OrganizationRole).WithMany(p => p.Accounts)
-                .HasForeignKey(d => d.OrganizationRoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__Organiz__440B1D61");
+            entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.RoleId)
+                .HasConstraintName("FK__Account__RoleId__4E88ABD4");
         });
 
-        modelBuilder.Entity<AccountOfClass>(entity =>
+        modelBuilder.Entity<AccountOfCourse>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07E8183DD7");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07036F5CE3");
 
-            entity.ToTable("AccountOfClass");
+            entity.ToTable("AccountOfCourse");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -160,24 +165,30 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
-            entity.HasOne(d => d.Account).WithMany(p => p.AccountOfClasses)
+            entity.HasOne(d => d.Account).WithMany(p => p.AccountOfCourses)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AOC_Account");
+                .HasConstraintName("FK__AccountOf__Accou__6477ECF3");
 
-            entity.HasOne(d => d.Class).WithMany(p => p.AccountOfClasses)
+            entity.HasOne(d => d.Class).WithMany(p => p.AccountOfCourses)
                 .HasForeignKey(d => d.ClassId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AOC_Class");
+                .HasConstraintName("FK__AccountOf__Class__66603565");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.AccountOfCourses)
+                .HasForeignKey(d => d.CourseId)
+                .HasConstraintName("FK__AccountOf__Cours__656C112C");
+
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.AccountOfCourses)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__AccountOf__Statu__6754599E");
         });
 
         modelBuilder.Entity<AccountOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07FB1EC37D");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07340F9566");
 
             entity.ToTable("AccountOfWorkSpace");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -190,22 +201,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.AccountOfWorkSpaces)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AOWS_Account");
+                .HasConstraintName("FK__AccountOf__Accou__5629CD9C");
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.AccountOfWorkSpaces)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AOWS_WorkSpace");
+                .HasConstraintName("FK__AccountOf__WorkS__571DF1D5");
         });
 
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07A36545DE");
+            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07EB274590");
 
             entity.ToTable("Answer");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -219,17 +228,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Question).WithMany(p => p.Answers)
                 .HasForeignKey(d => d.QuestionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Answer_Question");
+                .HasConstraintName("FK__Answer__Question__02084FDA");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC0748D00BC1");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07C982A364");
 
             entity.ToTable("Category");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CategoryName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
@@ -242,13 +250,77 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnName("Updated_At");
         });
 
+        modelBuilder.Entity<Certificate>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC071A1313B0");
+
+            entity.ToTable("Certificate");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CertificateName).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.FileUrl)
+                .HasMaxLength(255)
+                .HasColumnName("FileURL");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.Certificates)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK__Certifica__Accou__2180FB33");
+
+            entity.HasOne(d => d.CertiTemp).WithMany(p => p.Certificates)
+                .HasForeignKey(d => d.CertiTempId)
+                .HasConstraintName("FK__Certifica__Certi__236943A5");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.Certificates)
+                .HasForeignKey(d => d.CourseId)
+                .HasConstraintName("FK__Certifica__Cours__22751F6C");
+        });
+
+        modelBuilder.Entity<CertificateTemplete>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC079B80D486");
+
+            entity.ToTable("CertificateTemplete");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.BackgroundUrl)
+                .HasMaxLength(255)
+                .HasColumnName("BackgroundURL");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.TemplateName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.CertificateTempletes)
+                .HasForeignKey(d => d.CourseId)
+                .HasConstraintName("FK__Certifica__Cours__1EA48E88");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.CertificateTempletes)
+                .HasForeignKey(d => d.OrganizationId)
+                .HasConstraintName("FK__Certifica__Organ__1DB06A4F");
+        });
+
         modelBuilder.Entity<Class>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC071AF0674C");
+            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07E375D9FF");
 
             entity.ToTable("Class");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ClassName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
@@ -256,74 +328,27 @@ public partial class LogiSimEduContext : DbContext
             entity.Property(e => e.DeleteAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
+            entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Classes)
                 .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Class_Course");
-        });
+                .HasConstraintName("FK__Class__CourseId__619B8048");
 
-        modelBuilder.Entity<Conversation>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC07856CE733");
-
-            entity.ToTable("Conversation");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.Title).HasMaxLength(255);
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-        });
-
-        modelBuilder.Entity<ConversationParticipant>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC075A6322A4");
-
-            entity.ToTable("ConversationParticipant");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.JoinedAt).HasColumnType("datetime");
-            entity.Property(e => e.LastReadAt).HasColumnType("datetime");
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-
-            entity.HasOne(d => d.Account).WithMany(p => p.ConversationParticipants)
-                .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Conversat__Accou__17F790F9");
-
-            entity.HasOne(d => d.Conversation).WithMany(p => p.ConversationParticipants)
-                .HasForeignKey(d => d.ConversationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Conversat__Conve__17036CC0");
+            entity.HasOne(d => d.Instructor).WithMany(p => p.Classes)
+                .HasForeignKey(d => d.InstructorId)
+                .HasConstraintName("FK__Class__Instructo__60A75C0F");
         });
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC07321ABFD3");
+            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC073CBA1A90");
 
             entity.ToTable("Course");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CourseName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
@@ -341,41 +366,60 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Course_Category");
+                .HasConstraintName("FK__Course__Category__5CD6CB2B");
+
+            entity.HasOne(d => d.Instructor).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.InstructorId)
+                .HasConstraintName("FK__Course__Instruct__5BE2A6F2");
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Course_WorkSpace");
+                .HasConstraintName("FK__Course__WorkSpac__5DCAEF64");
         });
 
-        modelBuilder.Entity<EnrollmentRequest>(entity =>
+        modelBuilder.Entity<CourseProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC075FF07D69");
+            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC0755F6C828");
 
-            entity.ToTable("EnrollmentRequest");
+            entity.ToTable("CourseProgress");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.RequestedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
 
-            entity.HasOne(d => d.Course).WithMany(p => p.EnrollmentRequests)
+            entity.HasOne(d => d.Account).WithMany(p => p.CourseProgresses)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK__CoursePro__Accou__123EB7A3");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.CourseProgresses)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK_EnrollmentRequest_Course");
+                .HasConstraintName("FK__CoursePro__Cours__1332DBDC");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.EnrollmentRequests)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Enrollmen__Statu__1CBC4616");
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.CourseProgresses)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__CoursePro__Statu__14270015");
+        });
 
-            entity.HasOne(d => d.Student).WithMany(p => p.EnrollmentRequests)
-                .HasForeignKey(d => d.StudentId)
-                .HasConstraintName("FK_EnrollmentRequest_Student");
+        modelBuilder.Entity<CourseProgressStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC077453BE32");
+
+            entity.ToTable("CourseProgressStatus");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<EnrollmentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07EEAAF467");
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07CA572458");
 
             entity.ToTable("EnrollmentStatus");
 
@@ -387,7 +431,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<GenderType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__GenderTy__3214EC074E250A1E");
+            entity.HasKey(e => e.Id).HasName("PK__GenderTy__3214EC0715A22719");
 
             entity.ToTable("GenderType");
 
@@ -399,39 +443,76 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lesson__3214EC0735FBFB8D");
+            entity.HasKey(e => e.Id).HasName("PK__Lesson__3214EC0792576B2E");
 
             entity.ToTable("Lesson");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
-                .HasPrecision(3)
-                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnType("datetime")
                 .HasColumnName("Created_At");
             entity.Property(e => e.DeleteAt)
-                .HasPrecision(3)
+                .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
             entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LessonName).HasMaxLength(100);
             entity.Property(e => e.Title).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt)
-                .HasPrecision(3)
+                .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.Lessons)
-                .HasForeignKey(d => d.StatusId)
-                .HasConstraintName("FK__Lesson__StatusId__6D0D32F4");
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Lessons)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__Lesson__Status__778AC167");
 
             entity.HasOne(d => d.Topic).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.TopicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Lesson__TopicId__6C190EBB");
+                .HasConstraintName("FK__Lesson__TopicId__76969D2E");
+        });
+
+        modelBuilder.Entity<LessonProgress>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC070D51FAA1");
+
+            entity.ToTable("LessonProgress");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.LessonProgresses)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK__LessonPro__Accou__0D7A0286");
+
+            entity.HasOne(d => d.Lesson).WithMany(p => p.LessonProgresses)
+                .HasForeignKey(d => d.LessonId)
+                .HasConstraintName("FK__LessonPro__Lesso__0E6E26BF");
+
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.LessonProgresses)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__LessonPro__Statu__0F624AF8");
+        });
+
+        modelBuilder.Entity<LessonProgressStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC07CC764CEC");
+
+            entity.ToTable("LessonProgressStatus");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<LessonStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonSt__3214EC07FE511F51");
+            entity.HasKey(e => e.Id).HasName("PK__LessonSt__3214EC07EE6C5F5C");
 
             entity.ToTable("LessonStatus");
 
@@ -441,48 +522,13 @@ public partial class LogiSimEduContext : DbContext
                 .HasMaxLength(50);
         });
 
-        modelBuilder.Entity<Message>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Message__3214EC078A6A17E4");
-
-            entity.ToTable("Message");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.AttachmentUrl)
-                .HasMaxLength(500)
-                .HasColumnName("AttachmentURL");
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
-            entity.Property(e => e.IsEdited).HasDefaultValue(false);
-            entity.Property(e => e.MessageType).HasMaxLength(50);
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-
-            entity.HasOne(d => d.Conversation).WithMany(p => p.Messages)
-                .HasForeignKey(d => d.ConversationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Message__Convers__123EB7A3");
-
-            entity.HasOne(d => d.Sender).WithMany(p => p.Messages)
-                .HasForeignKey(d => d.SenderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Message__SenderI__1332DBDC");
-        });
-
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC07ED967F5C");
+            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC071CDC43BC");
 
             entity.ToTable("Notification");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -497,41 +543,59 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Notification_Account");
+                .HasConstraintName("FK__Notificat__Accou__17036CC0");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC07F8360C8E");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC072DC5E66C");
 
             entity.ToTable("Order");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.BookingTime).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
             entity.Property(e => e.DeleteAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
-            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.OrderTime).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
+            entity.HasOne(d => d.Account).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK__Order__AccountId__29221CFB");
+
             entity.HasOne(d => d.Organization).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.OrganizationId)
-                .HasConstraintName("FK__Order__Organizat__2180FB33");
+                .HasConstraintName("FK__Order__Organizat__282DF8C2");
 
-            entity.HasOne(d => d.WorkSpace).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.WorkSpaceId)
-                .HasConstraintName("FK__Order__WorkSpace__22751F6C");
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__Order__Status__2B0A656D");
+
+            entity.HasOne(d => d.SubcriptionPlan).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.SubcriptionPlanId)
+                .HasConstraintName("FK__Order__Subcripti__2A164134");
+        });
+
+        modelBuilder.Entity<OrderStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC0797A35219");
+
+            entity.ToTable("OrderStatus");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Organization>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC076F8D66A8");
+            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC0751B8CFF2");
 
             entity.ToTable("Organization");
 
@@ -544,6 +608,7 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.ImgUrl).HasMaxLength(255);
             entity.Property(e => e.OrganizationName).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.UpdatedAt)
@@ -551,100 +616,56 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnName("Updated_At");
         });
 
-        modelBuilder.Entity<OrganizationRoleStatus>(entity =>
+        modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC071AA9A805");
+            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC075B0B3198");
 
-            entity.ToTable("OrganizationRoleStatus");
+            entity.ToTable("Payment");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(50);
-        });
+            entity.Property(e => e.PaidAt).HasColumnType("datetime");
+            entity.Property(e => e.TransactionCode).HasMaxLength(100);
 
-        modelBuilder.Entity<Package>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Package__3214EC07DA78C863");
+            entity.HasOne(d => d.MethodNavigation).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.Method)
+                .HasConstraintName("FK__Payment__Method__2EDAF651");
 
-            entity.ToTable("Package");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.Packages)
+            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
-                .HasConstraintName("FK__Package__OrderId__2739D489");
+                .HasConstraintName("FK__Payment__OrderId__2DE6D218");
 
-            entity.HasOne(d => d.PackageType).WithMany(p => p.Packages)
-                .HasForeignKey(d => d.PackageTypeId)
-                .HasConstraintName("FK__Package__Package__29221CFB");
-
-            entity.HasOne(d => d.WorkSpace).WithMany(p => p.Packages)
-                .HasForeignKey(d => d.WorkSpaceId)
-                .HasConstraintName("FK__Package__WorkSpa__282DF8C2");
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__Payment__Status__2FCF1A8A");
         });
 
-        modelBuilder.Entity<PackageOfScene>(entity =>
+        modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PackageO__3214EC07B973E4AF");
+            entity.HasKey(e => e.Id).HasName("PK__PaymentM__3214EC07CB99DE5F");
 
-            entity.ToTable("PackageOfScene");
+            entity.ToTable("PaymentMethod");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
-
-            entity.HasOne(d => d.Package).WithMany(p => p.PackageOfScenes)
-                .HasForeignKey(d => d.PackageId)
-                .HasConstraintName("FK__PackageOf__Packa__2BFE89A6");
-
-            entity.HasOne(d => d.Scene).WithMany(p => p.PackageOfScenes)
-                .HasForeignKey(d => d.SceneId)
-                .HasConstraintName("FK__PackageOf__Scene__2CF2ADDF");
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<PackageType>(entity =>
+        modelBuilder.Entity<PaymentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PackageT__3214EC07907108D0");
+            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC07858E4CAA");
 
-            entity.ToTable("PackageType");
+            entity.ToTable("PaymentStatus");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Created_At");
-            entity.Property(e => e.DeleteAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Delete_At");
-            entity.Property(e => e.PackageName).HasMaxLength(100);
-            entity.Property(e => e.UpdatedAt)
-                .HasColumnType("datetime")
-                .HasColumnName("Updated_At");
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC0763320D8E");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07F96877FE");
 
             entity.ToTable("Question");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -656,19 +677,62 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
+            entity.HasOne(d => d.QuestionTypeNavigation).WithMany(p => p.Questions)
+                .HasForeignKey(d => d.QuestionType)
+                .HasConstraintName("FK__Question__Questi__7F2BE32F");
+
             entity.HasOne(d => d.Quiz).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.QuizId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Question_Quiz");
+                .HasConstraintName("FK__Question__QuizId__7E37BEF6");
+        });
+
+        modelBuilder.Entity<QuestionSubmission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07AA3CA55A");
+
+            entity.ToTable("QuestionSubmission");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Question).WithMany(p => p.QuestionSubmissions)
+                .HasForeignKey(d => d.QuestionId)
+                .HasConstraintName("FK__QuestionS__Quest__09A971A2");
+
+            entity.HasOne(d => d.QuizSubmission).WithMany(p => p.QuestionSubmissions)
+                .HasForeignKey(d => d.QuizSubmissionId)
+                .HasConstraintName("FK__QuestionS__QuizS__08B54D69");
+
+            entity.HasOne(d => d.SelectedAnswer).WithMany(p => p.QuestionSubmissions)
+                .HasForeignKey(d => d.SelectedAnswerId)
+                .HasConstraintName("FK__QuestionS__Selec__0A9D95DB");
+        });
+
+        modelBuilder.Entity<QuestionType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07F6531BAA");
+
+            entity.ToTable("QuestionType");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC0740BE025A");
+            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC07B26267B3");
 
             entity.ToTable("Quiz");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -676,68 +740,63 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
             entity.Property(e => e.QuizName).HasMaxLength(100);
-            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.Quizzes)
                 .HasForeignKey(d => d.LessonId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Quiz__LessonId__70DDC3D8");
+                .HasConstraintName("FK__Quiz__LessonId__7A672E12");
+
+            entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Quizzes)
+                .HasForeignKey(d => d.Status)
+                .HasConstraintName("FK__Quiz__Status__7B5B524B");
+        });
+
+        modelBuilder.Entity<QuizStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__QuizStat__3214EC0749E78E52");
+
+            entity.ToTable("QuizStatus");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<QuizSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07DBA43420");
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC0749578C82");
 
             entity.ToTable("QuizSubmission");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.SubmittedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.SubmitTime).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
 
             entity.HasOne(d => d.Account).WithMany(p => p.QuizSubmissions)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__Accou__30C33EC3");
+                .HasConstraintName("FK__QuizSubmi__Accou__04E4BC85");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.QuizSubmissions)
                 .HasForeignKey(d => d.QuizId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__QuizI__2FCF1A8A");
-        });
-
-        modelBuilder.Entity<QuizSubmissionAnswer>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC0712566684");
-
-            entity.ToTable("QuizSubmissionAnswer");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Answer).WithMany(p => p.QuizSubmissionAnswers)
-                .HasForeignKey(d => d.AnswerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__Answe__3587F3E0");
-
-            entity.HasOne(d => d.Question).WithMany(p => p.QuizSubmissionAnswers)
-                .HasForeignKey(d => d.QuestionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__Quest__3493CFA7");
-
-            entity.HasOne(d => d.QuizSubmission).WithMany(p => p.QuizSubmissionAnswers)
-                .HasForeignKey(d => d.QuizSubmissionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QuizSubmi__QuizS__339FAB6E");
+                .HasConstraintName("FK__QuizSubmi__QuizI__05D8E0BE");
         });
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC07CB56547F");
+            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC074124D03E");
 
             entity.ToTable("Review");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -751,22 +810,30 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Review_Account");
+                .HasConstraintName("FK__Review__AccountI__19DFD96B");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Review_Course");
+                .HasConstraintName("FK__Review__CourseId__1AD3FDA4");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC0712FDF802");
+
+            entity.ToTable("Role");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Scenario>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC0711F44A21");
+            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC07B95B17D3");
 
             entity.ToTable("Scenario");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -774,6 +841,9 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
             entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.FileUrl)
+                .HasMaxLength(255)
+                .HasColumnName("FileURL");
             entity.Property(e => e.ScenarioName).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
@@ -781,17 +851,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Scene).WithMany(p => p.Scenarios)
                 .HasForeignKey(d => d.SceneId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Scenario_Scene");
+                .HasConstraintName("FK__Scenario__SceneI__72C60C4A");
+
+            entity.HasOne(d => d.Topic).WithMany(p => p.Scenarios)
+                .HasForeignKey(d => d.TopicId)
+                .HasConstraintName("FK__Scenario__TopicI__73BA3083");
         });
 
         modelBuilder.Entity<Scene>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC0712B69AE3");
+            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC077E543D83");
 
             entity.ToTable("Scene");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -799,9 +872,6 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
             entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.ImgUrl)
-                .HasMaxLength(255)
-                .HasColumnName("ImgURL");
             entity.Property(e => e.SceneName).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
@@ -810,11 +880,11 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<SceneOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC07189BD9C7");
+            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC0791F21C15");
 
             entity.ToTable("SceneOfWorkSpace");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -827,22 +897,39 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Scene).WithMany(p => p.SceneOfWorkSpaces)
                 .HasForeignKey(d => d.SceneId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SOWS_Scene");
+                .HasConstraintName("FK__SceneOfWo__Scene__6C190EBB");
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.SceneOfWorkSpaces)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SOWS_WorkSpace");
+                .HasConstraintName("FK__SceneOfWo__WorkS__6D0D32F4");
+        });
+
+        modelBuilder.Entity<SubscriptionPlan>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Subscrip__3214EC07CF13084A");
+
+            entity.ToTable("SubscriptionPlan");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Created_At");
+            entity.Property(e => e.DeleteAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Delete_At");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Updated_At");
         });
 
         modelBuilder.Entity<Topic>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC0780E6B2C2");
+            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC07FEB7EB98");
 
             entity.ToTable("Topic");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -860,22 +947,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Topics)
                 .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Topic_Course");
-
-            entity.HasOne(d => d.Scene).WithMany(p => p.Topics)
-                .HasForeignKey(d => d.SceneId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Topic_Scene");
+                .HasConstraintName("FK__Topic__CourseId__6FE99F9F");
         });
 
         modelBuilder.Entity<WorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC072345170B");
+            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC077CFEE2D5");
 
             entity.ToTable("WorkSpace");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Created_At");
@@ -886,13 +967,14 @@ public partial class LogiSimEduContext : DbContext
             entity.Property(e => e.ImgUrl)
                 .HasMaxLength(255)
                 .HasColumnName("ImgURL");
-            entity.Property(e => e.NumberOfAccount).HasDefaultValue(0);
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
-            entity.Property(e => e.WorkSpaceName)
-                .IsRequired()
-                .HasMaxLength(100);
+            entity.Property(e => e.WorkSpaceName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.WorkSpaces)
+                .HasForeignKey(d => d.OrganizationId)
+                .HasConstraintName("FK__WorkSpace__Organ__534D60F1");
         });
 
         OnModelCreatingPartial(modelBuilder);

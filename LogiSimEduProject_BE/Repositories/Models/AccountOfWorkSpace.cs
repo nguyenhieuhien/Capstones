@@ -9,9 +9,9 @@ public partial class AccountOfWorkSpace
 {
     public Guid Id { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid WorkSpaceId { get; set; }
+    public Guid? WorkSpaceId { get; set; }
 
     public bool? IsActive { get; set; }
 

@@ -4,6 +4,6 @@
     {
         public Guid QuestionId { get; set; }
         public string Description { get; set; }
-        public bool IsAnswerCorrect { get; set; }
+        public bool IsCorrect { get; set; }
     }
 }

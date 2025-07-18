@@ -5,13 +5,15 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class PackageOfScene
+public partial class LessonProgress
 {
     public Guid Id { get; set; }
 
-    public Guid? PackageId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public Guid? SceneId { get; set; }
+    public Guid? LessonId { get; set; }
+
+    public int? Status { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -21,7 +23,9 @@ public partial class PackageOfScene
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual Package Package { get; set; }
+    public virtual Account Account { get; set; }
 
-    public virtual Scene Scene { get; set; }
+    public virtual Lesson Lesson { get; set; }
+
+    public virtual LessonProgressStatus StatusNavigation { get; set; }
 }

@@ -20,12 +20,12 @@ namespace Services
     public class ClassService : IClassService
     {
         private ClassRepository _repository;
-        private AccountOfClassRepository _accountOfClassRepository;
+        
 
         public ClassService()
         {
             _repository = new ClassRepository();
-            _accountOfClassRepository = new AccountOfClassRepository();
+            
         }
         public async Task<int> Create(Class _class)
         {
@@ -38,11 +38,11 @@ namespace Services
             var item = await _repository.GetByIdAsync(id);
             if (item != null)
             {
-                var accountList = await _accountOfClassRepository.GetByClassIdAsync(Guid.Parse(id));
-                foreach (var account in accountList)
-                {
-                    await _accountOfClassRepository.RemoveAsync(account);
-                }
+                //var accountList = await _accountOfClassRepository.GetByClassIdAsync(Guid.Parse(id));
+                //foreach (var account in accountList)
+                //{
+                //    await _accountOfClassRepository.RemoveAsync(account);
+                //}
 
                 return await _repository.RemoveAsync(item);
             }

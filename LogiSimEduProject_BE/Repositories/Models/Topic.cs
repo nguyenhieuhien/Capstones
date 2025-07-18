@@ -9,9 +9,7 @@ public partial class Topic
 {
     public Guid Id { get; set; }
 
-    public Guid SceneId { get; set; }
-
-    public Guid CourseId { get; set; }
+    public Guid? CourseId { get; set; }
 
     public string TopicName { get; set; }
 
@@ -31,5 +29,5 @@ public partial class Topic
 
     public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 
-    public virtual Scene Scene { get; set; }
+    public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
 }
