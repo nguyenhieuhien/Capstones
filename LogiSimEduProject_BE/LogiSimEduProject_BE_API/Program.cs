@@ -64,7 +64,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 // Course & Learning Modules
 builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<Services.ICategoryService, CategoryService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
@@ -82,6 +82,7 @@ builder.Services.AddScoped<SceneOfWorkSpaceRepository>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
+builder.Services.AddScoped<AnswerRepository>();
 builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
 
 // Notification & Enrollment

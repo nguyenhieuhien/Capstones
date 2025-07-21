@@ -43,7 +43,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new
             {
                 token,
-                user = new { account.Id, account.UserName, account.Email }
+                user = new { account.Id, account.UserName, account.Email,account.RoleId }
             });
         }
 
