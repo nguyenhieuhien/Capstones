@@ -1,7 +1,7 @@
 ﻿using Repositories.Models;
 using Microsoft.Extensions.Configuration;
 
-namespace Services
+namespace Services.IServices
 {
     public interface IAccountService
     {

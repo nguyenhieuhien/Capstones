@@ -1,8 +1,7 @@
-
 using LogiSimEduProject_BE_API.Controllers.DTO.AccountOfWorkSpace;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
-using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LogiSimEduProject_BE_API.Controllers
@@ -12,80 +11,66 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class AccountOfWorkspaceController : ControllerBase
     {
         private readonly IAccountOfWorkSpaceService _service;
-        public AccountOfWorkspaceController(IAccountOfWorkSpaceService service) => _service = service;
+
+        public AccountOfWorkspaceController(IAccountOfWorkSpaceService service)
+        {
+            _service = service;
+        }
 
         [HttpGet("get_all_accountOfWorkSpace")]
         [SwaggerOperation(Summary = "Get all account-workspace relations", Description = "Retrieve all records of accounts assigned to workspaces")]
-        public async Task<IEnumerable<AccountOfWorkSpace>> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var result = await _service.GetAll();
+            return Ok(result);
         }
 
         [HttpGet("get_accountOfWorkSpace/{id}")]
         [SwaggerOperation(Summary = "Get account-workspace relation by ID", Description = "Retrieve a specific account-workspace relation by ID")]
-        public async Task<AccountOfWorkSpace> Get(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            return await _service.GetById(id);
+            var result = await _service.GetById(id);
+            return result != null ? Ok(result) : NotFound($"Không t?m th?y b?n ghi v?i ID = {id}");
         }
 
-        //[Authorize(Roles = "1")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("create_accountOfWorkSpace")]
         [SwaggerOperation(Summary = "Create account-workspace relation", Description = "Assign an account to a workspace")]
-        public async Task<IActionResult> Post(AccountOfWorkSpaceDTOCreate request)
+        public async Task<IActionResult> Create([FromBody] AccountOfWorkSpaceDTOCreate request)
         {
-            var answer = new AccountOfWorkSpace
+            var model = new AccountOfWorkSpace
             {
                 AccountId = request.AccountId,
-                WorkSpaceId = request.WorkSpaceId,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                WorkSpaceId = request.WorkSpaceId
             };
-            var result = await _service.Create(answer);
 
-            if (result <= 0)
-                return BadRequest("Fail Create");
-
-            return Ok(new
-            {
-                Data = request
-            });
+            var (success, message) = await _service.Create(model);
+            return success ? Ok(new { message, data = request }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "1")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("update_accountOfWorkSpace/{id}")]
         [SwaggerOperation(Summary = "Update account-workspace relation", Description = "Update an existing account-workspace record by ID")]
-        public async Task<IActionResult> Put(string id, AccountOfWorkSpaceDTOUpdate request)
+        public async Task<IActionResult> Update(string id, [FromBody] AccountOfWorkSpaceDTOUpdate request)
         {
-            var existingAccWs = await _service.GetById(id);
-            if (existingAccWs == null)
-            {
-                return NotFound(new { Message = $"AccountOfWorkSpace with ID {id} was not found." });
-            }
+            var existing = await _service.GetById(id);
+            if (existing == null)
+                return NotFound($"Không t?m th?y b?n ghi v?i ID = {id}");
 
-            existingAccWs.AccountId = request.AccountId;
-            existingAccWs.WorkSpaceId = request.WorkSpaceId;
-            existingAccWs.UpdatedAt = DateTime.UtcNow;
+            existing.AccountId = request.AccountId;
+            existing.WorkSpaceId = request.WorkSpaceId;
 
-            await _service.Update(existingAccWs);
-
-            return Ok(new
-            {
-                Message = "AccountOfWorkSpace updated successfully.",
-                Data = new
-                {
-                    QuestionId = existingAccWs.AccountId,
-                    Description = existingAccWs.WorkSpaceId,
-                    IsActive = existingAccWs.IsActive,
-                }
-            });
+            var (success, message) = await _service.Update(existing);
+            return success ? Ok(new { message }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "1")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("delete_accountOfWorkSpace/{id}")]
         [SwaggerOperation(Summary = "Delete account-workspace relation", Description = "Delete an account-workspace relation by its ID")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }
