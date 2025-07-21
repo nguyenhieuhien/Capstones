@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using Repositories;
 using Repositories.DBContext;
 using Services;
+using Services.IServices;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -18,28 +19,34 @@ JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Khởi tạo FirebaseApp nếu chưa có
-if (FirebaseApp.DefaultInstance == null)
+// -----------------------
+// 🔐 Firebase Initialization
+// -----------------------
+var firebasePath = "Credentials/logisimedu-firebase-adminsdk-fbsvc-cea79f44be.json";
+if (File.Exists(firebasePath) && FirebaseApp.DefaultInstance == null)
 {
-    FirebaseApp.Create(new AppOptions()
-                       {
-                           Credential = GoogleCredential.FromFile("Credentials/logisimedu-firebase-adminsdk-fbsvc-cea79f44be.json") // đường dẫn tương đối
-                       });
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.FromFile(firebasePath)
+    });
 }
 
-// Add services to the container.
+// -----------------------
+// 🔧 Service Registrations
+// -----------------------
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
+});
 
-builder.Services.AddControllers();
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<FirebaseStorageService>();
 
+// Email & Cloudinary
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddMemoryCache();
-
-
-builder.Services.Configure<CloudinarySettings>(
-    builder.Configuration.GetSection("CloudinarySettings")
-);
-
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddSingleton<Cloudinary>(sp =>
 {
     var config = sp.GetRequiredService<IOptions<CloudinarySettings>>().Value;
@@ -47,52 +54,63 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
     return new Cloudinary(account);
 });
 
-
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHttpClient(); //chatai
+// -----------------------
+// 📦 Dependency Injection: Services + Repositories
+// -----------------------
+// Core Services
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+
+// Course & Learning Modules
 builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<Services.ICategoryService, CategoryService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+
+// Workspace + Scenes + Scenarios
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
 builder.Services.AddScoped<ISceneService, SceneService>();
 builder.Services.AddScoped<IScenarioService, ScenarioService>();
+builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService>();
+builder.Services.AddScoped<AccountOfWorkSpaceRepository>();
+builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
+builder.Services.AddScoped<SceneOfWorkSpaceRepository>();
+
+// Quiz & Submission
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
-builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService>();
-builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+builder.Services.AddScoped<AnswerRepository>();
 builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
 
+// Notification & Enrollment
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+
+// -----------------------
+// 🧠 EF DbContext
+// -----------------------
 builder.Services.AddDbContext<LogiSimEduContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// -----------------------
+// 🌍 CORS
+// -----------------------
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
-});
-
+// -----------------------
+// 🔐 Authentication: JWT
+// -----------------------
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -108,21 +126,18 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
 
+// -----------------------
+// 📘 Swagger + JWT Support
+// -----------------------
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "LogiSimEduProject_BE_API",
-        Version = "v1"
-    });
-
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "LogiSimEduProject_BE_API", Version = "v1" });
     option.EnableAnnotations();
-    ////JWT Config
     option.DescribeAllParametersInCamelCase();
     option.ResolveConflictingActions(conf => conf.First());
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -141,8 +156,8 @@ builder.Services.AddSwaggerGen(option =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
             new string[]{}
@@ -150,28 +165,26 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+// -----------------------
+// 🚀 Build & Run App
+// -----------------------
 var app = builder.Build();
 
-//app.UseCors("AllowAllOrigins");
-app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-// Configure the HTTP request pipeline.
+app.UseCors("AllowAllOrigins");
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LogiSimEduProject_BE_API v1");
-    //c.RoutePrefix = string.Empty;
 });
 
 app.UseHttpsRedirection();
-
-app.UseStaticFiles();  // <--- thêm dòng này nếu chưa có
-app.UseRouting(); //(Firebase)//
-
+app.UseStaticFiles();
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();

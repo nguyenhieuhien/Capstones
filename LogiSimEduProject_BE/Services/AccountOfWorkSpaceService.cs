@@ -1,59 +1,48 @@
-﻿using Repositories;
+﻿// File: Services/IAccountOfWorkSpaceService.cs
+using Repositories;
 using Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.IServices;
 
 namespace Services
 {
-    public interface IAccountOfWorkSpaceService
-    {
-        Task<List<AccountOfWorkSpace>> GetAll();
-        Task<AccountOfWorkSpace> GetById(string id);
-        Task<int> Create(AccountOfWorkSpace accWs);
-        Task<int> Update(AccountOfWorkSpace accWs);
-        Task<bool> Delete(string id);
-    }
+ 
     public class AccountOfWorkSpaceService : IAccountOfWorkSpaceService
     {
-        private AccountOfWorkSpaceRepository _repository;
+        private readonly AccountOfWorkSpaceRepository _repository;
 
-        public AccountOfWorkSpaceService()
+        public AccountOfWorkSpaceService(AccountOfWorkSpaceRepository repository)
         {
-            _repository = new AccountOfWorkSpaceRepository();
+            _repository = repository;
         }
-        public async Task<int> Create(AccountOfWorkSpace accWs)
+
+        public async Task<List<AccountOfWorkSpace>> GetAll() => await _repository.GetAll();
+
+        public async Task<AccountOfWorkSpace> GetById(string id) => await _repository.GetByIdAsync(id);
+
+        public async Task<(bool Success, string Message)> Create(AccountOfWorkSpace accWs)
         {
             accWs.Id = Guid.NewGuid();
-            return await _repository.CreateAsync(accWs);
+            accWs.IsActive = true;
+            accWs.CreatedAt = DateTime.UtcNow;
+            var result = await _repository.CreateAsync(accWs);
+            return result > 0 ? (true, "Created successfully") : (false, "Failed to create record");
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<(bool Success, string Message)> Update(AccountOfWorkSpace accWs)
+        {
+            accWs.UpdatedAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(accWs);
+            return result > 0 ? (true, "Updated successfully") : (false, "Update failed");
+        }
+
+        public async Task<(bool Success, string Message)> Delete(string id)
         {
             var item = await _repository.GetByIdAsync(id);
-            if (item != null)
-            {
-                return await _repository.RemoveAsync(item);
-            }
+            if (item == null)
+                return (false, "Item not found");
 
-            return false;
-        }
-
-        public async Task<List<AccountOfWorkSpace>> GetAll()
-        {
-            return await _repository.GetAll();
-        }
-
-        public async Task<AccountOfWorkSpace> GetById(string id)
-        {
-            return await _repository.GetByIdAsync(id);
-        }
-
-        public async Task<int> Update(AccountOfWorkSpace accWs)
-        {
-            return await _repository.UpdateAsync(accWs);
+            var success = await _repository.RemoveAsync(item);
+            return success ? (true, "Deleted successfully") : (false, "Failed to delete");
         }
     }
 }

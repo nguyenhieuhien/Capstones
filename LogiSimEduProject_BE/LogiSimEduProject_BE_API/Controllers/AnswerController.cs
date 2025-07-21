@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
@@ -13,82 +12,68 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class AnswerController : ControllerBase
     {
         private readonly IAnswerService _service;
-        public AnswerController(IAnswerService service) => _service = service;
+
+        public AnswerController(IAnswerService service)
+        {
+            _service = service;
+        }
+
         [HttpGet("get_all_answer")]
         [SwaggerOperation(Summary = "Get all answers", Description = "Retrieve all answers from the system")]
-        public async Task<IEnumerable<Answer>> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var answers = await _service.GetAll();
+            return Ok(answers);
         }
 
         [HttpGet("get_answer/{id}")]
         [SwaggerOperation(Summary = "Get an answer by ID", Description = "Retrieve a specific answer by its ID")]
-        public async Task<Answer> Get(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            return await _service.GetById(id);
+            var answer = await _service.GetById(id);
+            return answer != null ? Ok(answer) : NotFound($"Answer with ID {id} not found.");
         }
 
-        //[Authorize(Roles = "1")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("create_answer")]
         [SwaggerOperation(Summary = "Create a new answer", Description = "Add a new answer for a specific question")]
-        public async Task<IActionResult> Post(AnswerDTOCreate request)
+        public async Task<IActionResult> Create([FromBody] AnswerDTOCreate request)
         {
             var answer = new Answer
             {
                 QuestionId = request.QuestionId,
                 Description = request.Description,
-                IsCorrect = request.IsCorrect,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                IsCorrect = request.IsCorrect
             };
-            var result = await _service.Create(answer);
 
-            if (result <= 0)
-                return BadRequest("Fail Create");
-
-            return Ok(new
-            {
-                Data = request
-            });
+            var (success, message) = await _service.Create(answer);
+            return success ? Ok(new { message, data = answer }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "1")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("update_answer/{id}")]
         [SwaggerOperation(Summary = "Update an existing answer", Description = "Update description or correctness of an existing answer")]
-        public async Task<IActionResult> Put(string id, AnswerDTOUpdate request)
+        public async Task<IActionResult> Update(string id, [FromBody] AnswerDTOUpdate request)
         {
-            var existingAnswer = await _service.GetById(id);
-            if (existingAnswer == null)
-            {
-                return NotFound(new { Message = $"Answer with ID {id} was not found." });
-            }
+            var existing = await _service.GetById(id);
+            if (existing == null)
+                return NotFound($"Answer with ID {id} not found.");
 
-            existingAnswer.QuestionId = request.QuestionId;
-            existingAnswer.Description = request.Description;
-            existingAnswer.IsCorrect = request.IsCorrect;
-            existingAnswer.UpdatedAt = DateTime.UtcNow;
+            existing.QuestionId = request.QuestionId;
+            existing.Description = request.Description;
+            existing.IsCorrect = request.IsCorrect;
 
-            await _service.Update(existingAnswer);
-
-            return Ok(new
-            {
-                Message = "Answer updated successfully.",
-                Data = new
-                {
-                    QuestionId = existingAnswer.QuestionId,
-                    Description = existingAnswer.Description,
-                    IsAnswerCorrect = existingAnswer.IsCorrect,
-                    IsActive = existingAnswer.IsActive,
-                }
-            });
+            var (success, message) = await _service.Update(existing);
+            return success ? Ok(new { message, data = existing }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "1")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("delete_answer/{id}")]
         [SwaggerOperation(Summary = "Delete an answer", Description = "Delete an answer by its ID")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }
