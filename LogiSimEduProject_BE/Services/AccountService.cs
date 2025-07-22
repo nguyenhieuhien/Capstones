@@ -51,6 +51,10 @@ namespace Services
         {
             var passwordHasher = new PasswordHasher<Account>();
 
+            var existingAccount = await _repository.GetByEmailAsync(request.Email);
+            if (existingAccount != null)
+                return (false, "This email is already in use.");
+
             var account = new Account
             {
                 Id = Guid.NewGuid(),
@@ -81,7 +85,10 @@ namespace Services
             var passwordHasher = new PasswordHasher<Account>();
             var rawPassword = request.Password;
 
-            
+            var existingAccount = await _repository.GetByEmailAsync(request.Email);
+            if (existingAccount != null)
+                return (false, "This email is already in use.");
+
             var account = new Account
             {
                 Id = Guid.NewGuid(),
@@ -119,6 +126,10 @@ namespace Services
             var passwordHasher = new PasswordHasher<Account>();
             var rawPassword = request.Password;
 
+            var existingAccount = await _repository.GetByEmailAsync(request.Email);
+            if (existingAccount != null)
+                return (false, "This email is already in use.");
+
             var account = new Account
             {
                 Id = Guid.NewGuid(),
@@ -153,6 +164,10 @@ namespace Services
         {
             var passwordHasher = new PasswordHasher<Account>();
             var rawPassword = request.Password;
+
+            var existingAccount = await _repository.GetByEmailAsync(request.Email);
+            if (existingAccount != null)
+                return (false, "This email is already in use.");
 
             var account = new Account
             {
