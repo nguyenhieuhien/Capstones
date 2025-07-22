@@ -1,9 +1,10 @@
 ﻿// File: Controllers/SceneController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.Controllers.DTO.Scene;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

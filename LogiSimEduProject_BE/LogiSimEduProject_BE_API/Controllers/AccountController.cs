@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
-using LogiSimEduProject_BE_API.Controllers.DTO.Account;
 using LogiSimEduProject_BE_API.Controllers.Request.AccountRequest;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using Services.IServices;
+using Services.DTO.Account;
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
