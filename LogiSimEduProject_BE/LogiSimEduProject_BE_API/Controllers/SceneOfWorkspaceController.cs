@@ -66,7 +66,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             existingScWs.WorkSpaceId = request.WorkSpaceId;
             existingScWs.UpdatedAt = DateTime.UtcNow;
 
-            await _service.Update(existingScWs);
+            await _service.Update(id,existingScWs);
 
             return Ok(new
             {

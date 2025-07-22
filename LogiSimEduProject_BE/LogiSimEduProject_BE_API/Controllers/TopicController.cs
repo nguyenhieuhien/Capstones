@@ -25,7 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_topic")]
         [SwaggerOperation(Summary = "Get all topics", Description = "Returns a list of all topics.")]
         public async Task<IEnumerable<Topic>> Get()
@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_topic/{id}")]
         [SwaggerOperation(Summary = "Get topic by ID", Description = "Returns a specific topic by its ID.")]
         public async Task<Topic> Get(string id)
@@ -41,7 +41,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetById(id);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_topic")]
         [SwaggerOperation(Summary = "Create new topic", Description = "Creates a new topic and uploads image if provided.")]
         public async Task<IActionResult> Post([FromForm] TopicDTOCreate request)
@@ -87,7 +87,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Data = request });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_topic/{id}")]
         [SwaggerOperation(Summary = "Update topic", Description = "Updates an existing topic, including uploading a new image if provided.")]
         public async Task<IActionResult> Put(string id, TopicDTOUpdate request)
@@ -143,7 +143,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete_topic/{id}")]
         [SwaggerOperation(Summary = "Delete topic", Description = "Deletes a topic by ID.")]
         public async Task<bool> Delete(string id)

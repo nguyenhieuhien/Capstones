@@ -60,7 +60,7 @@ namespace Services
             }
             var totalQuestions = answers.Count;
             var score = Math.Round((double)correctCount / totalQuestions * 10, 2);
-            submission.TotalScore = (int)score;
+            submission.TotalScore = score;
 
             await _submissionRepo.UpdateAsync(submission); 
 
