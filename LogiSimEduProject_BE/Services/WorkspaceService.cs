@@ -1,5 +1,6 @@
 ﻿using Repositories;
 using Repositories.Models;
+using Services.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +9,6 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public interface IWorkspaceService
-    {
-        Task<List<WorkSpace>> GetAll();
-        Task<WorkSpace> GetById(string id);
-        Task<int> Create(WorkSpace workspace);
-        Task<int> Update(WorkSpace workspace);
-        Task<bool> Delete(string id);
-    }
 
     public class WorkspaceService : IWorkspaceService
     {

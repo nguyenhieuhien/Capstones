@@ -1,4 +1,4 @@
-﻿namespace Services.Controllers.DTO.Review
+﻿namespace Services.DTO.Review
 {
     public class ReviewUpdateDTO
     {

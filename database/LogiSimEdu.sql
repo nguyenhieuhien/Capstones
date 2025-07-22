@@ -448,6 +448,14 @@ CREATE TABLE Payment (
     FOREIGN KEY (Status) REFERENCES PaymentStatus(Id)
 );
 
+CREATE TABLE ChatHistories (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    UserId NVARCHAR(100),
+    Role NVARCHAR(10),
+    Message NVARCHAR(MAX),
+    Timestamp DATETIME
+);
+
 INSERT INTO GenderType VALUES (1, 'Male'), (2, 'Female'), (3, 'Other');
 
 INSERT INTO Role VALUES (1, 'Admin'), (2, 'Organization_Admin'), (3, 'Instructor'), (4, 'Student');

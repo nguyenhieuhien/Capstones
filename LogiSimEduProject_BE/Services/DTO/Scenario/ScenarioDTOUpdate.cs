@@ -1,4 +1,6 @@
-﻿namespace Services.Controllers.DTO.Scenario
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Services.DTO.Scenario
 {
     public class ScenarioDTOUpdate
     {
@@ -7,5 +9,7 @@
         public string ScenarioName { get; set; }
 
         public string Description { get; set; }
+
+        public IFormFile FileUrl { get; set; }
     }
 }

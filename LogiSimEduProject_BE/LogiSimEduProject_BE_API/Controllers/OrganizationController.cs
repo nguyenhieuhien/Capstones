@@ -41,7 +41,7 @@ namespace Controllers
             return Ok(organization);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("create_organization")]
         [SwaggerOperation(Summary = "Create new organization", Description = "Create a new organization and return its ID.")]
         public async Task<IActionResult> Create([FromBody] OrganizationCreateDTO dto)

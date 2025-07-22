@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Services.Controllers.DTO.Workspace
+namespace Services.DTO.Workspace
 {
     public class WorkspaceDTOCreate
     {

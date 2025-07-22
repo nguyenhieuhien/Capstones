@@ -1,4 +1,4 @@
-﻿namespace Services.Controllers.DTO.Quiz
+﻿namespace Services.DTO.Quiz
 {
     public class QuizDTOCreate
     {

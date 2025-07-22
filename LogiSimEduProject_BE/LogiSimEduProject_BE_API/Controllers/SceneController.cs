@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
-using Services.Controllers.DTO.Scene;
+using Services.DTO.Scene;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -40,7 +40,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scene);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
         [SwaggerOperation(Summary = "Create new scene", Description = "Create a new scene with basic information.")]
         public async Task<ActionResult<int>> Create([FromBody] SceneDTOCreate dto)

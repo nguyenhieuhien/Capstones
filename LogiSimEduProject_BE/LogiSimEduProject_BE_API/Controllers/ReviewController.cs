@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
-using Services.Controllers.DTO.Review;
+using Services.DTO.Review;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

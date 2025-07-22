@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
-using Services.Controllers.DTO.SceneOfWorkSpace;
+using Services.DTO.SceneOfWorkSpace;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LogiSimEduProject_BE_API.Controllers

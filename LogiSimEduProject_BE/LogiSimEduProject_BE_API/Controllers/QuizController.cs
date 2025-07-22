@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
-using Services.Controllers.DTO.Account;
-using Services.Controllers.DTO.Quiz;
+using Services.DTO.Account;
+using Services.DTO.Quiz;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

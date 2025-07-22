@@ -1,4 +1,4 @@
-﻿namespace Services.Controllers.DTO.SceneOfWorkSpace
+﻿namespace Services.DTO.SceneOfWorkSpace
 {
     public class SceneOfWorkSpaceDTOUpdate
     {

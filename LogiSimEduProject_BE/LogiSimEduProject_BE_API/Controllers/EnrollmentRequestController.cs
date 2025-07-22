@@ -42,7 +42,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Get enrollment request by ID", Description = "Retrieve a specific enrollment request by its ID.")]
         public async Task<IActionResult> Get(string id)
@@ -52,7 +52,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         [HttpPost("create_enrollmentRequest")]
         [SwaggerOperation(Summary = "Create enrollment request", Description = "Submit a request to enroll in a course (only for students).")]
         public async Task<IActionResult> Post([FromBody] EnrollmentRequestDTOCreate request)
@@ -76,7 +76,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message, Id = id });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Update request status", Description = "Approve or deny an enrollment request (only for instructors).")]
         public async Task<IActionResult> Put(string id, [FromBody] int status)

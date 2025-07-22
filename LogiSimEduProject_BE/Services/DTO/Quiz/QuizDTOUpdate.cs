@@ -1,4 +1,4 @@
-﻿namespace Services.Controllers.DTO.Account
+﻿namespace Services.DTO.Account
 {
     public class QuizDTOUpdate
     {

@@ -3,10 +3,10 @@ using CloudinaryDotNet.Actions;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
-using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
-using Services.Controllers.DTO.Workspace;
+using Services.DTO.Workspace;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

@@ -1,6 +1,6 @@
 ﻿
 using Services.DTO.Question;
-namespace Services.Controllers.DTO.Quiz
+namespace Services.DTO.Quiz
 {
     public class QuizDTO
     {

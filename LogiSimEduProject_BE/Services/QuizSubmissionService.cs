@@ -5,13 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Services.IServices;
 
 namespace Services
 {
-    public interface IQuizSubmissionService
-    {
-        Task<int> SubmitQuiz(Guid quizId, Guid accountId, List<(Guid questionId, Guid answerId)> answers);
-    }
 
     public class QuizSubmissionService : IQuizSubmissionService
     {

@@ -1,4 +1,4 @@
-﻿namespace Services.Controllers.DTO.Question
+﻿namespace Services.DTO.Question
 {
     public class QuestionDTOUpdate
     {

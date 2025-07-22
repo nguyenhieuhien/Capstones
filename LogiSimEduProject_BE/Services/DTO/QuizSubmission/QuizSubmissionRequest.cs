@@ -1,4 +1,4 @@
-﻿namespace Services.Controllers.DTO.QuizSubmission
+﻿namespace Services.DTO.QuizSubmission
 {
     public class QuizSubmissionRequest
     {
