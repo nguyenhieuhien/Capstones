@@ -5,7 +5,7 @@ using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
 using LogiSimEduProject_BE_API.Controllers.DTO.Workspace;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
-using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
 

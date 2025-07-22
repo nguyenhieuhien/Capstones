@@ -35,6 +35,155 @@ namespace Services
             return result == PasswordVerificationResult.Success ? account : null;
         }
 
+        private async Task SendEmailVerificationOTPAsync(string email)
+        {
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.Set($"verify_email_token_{otp}", email, TimeSpan.FromMinutes(10));
+
+            await _emailService.SendEmailAsync(
+                email,
+                "Xác thực email - LogiSimEdu",
+                $"<p>Mã xác thực email của bạn là: <strong>{otp}</strong>. Mã này sẽ hết hạn sau 10 phút.</p>"
+            );
+        }
+
+        public async Task<(bool Success, string Message)> RegisterAdminAccountAsync(Account request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                OrganizationId = request.OrganizationId,
+                RoleId = 1,
+                UserName = request.UserName,
+                FullName = request.FullName,
+                Email = request.Email,
+                Phone = request.Phone,
+                IsActive = true,
+                IsEmailVerify = false,
+                CreatedAt = DateTime.UtcNow,
+                Password = passwordHasher.HashPassword(new Account(), request.Password)
+            };
+
+            var result = await _repository.CreateAsync(account);
+            if (result <= 0)
+                return (false, "Đăng ký thất bại");
+
+            // Gọi hàm gửi OTP xác thực email
+            await SendEmailVerificationOTPAsync(account.Email);
+
+            return (true, "Tài khoản đã được tạo. Vui lòng kiểm tra email để lấy mã xác thực.");
+        }
+
+        public async Task<(bool Success, string Message)> RegisterOrganizationAdminAccountAsync(Account request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+            var rawPassword = request.Password;
+
+            
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                FullName = request.FullName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = passwordHasher.HashPassword(null, rawPassword),
+                OrganizationId = request.OrganizationId,
+                RoleId = 2, // Organization_Admin
+                IsActive = true,
+                IsEmailVerify = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _repository.CreateAsync(account);
+            if (result <= 0)
+                return (false, "Tạo tài khoản quản trị tổ chức thất bại");
+
+            // Gửi email chứa thông tin đăng nhập
+            var emailBody = $@"
+        <p>Chào {account.FullName},</p>
+        <p>Bạn được chỉ định là quản trị viên tổ chức trên hệ thống LogiSimEdu.</p>
+        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
+        <p>Vui lòng đăng nhập và đổi mật khẩu để đảm bảo an toàn.</p>";
+
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản quản trị tổ chức - LogiSimEdu", emailBody);
+
+            return (true, "Tài khoản Organization_Admin đã được tạo và gửi email thành công.");
+        }
+
+        public async Task<(bool Success, string Message)> RegisterInstructorAccountAsync(Account request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+            var rawPassword = request.Password;
+
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                FullName = request.FullName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = passwordHasher.HashPassword(null, rawPassword),
+                RoleId = 3,             // Instructor
+                IsActive = true,
+                IsEmailVerify = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _repository.CreateAsync(account);
+            if (result <= 0)
+                return (false, "Tạo tài khoản Instructor thất bại");
+
+            var emailBody = $@"
+        <p>Chào {account.FullName},</p>
+        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Instructor</strong> trên hệ thống LogiSimEdu.</p>
+        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
+        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản Giảng viên - LogiSimEdu", emailBody);
+
+            return (true, "Tài khoản Instructor đã được tạo và gửi email thành công.");
+        }
+
+        public async Task<(bool Success, string Message)> RegisterStudentAccountAsync(Account request)
+        {
+            var passwordHasher = new PasswordHasher<Account>();
+            var rawPassword = request.Password;
+
+            var account = new Account
+            {
+                FullName = request.FullName,
+                UserName = request.UserName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = passwordHasher.HashPassword(null, rawPassword),
+                OrganizationId = request.OrganizationId,
+                RoleId = 4, // Student
+                IsActive = true,
+                IsEmailVerify = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _repository.CreateAsync(account);
+            if (result <= 0)
+                return (false, "Tạo tài khoản Student thất bại");
+
+            var emailBody = $@"
+        <p>Chào {account.FullName},</p>
+        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
+        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
+        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản Học viên - LogiSimEdu", emailBody);
+
+            return (true, "Tài khoản Student đã được tạo và gửi email thành công.");
+        }
+
         public string GenerateToken(Account account, IConfiguration config)
         {
             var key = config["Jwt:Key"];
@@ -72,6 +221,8 @@ namespace Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
 
         public async Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword)
         {

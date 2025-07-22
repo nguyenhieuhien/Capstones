@@ -7,5 +7,7 @@
         public string ScenarioName { get; set; }
 
         public string Description { get; set; }
+
+        public IFormFile FileUrl { get; set; }
     }
 }

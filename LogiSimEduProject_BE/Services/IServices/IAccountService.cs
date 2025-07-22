@@ -26,6 +26,10 @@ namespace Services.IServices
         Task<int> Register(Account account);
         Task<int> Update(Account account);
         Task<bool> Delete(string id);
+        Task<(bool Success, string Message)> RegisterAdminAccountAsync(Account request);
+        Task<(bool Success, string Message)> RegisterOrganizationAdminAccountAsync(Account request);
+        Task<(bool Success, string Message)> RegisterInstructorAccountAsync(Account request);
+        Task<(bool Success, string Message)> RegisterStudentAccountAsync(Account request);
 
         // Search
         Task<List<Account>> Search(string username, string fullname, string email, string phone);

@@ -39,7 +39,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scene);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
         [SwaggerOperation(Summary = "Create new scene", Description = "Create a new scene with basic information.")]
         public async Task<ActionResult<int>> Create([FromBody] SceneDTOCreate dto)

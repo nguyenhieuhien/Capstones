@@ -1,4 +1,6 @@
 ﻿// File: Controllers/ScenarioController.cs
+using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
 using LogiSimEduProject_BE_API.Controllers.DTO.Scenario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +16,11 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class ScenarioController : ControllerBase
     {
         private readonly IScenarioService _service;
-
-        public ScenarioController(IScenarioService service)
+        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
+        public ScenarioController(IScenarioService service, CloudinaryDotNet.Cloudinary cloudinary)
         {
             _service = service;
+            _cloudinary = cloudinary;
         }
 
         [Authorize(Roles = "Student,Instructor")]
@@ -41,16 +44,41 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenario);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
         [SwaggerOperation(Summary = "Create new scenario", Description = "Instructor can create a new simulation scenario.")]
-        public async Task<IActionResult> Create([FromBody] ScenarioDTOCreate dto)
+        public async Task<IActionResult> Create([FromForm] ScenarioDTOCreate dto)
         {
+            string fileUrl = null;
+
+            if (dto.FileUrl != null)
+            {
+                await using var stream = dto.FileUrl.OpenReadStream();
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(dto.FileUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Scenarios",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    fileUrl = uploadResult.SecureUrl.ToString();
+                }
+                else
+                {
+                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
+                }
+            }
             var scenario = new Scenario
             {
                 SceneId = dto.SceneId,
                 ScenarioName = dto.ScenarioName,
-                Description = dto.Description
+                Description = dto.Description,
+                FileUrl = fileUrl
             };
 
             var result = await _service.Create(scenario);
@@ -60,7 +88,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = "Scenario created successfully." });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_scenario/{id}")]
         [SwaggerOperation(Summary = "Update scenario", Description = "Update existing scenario by ID.")]
         public async Task<IActionResult> Update(string id, [FromBody] ScenarioDTOUpdate dto)
@@ -69,9 +97,35 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (existing == null)
                 return NotFound(new { Message = $"Scenario with ID {id} not found." });
 
+            string fileUrl = existing.FileUrl;
+
+            if (dto.FileUrl != null)
+            {
+                await using var stream = dto.FileUrl.OpenReadStream();
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(dto.FileUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Topics",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    fileUrl = uploadResult.SecureUrl.ToString();
+                }
+                else
+                {
+                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
+                }
+            }
+
             existing.SceneId = dto.SceneId;
             existing.ScenarioName = dto.ScenarioName;
             existing.Description = dto.Description;
+            existing.FileUrl = fileUrl;
 
             var result = await _service.Update(existing);
             if (result <= 0)

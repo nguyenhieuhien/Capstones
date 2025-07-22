@@ -69,6 +69,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ClassRepository>();
+builder.Services.AddScoped<TopicRepository>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ReviewRepository>();
@@ -77,6 +78,7 @@ builder.Services.AddScoped<ReviewRepository>();
 builder.Services.AddScoped<OrganizationRepository>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
+builder.Services.AddScoped<WorkspaceRepository>();
 builder.Services.AddScoped<ISceneService, SceneService>();
 builder.Services.AddScoped<SceneRepository>();
 builder.Services.AddScoped<IScenarioService, ScenarioService>();
@@ -94,6 +96,7 @@ builder.Services.AddScoped<QuestionRepository>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<AnswerRepository>();
 builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
+builder.Services.AddScoped<QuizSubmissionRepository>();
 
 // Notification & Enrollment
 builder.Services.AddScoped<INotificationService, NotificationService>();

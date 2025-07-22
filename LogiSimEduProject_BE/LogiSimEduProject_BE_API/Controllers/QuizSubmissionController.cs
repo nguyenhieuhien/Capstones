@@ -1,7 +1,7 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.QuizSubmission;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

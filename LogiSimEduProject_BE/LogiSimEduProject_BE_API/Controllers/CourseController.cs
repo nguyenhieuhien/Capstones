@@ -42,7 +42,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return course != null ? Ok(course) : NotFound("Course not found.");
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create a course", Description = "Create a new course with optional image.")]
         public async Task<IActionResult> Create([FromForm] CourseDTOCreate dto)
