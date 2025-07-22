@@ -13,7 +13,7 @@ namespace Services
         Task<List<SceneOfWorkSpace>> GetAll();
         Task<SceneOfWorkSpace> GetById(string id);
         Task<int> Create(SceneOfWorkSpace scWs);
-        Task<int> Update(SceneOfWorkSpace scWs);
+        Task<int> Update(string id, SceneOfWorkSpace scWs);
         Task<bool> Delete(string id);
     }
 
@@ -26,9 +26,16 @@ namespace Services
             _repository = new SceneOfWorkSpaceRepository();
         }
         public async Task<int> Create(SceneOfWorkSpace scWs)
-        {
-            scWs.Id = Guid.NewGuid();
-            return await _repository.CreateAsync(scWs);
+        { 
+            var entity = new SceneOfWorkSpace
+            {
+                Id = Guid.NewGuid(),
+                SceneId = scWs.SceneId,
+                WorkSpaceId = scWs.WorkSpaceId,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            return await _repository.CreateAsync(entity);
         }
 
         public async Task<bool> Delete(string id)
@@ -52,8 +59,15 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<int> Update(SceneOfWorkSpace scWs)
+        public async Task<int> Update(string id, SceneOfWorkSpace scWs)
         {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null) return 0;
+
+            entity.SceneId = scWs.SceneId;
+            entity.WorkSpaceId = scWs.WorkSpaceId;
+            entity.UpdatedAt = DateTime.UtcNow;
+
             return await _repository.UpdateAsync(scWs);
         }
     }
