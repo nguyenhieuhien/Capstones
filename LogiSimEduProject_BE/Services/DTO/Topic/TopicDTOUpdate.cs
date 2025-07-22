@@ -1,0 +1,15 @@
+﻿using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
+
+namespace Services.Controllers.DTO.Topic
+{
+    public class TopicDTOUpdate
+    {
+        public Guid SceneId { get; set; }
+        public Guid CourseId { get; set; }
+        public string TopicName { get; set; }
+        [JsonIgnore]
+        public IFormFile ImgUrl { get; set; }
+        public string Description { get; set; }
+    }
+}

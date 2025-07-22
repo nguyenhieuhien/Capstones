@@ -1,9 +1,10 @@
 ﻿// File: Controllers/ScenarioController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.Scenario;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.Controllers.DTO.Scenario;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

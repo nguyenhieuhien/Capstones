@@ -1,7 +1,7 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.Category;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.DTO.Category;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
