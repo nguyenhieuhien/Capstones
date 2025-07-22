@@ -1,14 +1,11 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.DTO.Category;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace Controllers
+namespace LogiSimEduProject_BE_API.Controllers
 {
     [ApiController]
     [Route("api/category")]
@@ -16,84 +13,68 @@ namespace Controllers
     {
         private readonly ICategoryService _categoryService;
 
-        public CategoryController()
+        public CategoryController(ICategoryService categoryService)
         {
-            _categoryService = new CategoryService();
+            _categoryService = categoryService;
         }
 
-        [HttpGet("get_all_category")]
+        [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all categories", Description = "Returns a list of all active categories.")]
-        public async Task<ActionResult<List<Category>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var categories = await _categoryService.GetAll();
-
-            // Nếu null (trong trường hợp service bị sai), thì trả về danh sách rỗng
-            if (categories == null)
-                return Ok(new List<Category>());
-
-            return Ok(categories); // Trả về [] nếu danh sách rỗng
+            var result = await _categoryService.GetAll();
+            return Ok(result);
         }
 
-
-        [HttpGet("Get_category/{id}")]
+        [HttpGet("get/{id}")]
         [SwaggerOperation(Summary = "Get category by ID", Description = "Retrieve a single category by its unique ID.")]
-        public async Task<ActionResult<Category>> GetById(string id)
+        public async Task<IActionResult> GetById(string id)
         {
             var category = await _categoryService.GetById(id);
             if (category == null)
-                return NotFound();
+                return NotFound("Category not found");
             return Ok(category);
         }
 
-        [HttpPost("create_category")]
+        [HttpPost("create")]
         [SwaggerOperation(Summary = "Create new category", Description = "Create a new category and return its ID.")]
-        public async Task<ActionResult<int>> Create([FromBody] CategoryCreateDTO categoryDto)
+        public async Task<IActionResult> Create([FromBody] CategoryCreateDTO dto)
         {
-            if (categoryDto == null)
-                return BadRequest();
+            if (dto == null || string.IsNullOrWhiteSpace(dto.CategoryName))
+                return BadRequest("Invalid input");
 
             var category = new Category
             {
-                //Id = Guid.NewGuid(),
-                CategoryName = categoryDto.CategoryName,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = null,
-                DeleteAt = null
+                CategoryName = dto.CategoryName
             };
 
-            var result = await _categoryService.Create(category);
-            if (result == 0)
-                return BadRequest();
-            return Ok(result);
+            var (success, message, id) = await _categoryService.Create(category);
+            if (!success)
+                return BadRequest(message);
+
+            return Ok(new { Message = message, Id = id });
         }
 
-        [HttpPut("update_category/{id}")]
+        [HttpPut("update/{id}")]
         [SwaggerOperation(Summary = "Update category", Description = "Update an existing category by ID.")]
-        public async Task<ActionResult<int>> Update(string id, [FromBody] CategoryUpdateDTO categoryDto)
+        public async Task<IActionResult> Update(string id, [FromBody] CategoryUpdateDTO dto)
         {
-            if (categoryDto == null || string.IsNullOrEmpty(id))
-                return BadRequest();
-            var existingCategory = await _categoryService.GetById(id);
-            if (existingCategory == null)
-                return NotFound();
-            existingCategory.CategoryName = categoryDto.CategoryName;
-            existingCategory.UpdatedAt = DateTime.UtcNow;
-            var result = await _categoryService.Update(existingCategory);
-            if (result == 0)
-                return BadRequest();
-            return Ok(result);
+            var existing = await _categoryService.GetById(id);
+            if (existing == null)
+                return NotFound("Category not found");
 
+            existing.CategoryName = dto.CategoryName;
+
+            var (success, message) = await _categoryService.Update(existing);
+            return success ? Ok(message) : BadRequest(message);
         }
 
-        [HttpDelete("delete_category/{id}")]
+        [HttpDelete("delete/{id}")]
         [SwaggerOperation(Summary = "Delete category", Description = "Delete a category by its ID.")]
-        public async Task<ActionResult<bool>> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var result = await _categoryService.Delete(id);
-            if (!result)
-                return NotFound();
-            return Ok(result);
+            var (success, message) = await _categoryService.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }
