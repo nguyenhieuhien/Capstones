@@ -1,118 +1,90 @@
-﻿using Azure.Core;
-using CloudinaryDotNet.Actions;
-using CloudinaryDotNet;
+﻿// File: Controllers/SceneController.cs
 using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
-using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
-using Microsoft.AspNetCore.Authorization;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/scene")]
     [ApiController]
+    [Route("api/scene")]
     public class SceneController : ControllerBase
     {
-        private readonly ISceneService _service;
-        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
+        private readonly ISceneService _sceneService;
 
-        public SceneController(ISceneService service, CloudinaryDotNet.Cloudinary cloudinary)
+        public SceneController(ISceneService sceneService)
         {
-            _service = service;
-            _cloudinary = cloudinary;
+            _sceneService = sceneService;
         }
 
         [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_scene")]
-        [SwaggerOperation(Summary = "Get all scenes", Description = "Returns a list of all available scenes.")]
-        public async Task<IEnumerable<Scene>> Get()
+        [SwaggerOperation(Summary = "Get all scenes", Description = "Retrieve a list of all scenes.")]
+        public async Task<ActionResult<List<Scene>>> GetAll()
         {
-            return await _service.GetAll();
+            var scenes = await _sceneService.GetAll();
+            return Ok(scenes);
         }
 
         [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_scene/{id}")]
-        [SwaggerOperation(Summary = "Get a scene by ID", Description = "Returns a scene object by its unique identifier.")]
-        public async Task<Scene> Get(string id)
+        [SwaggerOperation(Summary = "Get scene by ID", Description = "Retrieve a scene by its ID.")]
+        public async Task<ActionResult<Scene>> GetById(string id)
         {
-            return await _service.GetById(id);
+            var scene = await _sceneService.GetById(id);
+            if (scene == null) return NotFound();
+            return Ok(scene);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
-        [SwaggerOperation(Summary = "Create a new scene", Description = "Uploads a ZIP file and creates a new scene entry.")]
-        public async Task<IActionResult> Post([FromForm] SceneDTOCreate request)
+        [SwaggerOperation(Summary = "Create new scene", Description = "Create a new scene with basic information.")]
+        public async Task<ActionResult<int>> Create([FromBody] SceneDTOCreate dto)
         {
+            if (dto == null) return BadRequest();
 
-            var scene  = new Scene
+            var scene = new Scene
             {
-                SceneName = request.SceneName,
-                Description = request.Description,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                SceneName = dto.SceneName,
+                Description = dto.Description
             };
 
-            var saveResult = await _service.Create(scene);
-            if (saveResult <= 0)
-                return BadRequest("Fail Create");
+            var result = await _sceneService.Create(scene);
+            if (result == 0) return BadRequest("Failed to create scene.");
 
-            return Ok(new
-            {
-                Data = request
-            });
+            return Ok(result);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPut("update_scene/{id}")]
-        [SwaggerOperation(Summary = "Update scene info", Description = "Updates the name, description or ZIP file of a scene.")]
-        public async Task<IActionResult> Put(string id, [FromForm] SceneDTOUpdate request)
+        [SwaggerOperation(Summary = "Update scene", Description = "Update an existing scene's information.")]
+        public async Task<ActionResult<int>> Update(string id, [FromBody] SceneDTOUpdate dto)
         {
-            var existingScene = await _service.GetById(id);
-            if (existingScene == null)
-            {
-                return NotFound(new { Message = $"Scene with ID {id} was not found." });
-            }
+            if (dto == null || string.IsNullOrWhiteSpace(id)) return BadRequest();
 
-            existingScene.SceneName = request.SceneName;
-            existingScene.Description = request.Description;
-            existingScene.UpdatedAt = DateTime.UtcNow;
+            var existing = await _sceneService.GetById(id);
+            if (existing == null) return NotFound();
 
-            await _service.Update(existingScene);
+            existing.SceneName = dto.SceneName;
+            existing.Description = dto.Description;
 
-            return Ok(new
-            {
-                Message = "Scene updated successfully.",
-                Data = new
-                {
-                    SceneName = existingScene.SceneName,
-                    Description = existingScene.Description,
-                }
-            });
+            var result = await _sceneService.Update(existing);
+            if (result == 0) return BadRequest("Failed to update scene.");
+
+            return Ok(result);
         }
 
-        //[Authorize(Roles = "Student,Instructor")]
-        //[HttpGet("download_scene/{id}")]
-        //[SwaggerOperation(Summary = "Download ZIP file of a scene", Description = "Downloads the uploaded ZIP file of the given scene.")]
-        //public async Task<IActionResult> Download(string id)
-        //{
-        //    var scene = await _service.GetById(id);
-        //    if (scene == null || string.IsNullOrEmpty(scene.ImgUrl))
-        //        return NotFound("Scene or file not found.");
-
-        //    return Redirect(scene.ImgUrl);
-        //}
-
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_scene/{id}")]
-        [SwaggerOperation(Summary = "Delete a scene", Description = "Removes a scene from the system by ID.")]
-        public async Task<bool> Delete(string id)
+        [SwaggerOperation(Summary = "Delete scene", Description = "Remove a scene by its ID.")]
+        public async Task<ActionResult<bool>> Delete(string id)
         {
-            return await _service.Delete(id);
+            var result = await _sceneService.Delete(id);
+            if (!result) return NotFound();
+            return Ok(result);
         }
     }
 }

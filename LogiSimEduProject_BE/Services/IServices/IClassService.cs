@@ -1,0 +1,18 @@
+﻿using Repositories.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Services.IServices
+{
+    public interface IClassService
+    {
+        Task<List<Class>> GetAll();
+        Task<Class?> GetById(string id);
+        Task<(bool Success, string Message, Guid? Id)> Create(Class _class);
+        Task<(bool Success, string Message)> Update(Class _class);
+        Task<(bool Success, string Message)> Delete(string id);
+    }
+}

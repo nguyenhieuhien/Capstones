@@ -1,102 +1,98 @@
-﻿using Google.Apis.Util;
+﻿// File: Controllers/ClassController.cs
 using LogiSimEduProject_BE_API.Controllers.DTO.Class;
-using LogiSimEduProject_BE_API.Controllers.DTO.Course;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/class")]
     [ApiController]
+    [Route("api/class")]
     public class ClassController : ControllerBase
     {
         private readonly IClassService _service;
 
-        public ClassController(IClassService service) => _service = service;
+        public ClassController(IClassService service)
+        {
+            _service = service;
+        }
 
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_class")]
         [SwaggerOperation(Summary = "Get all classes", Description = "Return a list of all classes.")]
-        public async Task<IEnumerable<Class>> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var classes = await _service.GetAll();
+            return Ok(classes);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_class/{id}")]
         [SwaggerOperation(Summary = "Get class by ID", Description = "Return class details by its ID.")]
-        public async Task<Class> Get(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            return await _service.GetById(id);
-        }
+            var _class = await _service.GetById(id);
+            if (_class == null)
+                return NotFound("Class not found");
 
+            return Ok(_class);
+        }
 
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_class")]
         [SwaggerOperation(Summary = "Create a new class", Description = "Create a new class with course ID, name, and number of students.")]
-        public async Task<IActionResult> Post(ClassDTOCreate request)
+        public async Task<IActionResult> Create([FromBody] ClassDTOCreate request)
         {
-            var course = new Class
+            if (request == null)
+                return BadRequest("Invalid request data");
+
+            var newClass = new Class
             {
                 CourseId = request.CourseId,
                 ClassName = request.ClassName,
-                NumberOfStudent = request.NumberOfStudent,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                NumberOfStudent = request.NumberOfStudent
             };
-            var result = await _service.Create(course);
 
-            if (result <= 0)
-                return BadRequest("Fail Create");
+            var (success, message, id) = await _service.Create(newClass);
+            if (!success)
+                return BadRequest(message);
 
-            return Ok(new
-            {
-                Data = request
-            });
+            return Ok(new { Id = id, Message = message });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPut("update_class/{id}")]
-        [SwaggerOperation(Summary = "Update class", Description = "Update class details like name or number of students.")]
-        public async Task<IActionResult> Put(string id, ClassDTOUpdate request)
+        [SwaggerOperation(Summary = "Update class", Description = "Update class details.")]
+        public async Task<IActionResult> Update(string id, [FromBody] ClassDTOUpdate request)
         {
             var existingClass = await _service.GetById(id);
             if (existingClass == null)
-            {
-                return NotFound(new { Message = $"Class with ID {id} was not found." });
-            }
+                return NotFound("Class not found");
 
             existingClass.CourseId = request.CourseId;
             existingClass.ClassName = request.ClassName;
             existingClass.NumberOfStudent = request.NumberOfStudent;
-            existingClass.UpdatedAt = DateTime.UtcNow;
 
-            await _service.Update(existingClass);
+            var (success, message) = await _service.Update(existingClass);
+            if (!success)
+                return BadRequest(message);
 
-            return Ok(new
-            {
-                Message = "Class updated successfully.",
-                Data = new
-                {
-                    CourseId = existingClass.CourseId,
-                    ClassName = existingClass.ClassName,
-                    NumberOfStudent = existingClass.NumberOfStudent,
-                    IsActive = existingClass.IsActive,
-                }
-            });
+            return Ok(new { Message = message });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_class/{id}")]
-        [SwaggerOperation(Summary = "Delete class", Description = "Remove a class from the system using its ID.")]
-        public async Task<bool> Delete(string id)
+        [SwaggerOperation(Summary = "Delete class", Description = "Delete a class by ID.")]
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            if (!success)
+                return NotFound(message);
+
+            return Ok(new { Message = message });
         }
     }
 }

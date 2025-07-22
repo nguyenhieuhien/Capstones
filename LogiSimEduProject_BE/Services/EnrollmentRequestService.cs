@@ -1,57 +1,28 @@
-﻿using Repositories;
+﻿// File: Services/IEnrollmentRequestService.cs
+using Repositories;
 using Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.IServices;
 
 namespace Services
 {
-    public interface IEnrollmentRequestService
-    {
-        Task<List<AccountOfCourse>> GetAll();
-        Task<AccountOfCourse> GetById(string id);
-        Task<List<AccountOfCourse>> GetByCourseId(string courseId);
-        Task<int> Create(AccountOfCourse request);
-        Task<int> Update(AccountOfCourse request);
-        Task<bool> Delete(string id);
-    }
-
+    
     public class EnrollmentRequestService : IEnrollmentRequestService
     {
-        private EnrollmentRequestRepository _repository;
+        private readonly EnrollmentRequestRepository _repository;
 
-        public EnrollmentRequestService()
+        public EnrollmentRequestService(EnrollmentRequestRepository repository)
         {
-            _repository = new EnrollmentRequestRepository();
-        }
-
-        public async Task<int> Create(AccountOfCourse request)
-        {
-            request.Id = Guid.NewGuid();
-            request.Status = 1;
-            request.CreatedAt = DateTime.UtcNow;
-            return await _repository.CreateAsync(request);
-        }
-
-        public async Task<bool> Delete(string id)
-        {
-            var item = await _repository.GetById(id);
-            if (item != null)
-            {
-                return await _repository.RemoveAsync(item);
-            }
-            return false;
+            _repository = repository;
         }
 
         public async Task<List<AccountOfCourse>> GetAll()
         {
-            return await _repository.GetAll();
+            return await _repository.GetAll() ?? new List<AccountOfCourse>();
         }
 
-        public async Task<AccountOfCourse> GetById(string id)
+        public async Task<AccountOfCourse?> GetById(string id)
         {
+            if (string.IsNullOrWhiteSpace(id)) return null;
             return await _repository.GetById(id);
         }
 
@@ -60,9 +31,42 @@ namespace Services
             return await _repository.GetByCourseId(courseId);
         }
 
-        public async Task<int> Update(AccountOfCourse request)
+        public async Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request)
         {
-            return await _repository.UpdateAsync(request);
+            if (request == null || request.AccountId == Guid.Empty || request.CourseId == Guid.Empty)
+                return (false, "Invalid request data", null);
+
+            request.Id = Guid.NewGuid();
+            request.Status = 1;
+            request.CreatedAt = DateTime.UtcNow;
+
+            var result = await _repository.CreateAsync(request);
+            return result > 0
+                ? (true, "Enrollment request created", request.Id)
+                : (false, "Failed to create enrollment request", null);
+        }
+
+        public async Task<(bool Success, string Message)> Update(AccountOfCourse request)
+        {
+            if (request == null || request.Id == Guid.Empty)
+                return (false, "Invalid update data");
+
+            request.UpdatedAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(request);
+            return result > 0 ? (true, "Request updated successfully") : (false, "Failed to update request");
+        }
+
+        public async Task<(bool Success, string Message)> Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return (false, "Invalid ID");
+
+            var item = await _repository.GetById(id);
+            if (item == null)
+                return (false, "Request not found");
+
+            var result = await _repository.RemoveAsync(item);
+            return result ? (true, "Deleted successfully") : (false, "Delete failed");
         }
     }
 }
