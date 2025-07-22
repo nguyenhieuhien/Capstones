@@ -1,68 +1,68 @@
-﻿using Repositories;
+﻿// File: Services/IClassService.cs
+using Repositories;
 using Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.IServices;
 
 namespace Services
 {
-    public interface IClassService
-    {
-        Task<List<Class>> GetAll();
-        Task<Class> GetById(string id);
-        Task<int> Create(Class _class);
-        Task<int> Update(Class _class);
-        Task<bool> Delete(string id);
-    }
+ 
 
     public class ClassService : IClassService
     {
-        private ClassRepository _repository;
-        
+        private readonly ClassRepository _repository;
 
-        public ClassService()
+        public ClassService(ClassRepository repository)
         {
-            _repository = new ClassRepository();
-            
-        }
-        public async Task<int> Create(Class _class)
-        {
-            _class.Id = Guid.NewGuid();
-            return await _repository.CreateAsync(_class);
-        }
-
-        public async Task<bool> Delete(string id)
-        {
-            var item = await _repository.GetByIdAsync(id);
-            if (item != null)
-            {
-                //var accountList = await _accountOfClassRepository.GetByClassIdAsync(Guid.Parse(id));
-                //foreach (var account in accountList)
-                //{
-                //    await _accountOfClassRepository.RemoveAsync(account);
-                //}
-
-                return await _repository.RemoveAsync(item);
-            }
-
-            return false;
+            _repository = repository;
         }
 
         public async Task<List<Class>> GetAll()
         {
-            return await _repository.GetAll();
+            return await _repository.GetAll() ?? new List<Class>();
         }
 
-        public async Task<Class> GetById(string id)
+        public async Task<Class?> GetById(string id)
         {
+            if (string.IsNullOrWhiteSpace(id)) return null;
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<int> Update(Class _class)
+        public async Task<(bool Success, string Message, Guid? Id)> Create(Class _class)
         {
-            return await _repository.UpdateAsync(_class);
+            if (_class == null || string.IsNullOrWhiteSpace(_class.ClassName))
+                return (false, "Invalid class data", null);
+
+            _class.Id = Guid.NewGuid();
+            _class.CreatedAt = DateTime.UtcNow;
+            _class.IsActive = true;
+
+            var result = await _repository.CreateAsync(_class);
+            return result > 0
+                ? (true, "Class created successfully", _class.Id)
+                : (false, "Failed to create class", null);
+        }
+
+        public async Task<(bool Success, string Message)> Update(Class _class)
+        {
+            if (_class == null || _class.Id == Guid.Empty || string.IsNullOrWhiteSpace(_class.ClassName))
+                return (false, "Invalid update data");
+
+            _class.UpdatedAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(_class);
+            return result > 0 ? (true, "Updated successfully") : (false, "Update failed");
+        }
+
+        public async Task<(bool Success, string Message)> Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return (false, "Invalid ID");
+
+            var item = await _repository.GetByIdAsync(id);
+            if (item == null)
+                return (false, "Class not found");
+
+            var result = await _repository.RemoveAsync(item);
+            return result ? (true, "Deleted successfully") : (false, "Delete failed");
         }
     }
 }

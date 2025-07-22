@@ -1,12 +1,10 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.Answer;
-using LogiSimEduProject_BE_API.Controllers.DTO.Question;
+﻿using LogiSimEduProject_BE_API.Controllers.DTO.Question;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
@@ -15,28 +13,37 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class QuestionController : ControllerBase
     {
         private readonly IQuestionService _service;
-        public QuestionController(IQuestionService service) => _service = service;
+
+        public QuestionController(IQuestionService service)
+        {
+            _service = service;
+        }
 
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_question")]
         [SwaggerOperation(Summary = "Get all questions", Description = "Returns a list of all questions.")]
-        public async Task<IEnumerable<Question>> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var questions = await _service.GetAll();
+            return Ok(questions);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_question/{id}")]
         [SwaggerOperation(Summary = "Get a question by ID", Description = "Returns a specific question using the provided ID.")]
-        public async Task<Question> Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            return await _service.GetById(id);
+            var question = await _service.GetById(id);
+            if (question == null)
+                return NotFound(new { Message = $"Question with ID {id} not found." });
+
+            return Ok(question);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_question")]
         [SwaggerOperation(Summary = "Create a new question", Description = "Creates and saves a new question to the database.")]
-        public async Task<IActionResult> Post(QuestionDTOCreate request)
+        public async Task<IActionResult> Post([FromBody] QuestionDTOCreate request)
         {
             var question = new Question
             {
@@ -45,52 +52,54 @@ namespace LogiSimEduProject_BE_API.Controllers
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
-            var result = await _service.Create(question);
 
-            if (result <= 0)
-                return BadRequest("Fail Create");
+            var (success, message, id) = await _service.Create(question);
+
+            if (!success)
+                return BadRequest(new { Message = message });
 
             return Ok(new
             {
-                Data = request
+                Message = message,
+                Data = new { Id = id, request.QuizId, request.Description }
             });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPut("update_question/{id}")]
-        [SwaggerOperation(Summary = "Update a question", Description = "Updates the quiz ID, description, or correctness of an existing question.")]
-        public async Task<IActionResult> Put(string id,QuestionDTOUpdate request)
+        [SwaggerOperation(Summary = "Update a question", Description = "Updates the quiz ID or description of an existing question.")]
+        public async Task<IActionResult> Put(string id, [FromBody] QuestionDTOUpdate request)
         {
-            var existingQuestion = await _service.GetById(id);
-            if (existingQuestion == null)
-            {
-                return NotFound(new { Message = $"Question with ID {id} was not found." });
-            }
+            var existing = await _service.GetById(id);
+            if (existing == null)
+                return NotFound(new { Message = $"Question with ID {id} not found." });
 
-            existingQuestion.QuizId = request.QuizId;
-            existingQuestion.Description = request.Description;
-            existingQuestion.UpdatedAt = DateTime.UtcNow;
+            existing.QuizId = request.QuizId;
+            existing.Description = request.Description;
+            existing.UpdatedAt = DateTime.UtcNow;
 
-            await _service.Update(existingQuestion);
+            var (success, message) = await _service.Update(existing);
+
+            if (!success)
+                return BadRequest(new { Message = message });
 
             return Ok(new
             {
-                Message = "Question updated successfully.",
-                Data = new
-                {
-                    QuizId = existingQuestion.QuizId,
-                    Description = existingQuestion.Description,
-                    IsActive = existingQuestion.IsActive,
-                }
+                Message = message,
+                Data = new { existing.Id, existing.QuizId, existing.Description }
             });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_question/{id}")]
         [SwaggerOperation(Summary = "Delete a question", Description = "Deletes a question by its ID.")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            if (!success)
+                return NotFound(new { Message = message });
+
+            return Ok(new { Message = message });
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.Notification;
-using LogiSimEduProject_BE_API.Controllers.DTO.Question;
+﻿// File: Controllers/NotificationController.cs
+using LogiSimEduProject_BE_API.Controllers.DTO.Notification;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
@@ -14,82 +14,70 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _service;
-        public NotificationController(INotificationService service) => _service = service;
+
+        public NotificationController(INotificationService service)
+        {
+            _service = service;
+        }
+
         [HttpGet("get_all_notification")]
         [SwaggerOperation(Summary = "Get all notifications", Description = "Returns a list of all notifications.")]
-        public async Task<IEnumerable<Notification>> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var result = await _service.GetAll();
+            return Ok(result);
         }
 
         [HttpGet("get_notification/{id}")]
         [SwaggerOperation(Summary = "Get notification by ID", Description = "Returns a specific notification based on the provided ID.")]
-        public async Task<Notification> Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            return await _service.GetById(id);
+            var notification = await _service.GetById(id);
+            if (notification == null) return NotFound("Notification not found");
+            return Ok(notification);
         }
 
-        //[Authorize(Roles = "1")]
         [HttpPost("create_notification")]
         [SwaggerOperation(Summary = "Create a new notification", Description = "Creates a new notification and saves it to the database.")]
-        public async Task<IActionResult> Post(NotificationDTOCreate request)
+        public async Task<IActionResult> Post([FromBody] NotificationDTOCreate request)
         {
-            var question = new Notification
+            var model = new Notification
             {
                 AccountId = request.AccountId,
                 Title = request.Title,
                 Description = request.Description,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
             };
-            var result = await _service.Create(question);
 
-            if (result <= 0)
-                return BadRequest("Fail Create");
+            var (success, message, id) = await _service.Create(model);
+            if (!success) return BadRequest(message);
 
-            return Ok(new
-            {
-                Data = request
-            });
+            return Ok(new { Message = message, Id = id });
         }
 
-        //[Authorize(Roles = "1")]
         [HttpPut("update_notification/{id}")]
         [SwaggerOperation(Summary = "Update an existing notification", Description = "Updates the title or description of a notification.")]
-        public async Task<IActionResult> Put(string id, NotificationDTOUpdate request)
+        public async Task<IActionResult> Put(string id, [FromBody] NotificationDTOUpdate request)
         {
-            var existingNotification = await _service.GetById(id);
-            if (existingNotification == null)
-            {
-                return NotFound(new { Message = $"Notification with ID {id} was not found." });
-            }
+            var notification = await _service.GetById(id);
+            if (notification == null) return NotFound("Notification not found");
 
-            existingNotification.AccountId = request.AccountId;
-            existingNotification.Title = request.Title;
-            existingNotification.Description = request.Description;
-            existingNotification.UpdatedAt = DateTime.UtcNow;
+            notification.AccountId = request.AccountId;
+            notification.Title = request.Title;
+            notification.Description = request.Description;
 
-            await _service.Update(existingNotification);
+            var (success, message) = await _service.Update(notification);
+            if (!success) return BadRequest(message);
 
-            return Ok(new
-            {
-                Message = "Notification updated successfully.",
-                Data = new
-                {
-                    AccountId = existingNotification.AccountId,
-                    Title = existingNotification.Title,
-                    Description = existingNotification.Description,
-                    IsActive = existingNotification.IsActive,
-                }
-            });
+            return Ok(new { Message = message });
         }
 
-        //[Authorize(Roles = "1")]
         [HttpDelete("delete_notification/{id}")]
         [SwaggerOperation(Summary = "Delete a notification", Description = "Deletes a notification by its ID.")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            if (!success) return NotFound(message);
+            return Ok(new { Message = message });
         }
     }
 }

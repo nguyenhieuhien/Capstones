@@ -64,16 +64,23 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 // Course & Learning Modules
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<CourseRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<ClassRepository>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ReviewRepository>();
 
-// Workspace + Scenes + Scenarios
+// Organization + Workspace + Scenes + Scenarios
+builder.Services.AddScoped<OrganizationRepository>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
 builder.Services.AddScoped<ISceneService, SceneService>();
+builder.Services.AddScoped<SceneRepository>();
 builder.Services.AddScoped<IScenarioService, ScenarioService>();
+builder.Services.AddScoped<ScenarioRepository>();
 builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService>();
 builder.Services.AddScoped<AccountOfWorkSpaceRepository>();
 builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
@@ -82,13 +89,17 @@ builder.Services.AddScoped<SceneOfWorkSpaceRepository>();
 // Quiz & Submission
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<QuizRepository>();
+builder.Services.AddScoped<QuestionRepository>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<AnswerRepository>();
 builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
 
 // Notification & Enrollment
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<NotificationRepository>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
+builder.Services.AddScoped<EnrollmentRequestRepository>();
 
 // -----------------------
 // 🧠 EF DbContext

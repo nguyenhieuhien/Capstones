@@ -1,99 +1,95 @@
-﻿using Azure.Core;
+﻿// File: Controllers/ScenarioController.cs
 using LogiSimEduProject_BE_API.Controllers.DTO.Scenario;
-using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/scenario")]
     [ApiController]
+    [Route("api/scenario")]
     public class ScenarioController : ControllerBase
     {
         private readonly IScenarioService _service;
 
-        public ScenarioController(IScenarioService service) => _service = service;
+        public ScenarioController(IScenarioService service)
+        {
+            _service = service;
+        }
 
         [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_scenario")]
-        [SwaggerOperation(Summary = "Get all scenarios", Description = "Returns a list of all scenarios.")]
-        public async Task<IEnumerable<Scenario>> Get()
+        [SwaggerOperation(Summary = "Get all scenarios", Description = "Returns all active scenarios.")]
+        public async Task<ActionResult<IEnumerable<Scenario>>> GetAll()
         {
-            return await _service.GetAll();
+            var scenarios = await _service.GetAll();
+            return Ok(scenarios);
         }
 
         [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_scenario/{id}")]
-        [SwaggerOperation(Summary = "Get a scenario by ID", Description = "Returns a scenario based on its unique ID.")]
-        public async Task<Scenario> Get(string id)
+        [SwaggerOperation(Summary = "Get scenario by ID", Description = "Retrieve a scenario using its unique identifier.")]
+        public async Task<ActionResult<Scenario>> GetById(string id)
         {
-            return await _service.GetById(id);
+            var scenario = await _service.GetById(id);
+            if (scenario == null)
+                return NotFound(new { Message = $"Scenario with ID {id} not found." });
+
+            return Ok(scenario);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
-        [SwaggerOperation(Summary = "Create a new scenario", Description = "Creates a new scenario with provided data.")]
-        public async Task<IActionResult> Post(ScenarioDTOCreate request)
+        [SwaggerOperation(Summary = "Create new scenario", Description = "Instructor can create a new simulation scenario.")]
+        public async Task<IActionResult> Create([FromBody] ScenarioDTOCreate dto)
         {
             var scenario = new Scenario
             {
-                SceneId = request.SceneId,
-                ScenarioName = request.ScenarioName,
-                Description = request.Description,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                SceneId = dto.SceneId,
+                ScenarioName = dto.ScenarioName,
+                Description = dto.Description
             };
+
             var result = await _service.Create(scenario);
-
             if (result <= 0)
-                return BadRequest("Fail Create");
+                return BadRequest("Failed to create scenario.");
 
-            return Ok(new
-            {
-                Data = request
-            });
+            return Ok(new { Message = "Scenario created successfully." });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPut("update_scenario/{id}")]
-        [SwaggerOperation(Summary = "Update a scenario", Description = "Updates an existing scenario by ID.")]
-        public async Task<IActionResult> Put(string id,ScenarioDTOUpdate request)
+        [SwaggerOperation(Summary = "Update scenario", Description = "Update existing scenario by ID.")]
+        public async Task<IActionResult> Update(string id, [FromBody] ScenarioDTOUpdate dto)
         {
-            var existingScenario = await _service.GetById(id);
-            if (existingScenario == null)
-            {
-                return NotFound(new { Message = $"Scenario with ID {id} was not found." });
-            }
-            existingScenario.SceneId = request.SceneId;
-            existingScenario.ScenarioName = request.ScenarioName;
-            existingScenario.Description = request.Description;
-            existingScenario.UpdatedAt = DateTime.UtcNow;
+            var existing = await _service.GetById(id);
+            if (existing == null)
+                return NotFound(new { Message = $"Scenario with ID {id} not found." });
 
-            await _service.Update(existingScenario);
+            existing.SceneId = dto.SceneId;
+            existing.ScenarioName = dto.ScenarioName;
+            existing.Description = dto.Description;
 
-            return Ok(new
-            {
-                Message = "Scenario updated successfully.",
-                Data = new
-                {
-                    SceneId = existingScenario.SceneId,
-                    ScenarioName = existingScenario.ScenarioName,
-                    Description = existingScenario.Description,
-                }
-            });
+            var result = await _service.Update(existing);
+            if (result <= 0)
+                return BadRequest("Failed to update scenario.");
+
+            return Ok(new { Message = "Scenario updated successfully." });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_scenario/{id}")]
-        [SwaggerOperation(Summary = "Delete a scenario", Description = "Deletes a scenario based on its ID.")]
-        public async Task<bool> Delete(string id)
+        [SwaggerOperation(Summary = "Delete scenario", Description = "Deletes a scenario by its ID.")]
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var result = await _service.Delete(id);
+            if (!result)
+                return NotFound(new { Message = $"Scenario with ID {id} not found or already deleted." });
+
+            return Ok(new { Message = "Scenario deleted successfully." });
         }
     }
 }

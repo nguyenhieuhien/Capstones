@@ -1,19 +1,10 @@
-﻿using Repositories;
+﻿// File: Services/OrganizationService.cs
+using Repositories;
 using Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Services.IServices;
 
 namespace Services
 {
-    public interface IOrganizationService
-    {
-        Task<List<Organization>> GetAll();
-        Task<Organization> GetById(string id);
-        Task<int> Create(Organization organization);
-        Task<int> Update(Organization organization);
-        Task<bool> Delete(string id);
-    }
 
     public class OrganizationService : IOrganizationService
     {
@@ -24,71 +15,73 @@ namespace Services
             _repository = new OrganizationRepository();
         }
 
-        public async Task<int> Create(Organization organization)
-        {
-            if (organization == null || string.IsNullOrEmpty(organization.OrganizationName))
-            {
-                return 0;
-            }
-
-            organization.Id = Guid.NewGuid();
-            organization.IsActive = true;
-            organization.CreatedAt = DateTime.UtcNow;
-            organization.UpdatedAt = null;
-            organization.DeleteAt = null;
-
-            var result = await _repository.CreateAsync(organization);
-            return result;
-        }
-
-        public async Task<bool> Delete(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return false;
-            }
-
-            var org = await _repository.GetByIdAsync(id);
-            if (org != null)
-            {
-                org.IsActive = false;
-                org.DeleteAt = DateTime.UtcNow;
-
-                var result = await _repository.RemoveAsync(org);
-                return result;
-            }
-
-            return false;
-        }
-
         public async Task<List<Organization>> GetAll()
         {
-            var organizations = await _repository.GetAll();
-            return organizations ?? new List<Organization>();
+            return await _repository.GetAll() ?? new List<Organization>();
         }
 
-        public async Task<Organization> GetById(string id)
+        public async Task<Organization?> GetById(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return null;
-            }
-
-            var organization = await _repository.GetByIdAsync(id);
-            return organization;
+            return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<int> Update(Organization organization)
+        public async Task<(bool Success, string Message, Guid? Id)> Create(Organization organization)
         {
-            if (organization == null || organization.Id == Guid.Empty || string.IsNullOrEmpty(organization.OrganizationName))
+            try
             {
-                return 0;
+                organization.Id = Guid.NewGuid();
+                organization.IsActive = true;
+                organization.CreatedAt = DateTime.UtcNow;
+                organization.UpdatedAt = null;
+                organization.DeleteAt = null;
+
+                var result = await _repository.CreateAsync(organization);
+                if (result > 0)
+                    return (true, "Organization created successfully", organization.Id);
+                return (false, "Failed to create organization", null);
             }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
 
-            organization.UpdatedAt = DateTime.UtcNow;
+        public async Task<(bool Success, string Message)> Update(Organization organization)
+        {
+            try
+            {
+                organization.UpdatedAt = DateTime.UtcNow;
+                var result = await _repository.UpdateAsync(organization);
+                if (result > 0)
+                    return (true, "Organization updated successfully");
+                return (false, "Failed to update organization");
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
 
-            var result = await _repository.UpdateAsync(organization);
-            return result;
+        public async Task<(bool Success, string Message)> Delete(string id)
+        {
+            try
+            {
+                var organization = await _repository.GetByIdAsync(id);
+                if (organization == null)
+                    return (false, "Organization not found");
+
+                organization.IsActive = false;
+                organization.DeleteAt = DateTime.UtcNow;
+
+                var result = await _repository.RemoveAsync(organization);
+                if (result)
+                    return (true, "Organization deleted successfully");
+                return (false, "Failed to delete organization");
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
         }
     }
 }

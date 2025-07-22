@@ -1,14 +1,12 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.Account;
-using LogiSimEduProject_BE_API.Controllers.DTO.Question;
+﻿// File: Controllers/QuizController.cs
+using LogiSimEduProject_BE_API.Controllers.DTO.Account;
 using LogiSimEduProject_BE_API.Controllers.DTO.Quiz;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Models;
 using Services;
+using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
@@ -22,41 +20,38 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_quiz")]
         [SwaggerOperation(Summary = "Get all quizzes", Description = "Returns a list of all quizzes.")]
-        public async Task<IEnumerable<Quiz>> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var result = await _service.GetAll();
+            return Ok(result);
         }
 
         [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_quiz/{id}")]
         [SwaggerOperation(Summary = "Get quiz by ID", Description = "Returns quiz details by quiz ID.")]
-        public async Task<Quiz> Get(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            return await _service.GetById(id);
+            var result = await _service.GetById(id);
+            if (result == null) return NotFound(new { Message = "Quiz not found." });
+            return Ok(result);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_quiz")]
         [SwaggerOperation(Summary = "Create a new quiz", Description = "Creates a basic quiz with topic and score.")]
-        public async Task<IActionResult> Post(QuizDTOCreate request)
+        public async Task<IActionResult> Create([FromBody] QuizDTOCreate request)
         {
             var quiz = new Quiz
             {
                 LessonId = request.LessonId,
                 QuizName = request.QuizName,
-                TotalScore = request.TotalScore,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                TotalScore = request.TotalScore
             };
-            var result = await _service.Create(quiz);
 
-            if (result <= 0)
-                return BadRequest("Fail Create");
+            var (success, message, id) = await _service.Create(quiz);
+            if (!success) return BadRequest(new { Message = message });
 
-            return Ok(new
-            {
-                Data = request
-            });
+            return Ok(new { Message = message, QuizId = id });
         }
 
         [Authorize(Roles = "Instructor")]
@@ -64,80 +59,53 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Create quiz with full questions & answers", Description = "Creates a quiz including its questions and answers in one go.")]
         public async Task<IActionResult> CreateFullQuiz([FromBody] QuizDTO dto)
         {
-            var quizId = Guid.NewGuid();
-            var quiz = new Quiz
+            var (success, message) = await _service.CreateFullQuiz(new Quiz
             {
-                Id = quizId,
                 LessonId = dto.LessonId,
                 QuizName = dto.QuizName,
                 TotalScore = dto.TotalScore,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                Questions = dto.Questions.Select(q =>
+                Questions = dto.Questions.Select(q => new Question
                 {
-                    var questionId = Guid.NewGuid();
-                    return new Question
+                    Description = q.Description,
+                    Answers = q.Answers.Select(a => new Answer
                     {
-                        Id = questionId,
-                        QuizId = quizId,
-                        Description = q.Description,
-                        CreatedAt = DateTime.UtcNow,
-                        Answers = q.Answers.Select(a => new Answer
-                        {
-                            Id = Guid.NewGuid(),
-                            QuestionId = questionId,
-                            Description = a.Description,
-                            IsCorrect = a.IsAnswerCorrect,
-                            CreatedAt = DateTime.UtcNow
-                        }).ToList()
-                    };
+                        Description = a.Description,
+                        IsCorrect = a.IsAnswerCorrect
+                    }).ToList()
                 }).ToList()
-            };
+            });
 
-            var result = await _service.CreateFullQuiz(quiz);
-            if (result <= 0)
-                return BadRequest("Fail Create");
-
-            return Ok(new { Message = "Quiz created" });
+            if (!success) return BadRequest(new { Message = message });
+            return Ok(new { Message = message });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpPut("update_quiz/{id}")]
         [SwaggerOperation(Summary = "Update quiz", Description = "Update topic, name or score of the quiz.")]
-        public async Task<IActionResult> Put(string id, QuizDTOUpdate request)
+        public async Task<IActionResult> Update(string id, [FromBody] QuizDTOUpdate request)
         {
-            var existingQuiz = await _service.GetById(id);
-            if (existingQuiz == null)
-            {
-                return NotFound(new { Message = $"Question with ID {id} was not found." });
-            }
+            var quiz = await _service.GetById(id);
+            if (quiz == null) return NotFound(new { Message = "Quiz not found." });
 
-            existingQuiz.LessonId = request.LessonId;
-            existingQuiz.QuizName = request.QuizName;
-            existingQuiz.TotalScore = request.TotalScore;
-            existingQuiz.UpdatedAt = DateTime.UtcNow;
+            quiz.LessonId = request.LessonId;
+            quiz.QuizName = request.QuizName;
+            quiz.TotalScore = request.TotalScore;
 
-            await _service.Update(existingQuiz);
+            var (success, message) = await _service.Update(quiz);
+            if (!success) return BadRequest(new { Message = message });
 
-            return Ok(new
-            {
-                Message = "Quiz updated successfully.",
-                Data = new
-                {
-                    LessonId = existingQuiz.LessonId,
-                    QuizName = existingQuiz.QuizName,
-                    TotalScore = existingQuiz.TotalScore,
-                    IsActive = existingQuiz.IsActive,
-                }
-            });
+            return Ok(new { Message = message });
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_quiz/{id}")]
         [SwaggerOperation(Summary = "Delete quiz", Description = "Delete a quiz by its ID.")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            if (!success) return NotFound(new { Message = message });
+
+            return Ok(new { Message = message });
         }
     }
 }

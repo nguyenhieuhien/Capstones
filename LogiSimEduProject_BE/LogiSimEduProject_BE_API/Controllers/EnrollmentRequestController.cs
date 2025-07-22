@@ -1,12 +1,10 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.EnrollmentRequestment;
+﻿// File: Controllers/EnrollmentRequestController.cs
+using LogiSimEduProject_BE_API.Controllers.DTO.EnrollmentRequestment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
-using Services;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
@@ -28,36 +26,36 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_enrollmentRequest")]
         [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
-        public async Task<IEnumerable<AccountOfCourse>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return await _service.GetAll();
+            var result = await _service.GetAll();
+            return Ok(result);
         }
 
         [Authorize(Roles = "Instructor")]
-        [HttpGet("get_enrollmentRequest_by_corse/{courseId}")] // Lấy tất cả yêu cầu theo course
+        [HttpGet("get_enrollmentRequest_by_corse/{courseId}")]
         [SwaggerOperation(Summary = "Get requests by course", Description = "Get all enrollment requests submitted for a specific course.")]
-        public async Task<IEnumerable<AccountOfCourse>> GetByCourse(string courseId)
+        public async Task<IActionResult> GetByCourse(string courseId)
         {
-            return await _service.GetByCourseId(courseId);
+            var result = await _service.GetByCourseId(courseId);
+            return Ok(result);
         }
 
         [Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Get enrollment request by ID", Description = "Retrieve a specific enrollment request by its ID.")]
-        public async Task<ActionResult<AccountOfCourse>> Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
             var item = await _service.GetById(id);
-            if (item == null)
-                return NotFound();
-            return item;
+            if (item == null) return NotFound("Request not found");
+            return Ok(item);
         }
 
         [Authorize(Roles = "Student")]
-        [HttpPost("create_enrollmentRequest")] // Student gửi yêu cầu
+        [HttpPost("create_enrollmentRequest")]
         [SwaggerOperation(Summary = "Create enrollment request", Description = "Submit a request to enroll in a course (only for students).")]
         public async Task<IActionResult> Post([FromBody] EnrollmentRequestDTOCreate request)
         {
-            // Kiểm tra tài khoản tồn tại
             var account = await _accountService.GetById(request.StudentId.ToString());
             if (account == null)
                 return BadRequest("Tài khoản không tồn tại.");
@@ -65,50 +63,44 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (account.RoleId != 4)
                 return Unauthorized("Chỉ tài khoản Student mới được gửi yêu cầu.");
 
-
             var model = new AccountOfCourse
             {
                 AccountId = request.StudentId,
                 CourseId = request.CourseId,
-                Status = 1,
-                CreatedAt = DateTime.UtcNow
             };
 
-            var result = await _service.Create(model);
-            if (result <= 0)
-                return BadRequest("Request failed");
+            var (success, message, id) = await _service.Create(model);
+            if (!success) return BadRequest(message);
 
-            return Ok(new { Message = "Enrollment request sent successfully." });
+            return Ok(new { Message = message, Id = id });
         }
 
         [Authorize(Roles = "Instructor")]
-        [HttpPut("update_enrollmentRequest/{id}")] // Instructor duyệt hoặc từ chối yêu cầu
+        [HttpPut("update_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Update request status", Description = "Approve or deny an enrollment request (only for instructors).")]
         public async Task<IActionResult> Put(string id, [FromBody] int status)
         {
             var request = await _service.GetById(id);
-            if (request == null)
-                return NotFound();
+            if (request == null) return NotFound("Request not found");
 
-            if (status != 2  && status != 3 )
+            if (status != 2 && status != 3)
                 return BadRequest("Invalid status");
 
             request.Status = status;
-            request.UpdatedAt = DateTime.UtcNow;
+            var (success, message) = await _service.Update(request);
+            if (!success) return BadRequest(message);
 
-            await _service.Update(request);
-
-            var statusName = status == 2 ? "accepted" : "rejected";
-
-            return Ok(new { Message = $"Request has been {statusName}." });
+            return Ok(new { Message = message });
         }
 
         [Authorize(Roles = "Student")]
         [HttpDelete("delete_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Delete enrollment request", Description = "Delete an enrollment request by ID.")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            if (!success) return NotFound(message);
+            return Ok(new { Message = message });
         }
     }
 }

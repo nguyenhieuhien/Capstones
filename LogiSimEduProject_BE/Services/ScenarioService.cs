@@ -1,61 +1,65 @@
-﻿using Repositories;
+﻿// File: Services/ScenarioService.cs
+using Repositories;
 using Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.IServices;
 
 namespace Services
 {
-    public interface IScenarioService
-    {
-        Task<List<Scenario>> GetAll();
-        Task<Scenario> GetById(string id);
-        Task<int> Create(Scenario scenario);
-        Task<int> Update(Scenario scenario);
-        Task<bool> Delete(string id);
-    }
+  
 
     public class ScenarioService : IScenarioService
     {
-        private ScenarioRepository _repository;
+        private readonly ScenarioRepository _repository;
 
         public ScenarioService()
         {
             _repository = new ScenarioRepository();
         }
-        public async Task<int> Create(Scenario scenario)
-        {
-            scenario.Id = Guid.NewGuid();
-            return await _repository.CreateAsync(scenario);
-        }
-
-        public async Task<bool> Delete(string id)
-        {
-            var item = await _repository.GetByIdAsync(id);
-            if (item != null)
-            {
-                return await _repository.RemoveAsync(item);
-            }
-
-            return false;
-        }
 
         public async Task<List<Scenario>> GetAll()
         {
-            return await _repository.GetAll();
+            return await _repository.GetAll() ?? new List<Scenario>();
         }
 
-        public async Task<Scenario> GetById(string id)
+        public async Task<Scenario?> GetById(string id)
         {
+            if (string.IsNullOrWhiteSpace(id)) return null;
             return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<int> Create(Scenario scenario)
+        {
+            if (scenario == null || string.IsNullOrWhiteSpace(scenario.ScenarioName))
+                return 0;
+
+            scenario.Id = Guid.NewGuid();
+            scenario.IsActive = true;
+            scenario.CreatedAt = DateTime.UtcNow;
+            scenario.UpdatedAt = null;
+
+            return await _repository.CreateAsync(scenario);
         }
 
         public async Task<int> Update(Scenario scenario)
         {
+            if (scenario == null || scenario.Id == Guid.Empty || string.IsNullOrWhiteSpace(scenario.ScenarioName))
+                return 0;
+
+            var existing = await _repository.GetByIdAsync(scenario.Id);
+            if (existing == null) return 0;
+
+            scenario.UpdatedAt = DateTime.UtcNow;
             return await _repository.UpdateAsync(scenario);
         }
 
+        public async Task<bool> Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return false;
+
+            var scenario = await _repository.GetByIdAsync(id);
+            if (scenario == null) return false;
+
+            return await _repository.RemoveAsync(scenario);
+        }
     }
 }
