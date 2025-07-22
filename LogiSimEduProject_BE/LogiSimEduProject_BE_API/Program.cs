@@ -64,7 +64,8 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 // Course & Learning Modules
 builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<Services.ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();

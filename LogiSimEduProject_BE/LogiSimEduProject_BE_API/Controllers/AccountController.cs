@@ -68,7 +68,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(message) : BadRequest(message);
         }
 
-        [HttpPost("reset-password")]
+        [HttpPost("reset_password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
             var (success, message) = await _accountService.ResetPasswordAsync(model.Token, model.NewPassword);
