@@ -1,8 +1,9 @@
 ﻿// File: Controllers/EnrollmentRequestController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.EnrollmentRequestment;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
+using Services.DTO.EnrollmentRequestment;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

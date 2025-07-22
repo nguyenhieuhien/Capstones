@@ -1,9 +1,10 @@
 ﻿// File: Controllers/ReviewController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.Review;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.DTO.Review;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

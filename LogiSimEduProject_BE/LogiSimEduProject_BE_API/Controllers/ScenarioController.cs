@@ -1,7 +1,8 @@
 ﻿// File: Controllers/ScenarioController.cs
 using CloudinaryDotNet.Actions;
 using CloudinaryDotNet;
-using LogiSimEduProject_BE_API.Controllers.DTO.Scenario;
+using Services.DTO.Scenario;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;

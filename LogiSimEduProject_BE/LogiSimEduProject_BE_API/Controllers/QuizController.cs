@@ -1,10 +1,11 @@
 ﻿// File: Controllers/QuizController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.Account;
-using LogiSimEduProject_BE_API.Controllers.DTO.Quiz;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.DTO.Account;
+using Services.DTO.Quiz;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

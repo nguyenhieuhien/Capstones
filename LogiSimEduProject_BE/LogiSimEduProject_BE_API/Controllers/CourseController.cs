@@ -1,10 +1,11 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using LogiSimEduProject_BE_API.Controllers.DTO.Course;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.DTO.Course;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;

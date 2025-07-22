@@ -1,9 +1,10 @@
 ﻿// File: Controllers/ClassController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.Class;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.DTO.Class;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

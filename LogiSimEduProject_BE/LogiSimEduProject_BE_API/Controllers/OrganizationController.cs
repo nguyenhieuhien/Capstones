@@ -1,9 +1,10 @@
 ﻿// File: Controllers/OrganizationController.cs
-using LogiSimEduProject_BE_API.Controllers.DTO.Organization;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
+using Services.DTO.Organization;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

@@ -156,6 +156,7 @@ namespace Services
 
             var account = new Account
             {
+                Id = Guid.NewGuid(),
                 FullName = request.FullName,
                 UserName = request.UserName,
                 Email = request.Email,

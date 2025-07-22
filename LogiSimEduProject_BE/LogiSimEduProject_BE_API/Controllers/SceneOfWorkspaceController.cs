@@ -1,7 +1,8 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.Scene;
-using LogiSimEduProject_BE_API.Controllers.DTO.SceneOfWorkSpace;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
+using Services;
+using Services.DTO.SceneOfWorkSpace;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 

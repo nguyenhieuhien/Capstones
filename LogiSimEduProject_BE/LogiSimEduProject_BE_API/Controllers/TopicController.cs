@@ -1,5 +1,5 @@
 ﻿using Azure.Core;
-using LogiSimEduProject_BE_API.Controllers.DTO.Topic;
+
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services.IServices;
@@ -7,6 +7,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
+using Services.DTO.Topic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

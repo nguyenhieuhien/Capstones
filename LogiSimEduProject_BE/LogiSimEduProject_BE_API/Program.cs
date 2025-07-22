@@ -74,7 +74,7 @@ builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ReviewRepository>();
 
-// Organization + Workspace + Scenes + Scenarios
+// Organization + Workspace + Scenes + Scenarios + plan
 builder.Services.AddScoped<OrganizationRepository>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
@@ -87,6 +87,8 @@ builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService
 builder.Services.AddScoped<AccountOfWorkSpaceRepository>();
 builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
 builder.Services.AddScoped<SceneOfWorkSpaceRepository>();
+//builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+//builder.Services.AddScoped<SubscriptionPlanRepository>();   
 
 // Quiz & Submission
 builder.Services.AddScoped<IQuizService, QuizService>();
@@ -103,6 +105,11 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<NotificationRepository>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
 builder.Services.AddScoped<EnrollmentRequestRepository>();
+
+
+//Order & Payment
+//builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<OrderRepository>();
 
 // -----------------------
 // 🧠 EF DbContext

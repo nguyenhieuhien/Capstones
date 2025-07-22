@@ -1,6 +1,8 @@
-﻿using LogiSimEduProject_BE_API.Controllers.DTO.QuizSubmission;
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
+using Services.DTO.QuizSubmission;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
