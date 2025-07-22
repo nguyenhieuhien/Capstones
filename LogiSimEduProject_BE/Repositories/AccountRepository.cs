@@ -22,7 +22,7 @@ namespace Repositories
 
         public async Task<Account> GetByEmailAsync(string email)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
+            return await _context.Accounts.FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower());
         }
 
 
