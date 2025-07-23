@@ -73,6 +73,10 @@ builder.Services.AddScoped<TopicRepository>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ReviewRepository>();
+builder.Services.AddScoped<ILessonService, LessonService>();
+builder.Services.AddScoped<LessonRepository>();
+builder.Services.AddScoped<ILessonProgressService, LessonProgressService>();
+builder.Services.AddScoped<LessonProgressRepository>();
 
 // Organization + Workspace + Scenes + Scenarios + plan
 builder.Services.AddScoped<OrganizationRepository>();
