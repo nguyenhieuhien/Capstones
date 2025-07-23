@@ -1,58 +1,87 @@
-﻿
-//using LogiSimEduProject_BE_API.Controllers.DTO.SubscriptionPlan;
-//using Microsoft.AspNetCore.Mvc;
-//using Repositories.Models;
-//using Services.IServices;
+﻿using Microsoft.AspNetCore.Mvc;
+using Repositories.Models;
+using Services.DTO.SubscriptionPlan;
+using Services.IServices;
+using Swashbuckle.AspNetCore.Annotations;
 
-//namespace LogiSimEduProject_BE_API.Controllers
-//{
-//    [ApiController]
-//    [Route("api/subscription-plan")]
-//    public class SubscriptionPlanController : ControllerBase
-//    {
-//        private readonly ISubscriptionPlanService _service;
+namespace LogiSimEduProject_BE_API.Controllers
+{
+    [Route("api/subscription-plan")]
+    [ApiController]
+    public class SubscriptionPlanController : ControllerBase
+    {
+        private readonly ISubscriptionPlanService _service;
 
-//        public SubscriptionPlanController(ISubscriptionPlanService service)
-//        {
-//            _service = service;
-//        }
+        public SubscriptionPlanController(ISubscriptionPlanService service)
+        {
+            _service = service;
+        }
 
-//        [HttpGet("get_all")]
-//        public async Task<ActionResult<List<SubscriptionPlanDTO>>> GetAll()
-//        {
-//            var result = await _service.GetAllAsync();
-//            return Ok(result);
-//        }
+        [HttpGet("get_all")]
+        [SwaggerOperation(Summary = "Get all subscription plans", Description = "Retrieve all subscription plans")]
+        public async Task<IActionResult> GetAll()
+        {
+            var plans = await _service.GetAll();
+            return Ok(plans);
+        }
 
-//        [HttpGet("get/{id}")]
-//        public async Task<ActionResult<SubscriptionPlanDTO>> GetById(Guid id)
-//        {
-//            var plan = await _service.GetByIdAsync(id);
-//            if (plan == null) return NotFound();
-//            return Ok(plan);
-//        }
+        [HttpGet("get/{id}")]
+        [SwaggerOperation(Summary = "Get a subscription plan by ID", Description = "Retrieve a subscription plan by its ID")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var plan = await _service.GetById(id);
+            return plan != null ? Ok(plan) : NotFound($"Subscription plan with ID {id} not found.");
+        }
 
-//        [HttpPost("create")]
-//        public async Task<ActionResult<int>> Create([FromBody] SubscriptionPlanDTO dto)
-//        {
-//            var result = await _service.CreateAsync(dto);
-//            return Ok(result);
-//        }
+        //[Authorize(Roles = "Admin")]
+        [HttpPost("create")]
+        [SwaggerOperation(Summary = "Create a new subscription plan", Description = "Add a new subscription plan")]
+        public async Task<IActionResult> Create([FromBody] SubscriptionPlanDTOCreate request)
+        {
+            var plan = new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Price = request.Price,
+                DurationInMonths = request.DurationInMonths,
+                MaxWorkSpaces = request.MaxWorkSpaces,
+                Description = request.Description,
+                IsActive = request.IsActive,
+                CreatedAt = DateTime.UtcNow
+            };
 
-//        [HttpPut("update/{id}")]
-//        public async Task<ActionResult<int>> Update(Guid id, [FromBody] SubscriptionPlanDTO dto)
-//        {
-//            if (id != dto.Id) return BadRequest("ID mismatch");
-//            var result = await _service.UpdateAsync(dto);
-//            return Ok(result);
-//        }
+            var (success, message) = await _service.Create(plan);
+            return success ? Ok(new { message, data = plan }) : BadRequest(message);
+        }
 
-//        [HttpDelete("delete/{id}")]
-//        public async Task<ActionResult<bool>> Delete(Guid id)
-//        {
-//            var result = await _service.DeleteAsync(id);
-//            return Ok(result);
-//        }
-//    }
+        //[Authorize(Roles = "Admin")]
+        [HttpPut("update/{id}")]
+        [SwaggerOperation(Summary = "Update a subscription plan", Description = "Update properties of a subscription plan")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] SubscriptionPlanDTOUpdate request)
+        {
+            var existing = await _service.GetById(id);
+            if (existing == null)
+                return NotFound($"Subscription plan with ID {id} not found.");
 
-//}
+            existing.Name = request.Name;
+            existing.Price = request.Price;
+            existing.DurationInMonths = request.DurationInMonths;
+            existing.MaxWorkSpaces = request.MaxWorkSpaces;
+            existing.Description = request.Description;
+            existing.IsActive = request.IsActive;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            var (success, message) = await _service.Update(existing);
+            return success ? Ok(new { message, data = existing }) : BadRequest(message);
+        }
+
+        //[Authorize(Roles = "Admin")]
+        [HttpDelete("delete/{id}")]
+        [SwaggerOperation(Summary = "Delete a subscription plan", Description = "Soft delete a subscription plan by ID")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
+        }
+    }
+}

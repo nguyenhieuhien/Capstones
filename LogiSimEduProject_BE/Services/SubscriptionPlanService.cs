@@ -1,102 +1,54 @@
-﻿//using Repositories;
-//using Repositories.Models;
-//using Services.IServices;
-//using Services.SubscriptionPlan;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using Repositories;
+using Repositories.Models;
+using Services.IServices;
 
-//namespace Services
-//{
-//    public class SubscriptionPlanService : ISubscriptionPlanService
-//    {
-//        private readonly SubscriptionPlanRepository _repo;
+namespace Services
+{
+    public class SubscriptionPlanService : ISubscriptionPlanService
+    {
+        private readonly SubscriptionPlanRepository _repository;
 
-//        public SubscriptionPlanService()
-//        {
-//            _repo = new SubscriptionPlanRepository();
-//        }
+        public SubscriptionPlanService(SubscriptionPlanRepository repository)
+        {
+            _repository = repository;
+        }
 
-//        //public async Task<List<SubscriptionPlanDTO>> GetAllAsync()
-//        //{
-//        //    var list = await _repo.GetAllAsync();
-//        //    return list.Select(p => new SubscriptionPlanDTO
-//        //    {
-//        //        Id = p.Id,
-//        //        Name = p.Name,
-//        //        Price = p.Price,
-//        //        DurationInMonths = p.DurationInMonths,
-//        //        MaxWorkSpaces = p.MaxWorkSpaces,
-//        //        Description = p.Description,
-//        //        IsActive = p.IsActive
-//        //    }).ToList();
-//        //}
+        public async Task<List<SubscriptionPlan>> GetAll()
+        {
+            return await _repository.GetAll();
+        }
 
-//        //public async Task<SubscriptionPlanDTO> GetByIdAsync(Guid id)
-//        //{
-//        //    var p = await _repo.GetByIdAsync(id);
-//        //    if (p == null) return null;
-//        //    return new SubscriptionPlanDTO
-//        //    {
-//        //        Id = p.Id,
-//        //        Name = p.Name,
-//        //        Price = p.Price,
-//        //        DurationInMonths = p.DurationInMonths,
-//        //        MaxWorkSpaces = p.MaxWorkSpaces,
-//        //        Description = p.Description,
-//        //        IsActive = p.IsActive
-//        //    };
-//        //}
+        public async Task<SubscriptionPlan> GetById(Guid id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
 
-//        public async Task<int> CreateAsync(SubscriptionPlanDTO dto)
-//        {
-//            var plan = new SubscriptionPlanDTO
-//            {
-//                Id = Guid.NewGuid(),
-//                Name = dto.Name,
-//                Price = dto.Price,
-//                DurationInMonths = dto.DurationInMonths,
-//                MaxWorkSpaces = dto.MaxWorkSpaces,
-//                Description = dto.Description,
-//                IsActive = dto.IsActive,
-//                //Created_At = DateTime.UtcNow
-//            };
-//            return await _repo.CreateAsync(plan);
-//        }
+        public async Task<(bool Success, string Message)> Create(SubscriptionPlan plan)
+        {
+            plan.Id = Guid.NewGuid();
+            plan.CreatedAt = DateTime.UtcNow;
+            plan.IsActive = true;
 
-//        public async Task<int> UpdateAsync(SubscriptionPlanDTO dto)
-//        {
-//            var plan = await _repo.GetByIdAsync(dto.Id);
-//            if (plan == null) return 0;
+            var result = await _repository.CreateAsync(plan);
+            return result > 0 ? (true, "Created successfully") : (false, "Failed to create subscription plan");
+        }
 
-//            plan.Name = dto.Name;
-//            plan.Price = dto.Price;
-//            plan.DurationInMonths = dto.DurationInMonths;
-//            plan.MaxWorkSpaces = dto.MaxWorkSpaces;
-//            plan.Description = dto.Description;
-//            plan.IsActive = dto.IsActive;
-//            plan.Updated_At = DateTime.UtcNow;
+        public async Task<(bool Success, string Message)> Update(SubscriptionPlan plan)
+        {
+            plan.UpdatedAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(plan);
+            return result > 0 ? (true, "Updated successfully") : (false, "Failed to update subscription plan");
+        }
 
-//            return await _repo.UpdateAsync(plan);
-//        }
+        public async Task<(bool Success, string Message)> Delete(Guid id)
+        {
+            var item = await _repository.GetByIdAsync(id);
+            if (item == null)
+                return (false, "Subscription plan not found");
 
-//        public async Task<bool> DeleteAsync(Guid id)
-//        {
-//            var plan = await _repo.GetByIdAsync(id);
-//            if (plan == null) return false;
-//            return await _repo.DeleteAsync(id);
-//        }
-
-//        public Task<List<SubscriptionPlanDTO>> GetAllAsync()
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        public Task<SubscriptionPlanDTO> GetByIdAsync(Guid id)
-//        {
-//            throw new NotImplementedException();
-//        }
-//    }
-//}
+            item.DeleteAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(item); // soft delete
+            return result > 0 ? (true, "Deleted successfully") : (false, "Failed to delete subscription plan");
+        }
+    }
+}
