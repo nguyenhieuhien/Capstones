@@ -93,8 +93,8 @@ builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService
 builder.Services.AddScoped<AccountOfWorkSpaceRepository>();
 builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
 builder.Services.AddScoped<SceneOfWorkSpaceRepository>();
-//builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
-//builder.Services.AddScoped<SubscriptionPlanRepository>();   
+builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+builder.Services.AddScoped<SubscriptionPlanRepository>();
 
 // Quiz & Submission
 builder.Services.AddScoped<IQuizService, QuizService>();
