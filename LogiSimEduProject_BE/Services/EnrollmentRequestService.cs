@@ -31,19 +31,52 @@ namespace Services
             return await _repository.GetByCourseId(courseId);
         }
 
+        public async Task<List<Account>> GetStudentsInClass(Guid classId)
+        {
+            return await _repository.GetStudentsByClassId(classId);
+        }
+
+        public async Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId)
+        {
+            return await _repository.GetEnrolledCoursesByAccountId(accountId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request)
         {
             if (request == null || request.AccountId == Guid.Empty || request.CourseId == Guid.Empty)
                 return (false, "Invalid request data", null);
 
+            // Kiểm tra xem đã tồn tại bản ghi giống chưa
+            var existing = await _repository.GetActiveByAccountAndCourseAsync(request.AccountId.Value, request.CourseId.Value);
+
+            if (existing != null)
+                return (false, "Học viên đã gửi yêu cầu hoặc đang theo học khóa học này", null);
+
             request.Id = Guid.NewGuid();
             request.Status = 1;
+            request.IsActive = true;
             request.CreatedAt = DateTime.UtcNow;
 
             var result = await _repository.CreateAsync(request);
             return result > 0
                 ? (true, "Enrollment request created", request.Id)
                 : (false, "Failed to create enrollment request", null);
+        }
+
+        public async Task<(bool Success, string Message)> AssignStudentToClass(Guid accountOfCourseId, Guid classId)
+        {
+            var record = await _repository.GetByAccountAndCourse(accountOfCourseId);
+
+            if (record == null)
+                return (false, "Không tìm thấy học viên đủ điều kiện (status = 2, isActive = true)");
+
+            record.ClassId = classId;
+            record.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _repository.UpdateAsync(record);
+            return result > 0
+                ? (true, "Đã gán học viên vào lớp.")
+                : (false, "Cập nhật thất bại.");
         }
 
         public async Task<(bool Success, string Message)> Update(AccountOfCourse request)

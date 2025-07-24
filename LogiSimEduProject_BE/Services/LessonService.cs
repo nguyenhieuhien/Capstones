@@ -75,6 +75,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Lesson>> GetLessonsByTopicId(Guid topicId)
+        {
+            return await _repository.GetLessonsByTopicIdAsync(topicId);
+        }
+
         public async Task<(bool Success, string Message)> Update(Lesson request)
         {
             try

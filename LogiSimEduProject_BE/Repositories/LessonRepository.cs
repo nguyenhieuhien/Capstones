@@ -18,5 +18,12 @@ namespace Repositories
 
             return lessons;
         }
+
+        public async Task<List<Lesson>> GetLessonsByTopicIdAsync(Guid topicId)
+        {
+            return await _context.Lessons
+                .Where(l => l.TopicId == topicId && l.IsActive == true)
+                .ToListAsync();
+        }
     }
 }
