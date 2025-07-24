@@ -35,6 +35,39 @@ namespace Repositories
                 .FirstOrDefaultAsync(e => e.Id == Guid.Parse(id));
         }
 
+        public async Task<AccountOfCourse?> GetByAccountAndCourse(Guid accountOfCourseId)
+        {
+            return await _context.AccountOfCourses
+                .FirstOrDefaultAsync(x => x.Id == accountOfCourseId && x.Status == 2 && x.IsActive == true);
+        }
+
+        public async Task<AccountOfCourse?> GetActiveByAccountAndCourseAsync(Guid accountId, Guid courseId)
+        {
+            return await _context.AccountOfCourses
+                .FirstOrDefaultAsync(x =>
+                    x.AccountId == accountId &&
+                    x.CourseId == courseId &&
+                    x.IsActive == true);
+        }
+
+        public async Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId)
+        {
+            return await _context.AccountOfCourses
+                .Where(aoc => aoc.AccountId == accountId && aoc.Status == 2) // 2 = Enrolled accepted
+                .Include(aoc => aoc.Course)
+                .Select(aoc => aoc.Course)
+                .ToListAsync();
+        }
+
+        public async Task<List<Account>> GetStudentsByClassId(Guid classId)
+        {
+            return await _context.AccountOfCourses
+                .Include(a => a.Account)
+                .Where(a => a.ClassId == classId && a.Account.RoleId == 4 && a.IsActive == true)
+                .Select(a => a.Account)
+                .ToListAsync();
+        }
+
         public async Task<AccountOfCourse?> GetAcceptedRequest(Guid studentId)
         {
             return await _context.AccountOfCourses
