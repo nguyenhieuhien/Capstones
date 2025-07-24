@@ -52,6 +52,18 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(item);
         }
 
+        [HttpGet("student/{accountId}/enrolled-courses")]
+        [SwaggerOperation(Summary = "Get enrolled courses for a student", Description = "Returns all courses a student has successfully enrolled.")]
+        public async Task<IActionResult> GetEnrolledCourses(Guid accountId)
+        {
+            var courses = await _service.GetEnrolledCoursesByAccountId(accountId);
+            return Ok(new
+            {
+                Message = $"Found {courses.Count} enrolled course(s)",
+                Data = courses
+            });
+        }
+
         //[Authorize(Roles = "Student")]
         [HttpPost("create_enrollmentRequest")]
         [SwaggerOperation(Summary = "Create enrollment request", Description = "Submit a request to enroll in a course (only for students).")]
@@ -74,6 +86,21 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (!success) return BadRequest(message);
 
             return Ok(new { Message = message, Id = id });
+        }
+
+        [HttpPut("assign-student-to-class/{id}")]
+        public async Task<IActionResult> AssignStudentToClass(Guid Id,[FromBody] AssignStudentToClassDTO dto)
+        {
+
+            var (success, message) = await _service.AssignStudentToClass(Id, dto.ClassId);
+            return success ? Ok(new { Message = message }) : BadRequest(new { Message = message });
+        }
+
+        [HttpGet("class/{classId}/students")]
+        public async Task<IActionResult> GetStudentsInClass(Guid classId)
+        {
+            var students = await _service.GetStudentsInClass(classId);
+            return Ok(students);
         }
 
         //[Authorize(Roles = "Instructor")]

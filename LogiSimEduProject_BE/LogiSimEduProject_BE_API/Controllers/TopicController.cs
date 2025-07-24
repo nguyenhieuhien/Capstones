@@ -42,6 +42,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetById(id);
         }
 
+        [HttpGet("by-course/{courseId}")]
+        [SwaggerOperation(Summary = "Get topics by Course ID", Description = "Returns all topics associated with a specific Course ID.")]
+        public async Task<IActionResult> GetByCourseId(Guid courseId)
+        {
+            var topics = await _service.GetTopicsByCourseId(courseId);
+            return Ok(topics);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_topic")]
         [SwaggerOperation(Summary = "Create new topic", Description = "Creates a new topic and uploads image if provided.")]

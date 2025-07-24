@@ -37,6 +37,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(lesson);
         }
 
+        [HttpGet("by-topic/{topicId}")]
+        [SwaggerOperation(Summary = "Get lessons by Topic ID", Description = "Returns all lessons associated with a specific Topic ID.")]
+        public async Task<IActionResult> GetByTopicId(Guid topicId)
+        {
+            var lessons = await _service.GetLessonsByTopicId(topicId);
+            return Ok(lessons);
+        }
+
         [HttpPost("create_lesson")]
         [SwaggerOperation(Summary = "Create a new lesson", Description = "Creates a new lesson and saves it to the database.")]
         public async Task<IActionResult> Post([FromBody] LessonDTOCreate request)

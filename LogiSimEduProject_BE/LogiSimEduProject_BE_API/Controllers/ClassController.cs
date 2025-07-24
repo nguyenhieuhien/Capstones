@@ -21,7 +21,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_all_class")]
         [SwaggerOperation(Summary = "Get all classes", Description = "Return a list of all classes.")]
         public async Task<IActionResult> GetAll()
@@ -30,7 +30,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(classes);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_class/{id}")]
         [SwaggerOperation(Summary = "Get class by ID", Description = "Return class details by its ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -42,7 +42,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(_class);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_class")]
         [SwaggerOperation(Summary = "Create a new class", Description = "Create a new class with course ID, name, and number of students.")]
         public async Task<IActionResult> Create([FromBody] ClassDTOCreate request)
@@ -64,7 +64,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Id = id, Message = message });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_class/{id}")]
         [SwaggerOperation(Summary = "Update class", Description = "Update class details.")]
         public async Task<IActionResult> Update(string id, [FromBody] ClassDTOUpdate request)

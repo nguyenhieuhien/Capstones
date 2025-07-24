@@ -12,6 +12,9 @@ namespace Services.IServices
         Task<List<AccountOfCourse>> GetAll();
         Task<AccountOfCourse?> GetById(string id);
         Task<List<AccountOfCourse>> GetByCourseId(string courseId);
+        Task<List<Account>> GetStudentsInClass(Guid classId);
+        Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId);
+        Task<(bool Success, string Message)> AssignStudentToClass(Guid AccountOfCourseId, Guid classId);
         Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request);
         Task<(bool Success, string Message)> Update(AccountOfCourse request);
         Task<(bool Success, string Message)> Delete(string id);

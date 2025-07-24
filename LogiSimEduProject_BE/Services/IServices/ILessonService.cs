@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<Lesson>> GetAll();
         Task<Lesson?> GetById(string id);
+        Task<List<Lesson>> GetLessonsByTopicId(Guid topicId);
         Task<(bool Success, string Message, Guid? Id)> Create(Lesson lesson);
         Task<(bool Success, string Message)> Update(Lesson lesson);
         Task<(bool Success, string Message)> Delete(string id);
