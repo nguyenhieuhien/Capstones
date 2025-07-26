@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
+using Services;
 using Services.DTO.Lesson;
 using Services.DTO.LessonProgress;
 using Services.IServices;
@@ -52,6 +53,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (!success) return BadRequest(message);
 
             return Ok(new { Message = message, Id = id });
+        }
+
+        [HttpPut("update-lesson-progress")]
+        [SwaggerOperation(Summary = "Update lesson progress", Description = "Update student's lesson progress and recalculate course progress.")]
+        public async Task<IActionResult> UpdateLessonProgress(Guid accountId, Guid lessonId, int status)
+        {
+            var (success, message) = await _service.UpdateLessonProgressAsync(accountId, lessonId, status);
+            return success ? Ok(new { Message = message }) : BadRequest(new { Message = message });
         }
 
         [HttpPut("update_lesson/{id}")]
