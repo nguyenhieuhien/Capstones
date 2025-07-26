@@ -1,5 +1,6 @@
 ﻿// File: Services/IEnrollmentRequestService.cs
 using Repositories;
+using Repositories.DBContext;
 using Repositories.Models;
 using Services.IServices;
 
@@ -9,10 +10,14 @@ namespace Services
     public class EnrollmentRequestService : IEnrollmentRequestService
     {
         private readonly EnrollmentRequestRepository _repository;
+        private readonly LogiSimEduContext _dbContext;
+        private readonly LessonRepository _lessonRepo;
 
-        public EnrollmentRequestService(EnrollmentRequestRepository repository)
+        public EnrollmentRequestService(EnrollmentRequestRepository repository, LogiSimEduContext dbContext, LessonRepository lessonRepo)
         {
             _repository = repository;
+            _dbContext = dbContext;
+            _lessonRepo = lessonRepo;
         }
 
         public async Task<List<AccountOfCourse>> GetAll()
@@ -73,10 +78,34 @@ namespace Services
             record.ClassId = classId;
             record.UpdatedAt = DateTime.UtcNow;
 
-            var result = await _repository.UpdateAsync(record);
-            return result > 0
-                ? (true, "Đã gán học viên vào lớp.")
-                : (false, "Cập nhật thất bại.");
+            var courseProgress = new CourseProgress
+            {
+                Id = Guid.NewGuid(),
+                AccountId = record.AccountId,
+                CourseId = record.CourseId,
+                ProgressPercent = 0,
+                Status = 1,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var lessons = await _lessonRepo.GetLessonsByCourseId(record.CourseId.Value);
+            var lessonProgressList = lessons.Select(lesson => new LessonProgress
+            {
+                Id = Guid.NewGuid(),
+                AccountId = record.AccountId,
+                LessonId = lesson.Id,
+                Status = 1,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            }).ToList();
+
+            _dbContext.AccountOfCourses.Update(record);
+            await _dbContext.CourseProgresses.AddAsync(courseProgress);
+            await _dbContext.LessonProgresses.AddRangeAsync(lessonProgressList);
+            await _dbContext.SaveChangesAsync();
+
+            return (true, "Đã gán học viên vào lớp và khởi tạo tiến độ thành công.");
         }
 
         public async Task<(bool Success, string Message)> Update(AccountOfCourse request)

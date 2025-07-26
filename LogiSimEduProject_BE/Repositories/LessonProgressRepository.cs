@@ -18,5 +18,19 @@ namespace Repositories
 
             return lessonProgresses;
         }
+        public async Task<int> CountCompletedLessonsAsync(Guid accountId, List<Guid> lessonIds)
+        {
+            return await _context.LessonProgresses
+                .CountAsync(lp => lessonIds.Contains(lp.LessonId.Value)
+                                && lp.AccountId == accountId
+                                && lp.Status == 2
+                                && lp.IsActive == true);
+        }
+
+        public async Task<LessonProgress?> GetByAccountAndLesson(Guid accountId, Guid lessonId)
+        {
+            return await _context.LessonProgresses
+                .FirstOrDefaultAsync(lp => lp.AccountId == accountId && lp.LessonId == lessonId && lp.IsActive == true);
+        }
     }
 }
