@@ -105,6 +105,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         {
             var account = new Account
             {
+                OrganizationId = request.OrganizationId,
                 FullName = request.FullName,
                 UserName = request.UserName,
                 Email = request.Email,
@@ -128,6 +129,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         {
             var account = new Account
             {
+                OrganizationId = request.OrganizationId,
                 FullName = request.FullName,
                 UserName = request.UserName,
                 Email = request.Email,
