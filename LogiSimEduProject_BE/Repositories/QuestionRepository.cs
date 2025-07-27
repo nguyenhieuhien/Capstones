@@ -26,5 +26,13 @@ namespace Repositories
                 .Include(q => q.Answers)
                 .FirstOrDefaultAsync(q => q.Id.ToString() == id);
         }
+
+        public async Task<List<Question>> GetQuestionsWithAnswersByQuizId(Guid quizId)
+        {
+            return await _context.Questions
+                .Where(q => q.QuizId == quizId && q.IsActive == true)
+                .Include(q => q.Answers.Where(a => a.IsActive == true))
+                .ToListAsync();
+        }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class AnswerDTO
     {
+        public Guid Id { get; set; }
         public string Description { get; set; }
-        public bool IsAnswerCorrect { get; set; }
     }
 }

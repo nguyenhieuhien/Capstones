@@ -33,5 +33,12 @@ namespace Repositories
                 .Where(l => l.Topic.CourseId == courseId && l.IsActive == true)
                 .ToListAsync();
         }
+
+        public async Task<List<Quiz>> GetQuizzesByLessonId(Guid lessonId)
+        {
+            return await _context.Quizzes
+                .Where(q => q.LessonId == lessonId && q.IsActive == true)
+                .ToListAsync();
+        }
     }
 }
