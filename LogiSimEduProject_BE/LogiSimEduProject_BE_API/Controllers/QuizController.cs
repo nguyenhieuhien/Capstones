@@ -88,7 +88,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message });
         }
 
-        [Authorize(Roles = "Instructor")]
+        [HttpGet("review_quiz")]
+        public async Task<IActionResult> GetReview([FromQuery] Guid accountId, [FromQuery] Guid quizId)
+        {
+            var result = await _service.GetQuizReview(accountId, quizId);
+            if (result == null || !result.Any())
+                return NotFound(new { Message = "No review data found for this quiz." });
+
+            return Ok(result);
+        }
+
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_quiz/{id}")]
         [SwaggerOperation(Summary = "Update quiz", Description = "Update topic, name or score of the quiz.")]
         public async Task<IActionResult> Update(string id, [FromBody] QuizDTOUpdate request)

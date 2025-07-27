@@ -19,5 +19,22 @@ namespace Repositories
 
             return quizzes;
         }
+
+        public async Task<List<Question>> GetQuestionsWithAnswersByQuizId(Guid quizId)
+        {
+            return await _context.Questions
+                .Include(q => q.Answers)
+                .Where(q => q.QuizId == quizId && q.IsActive == true)
+                .ToListAsync();
+        }
+
+        public async Task<List<QuestionSubmission>> GetQuestionSubmissions(Guid accountId, Guid quizId)
+        {
+            return await _context.QuestionSubmissions
+                .Where(qs => qs.QuizSubmission.AccountId == accountId
+                          && qs.QuizSubmission.QuizId == quizId
+                          && qs.IsActive == true)
+                .ToListAsync();
+        }
     }
 }

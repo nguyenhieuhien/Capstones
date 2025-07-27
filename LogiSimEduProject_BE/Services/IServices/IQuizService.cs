@@ -1,5 +1,6 @@
 ﻿using Repositories.Models;
 using Services.DTO.Question;
+using Services.DTO.QuizSubmission;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Services.IServices
         Task<List<QuestionWithAnswersDTO>> GetQuestionsWithAnswersByQuizId(Guid quizId);
         Task<(bool Success, string Message, Guid? Id)> Create(Quiz quiz);
         Task<(bool Success, string Message)> CreateFullQuiz(Quiz dto);
+        Task<List<QuizReviewDTO>> GetQuizReview(Guid accountId, Guid quizId);
         Task<(bool Success, string Message)> Update(Quiz quiz);
         Task<(bool Success, string Message)> Delete(string id);
     }
