@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
+using Services;
 using Services.DTO.Lesson;
 using Services.DTO.Notification;
 using Services.IServices;
@@ -43,6 +44,14 @@ namespace LogiSimEduProject_BE_API.Controllers
         {
             var lessons = await _service.GetLessonsByTopicId(topicId);
             return Ok(lessons);
+        }
+
+        [HttpGet("{lessonId}/quizzes")]
+        public async Task<IActionResult> GetQuizzesForLesson(Guid lessonId)
+        {
+            var quizzes = await _service.GetQuizzesByLessonId(lessonId);
+            if (!quizzes.Any()) return NotFound(new { Message = "No quizzes found for this lesson." });
+            return Ok(quizzes);
         }
 
         [HttpPost("create_lesson")]

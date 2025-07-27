@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Repositories;
 using Repositories.Models;
+using Services.DTO.Lesson;
 using Services.IServices;
 using System;
 using System.Collections.Generic;
@@ -78,6 +79,17 @@ namespace Services
         public async Task<List<Lesson>> GetLessonsByTopicId(Guid topicId)
         {
             return await _repository.GetLessonsByTopicIdAsync(topicId);
+        }
+
+        public async Task<List<QuizDTOByLesson>> GetQuizzesByLessonId(Guid lessonId)
+        {
+            var quizzes = await _repository.GetQuizzesByLessonId(lessonId);
+
+            return quizzes.Select(q => new QuizDTOByLesson
+            {
+                QuizId = q.Id,
+                QuizName = q.QuizName,
+            }).ToList();
         }
 
         public async Task<(bool Success, string Message)> Update(Lesson request)

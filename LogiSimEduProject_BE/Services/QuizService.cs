@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Repositories;
 using Repositories.DBContext;
 using Repositories.Models;
+using Services.DTO.Answer;
+using Services.DTO.Question;
 using Services.IServices;
 
 namespace Services
@@ -32,6 +34,24 @@ namespace Services
         public async Task<Quiz?> GetById(string id)
         {
             return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<List<QuestionWithAnswersDTO>> GetQuestionsWithAnswersByQuizId(Guid quizId)
+        {
+            var questions = await _questionRepo.GetQuestionsWithAnswersByQuizId(quizId);
+
+            var result = questions.Select(q => new QuestionWithAnswersDTO
+            {
+                Id = q.Id,
+                Description = q.Description,
+                Answers = q.Answers.Select(a => new AnswerDTO
+                {
+                    Id = a.Id,
+                    Description = a.Description
+                }).ToList()
+            }).ToList();
+
+            return result;
         }
 
         public async Task<(bool Success, string Message, Guid? Id)> Create(Quiz quiz)
@@ -64,6 +84,7 @@ namespace Services
                 {
                     question.Id = Guid.NewGuid();
                     question.QuizId = dto.Id;
+                    question.IsActive = true;
                     question.CreatedAt = DateTime.UtcNow;
 
                     int correctCount = question.Answers.Count(a => a.IsCorrect == true);
@@ -74,6 +95,7 @@ namespace Services
                     {
                         answer.Id = Guid.NewGuid();
                         answer.QuestionId = question.Id;
+                        answer.IsActive = true;
                         answer.CreatedAt = DateTime.UtcNow;
                     }
                 }
