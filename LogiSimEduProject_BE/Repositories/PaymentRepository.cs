@@ -16,10 +16,34 @@ namespace Repositories
             {
             }
 
-        public new async Task<List<Payment>> GetAll()
+        public async Task<Payment> GetByOrderCodeAsync(long? orderCode)
         {
-            var payments = await _context.Payments.ToListAsync();
-            return payments ?? new List<Payment>(); // đảm bảo không null
+            if (orderCode == null)
+            {
+                return null; // Hoặc throw new ArgumentNullException(nameof(orderCode));
+            }
+            return await _context.Payments
+                .FirstOrDefaultAsync(p => p.OrderCode == orderCode);
         }
+
+        public async Task CreatePaymentAsync(Payment payment)
+        {
+            await _context.Payments.AddAsync(payment);
+            await _context.SaveChangesAsync();
+        }
+        public async Task UpdatePaymentAsync(Payment payment)
+        {
+            _context.Payments.Update(payment);
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                Console.WriteLine($"Payment updated successfully for orderCode: {payment.OrderCode}");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to update payment for orderCode: {payment.OrderCode}");
+            }
+        }
+
     }
 }
