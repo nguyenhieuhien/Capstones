@@ -116,6 +116,8 @@ builder.Services.AddScoped<EnrollmentRequestRepository>();
 //Order & Payment
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<PaymentRepository>();
 
 // -----------------------
 // 🧠 EF DbContext

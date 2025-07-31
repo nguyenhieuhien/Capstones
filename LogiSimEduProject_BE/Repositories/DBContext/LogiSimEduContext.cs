@@ -109,7 +109,8 @@ public partial class LogiSimEduContext : DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -637,12 +638,8 @@ public partial class LogiSimEduContext : DbContext
             entity.ToTable("Payment");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.PaidAt).HasColumnType("datetime");
-            entity.Property(e => e.TransactionCode).HasMaxLength(100);
-
-            entity.HasOne(d => d.MethodNavigation).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.Method)
-                .HasConstraintName("FK__Payment__Method__2EDAF651");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(255);
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)

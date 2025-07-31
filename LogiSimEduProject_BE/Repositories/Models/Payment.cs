@@ -11,17 +11,21 @@ public partial class Payment
 
     public Guid? OrderId { get; set; }
 
-    public string TransactionCode { get; set; }
-
-    public int? Method { get; set; }
+    public long? OrderCode { get; set; }
 
     public int? Status { get; set; }
 
-    public double? PaidAmount { get; set; }
+    public double? Amount { get; set; }
 
-    public DateTime? PaidAt { get; set; }
+    public string Description { get; set; }
 
-    public virtual PaymentMethod MethodNavigation { get; set; }
+    public string PaymentLink { get; set; }
+
+    public string ReturnUrl { get; set; }
+
+    public string CancelUrl { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
 
     public virtual Order Order { get; set; }
 
