@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LogiSimEduProject_BE_API.Controllers.Request;
+using Microsoft.AspNetCore.Mvc;
 using Net.payOS;
 using Net.payOS.Types;
 using Repositories.Models;
@@ -109,6 +110,58 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
             }
         }
+
+        [HttpPost("webhook")]
+        [SwaggerOperation(Summary = "Webhook nhận thông báo thanh toán từ PayOS")]
+        public async Task<IActionResult> PaymentWebhook([FromBody] PaymentWebhookData data)
+        {
+            try
+            {
+                _logger.LogInformation("Webhook nhận từ PayOS: {@WebhookData}", data);
+
+                if (data == null || data.orderCode == 0)
+                {
+                    _logger.LogWarning("Dữ liệu webhook không hợp lệ.");
+                    return BadRequest(new { message = "Webhook data is invalid." });
+                }
+
+                var payment = await _paymentService.GetByOrderCodeAsync(data.orderCode);
+                if (payment == null)
+                {
+                    _logger.LogWarning("Không tìm thấy payment với OrderCode: {OrderCode}", data.orderCode);
+                    return NotFound(new { message = "Không tìm thấy thanh toán tương ứng." });
+                }
+
+                switch (data.transactionStatus)
+                {
+                    case 1: // Thành công
+                        payment.Status = 1;
+                        payment.CreatedAt = DateTime.UtcNow;
+                        break;
+
+                    case 2: // Hủy
+                        payment.Status = 2;
+                        break;
+
+                    default:
+                        _logger.LogWarning("Trạng thái không xác định từ webhook: {TransactionStatus}", data.transactionStatus);
+                        break;
+                }
+
+                await _paymentService.UpdatePaymentAsync(payment);
+
+                _logger.LogInformation("Cập nhật trạng thái thanh toán thành công. OrderCode: {OrderCode}, Status: {Status}", data.orderCode, data.transactionStatus);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi xử lý webhook thanh toán từ PayOS.");
+                return StatusCode(500, new { message = "Lỗi xử lý webhook", error = ex.Message });
+            }
+        }
+
+
     }
 }
 
