@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<List<Scene>> GetAll()
         {
-            var scenes = await _context.Scenes.ToListAsync();
+            var scenes = await _context.Scenes.Where(a => a.IsActive == true).ToListAsync();
 
             return scenes;
         }

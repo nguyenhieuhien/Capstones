@@ -55,6 +55,8 @@ public partial class Account
 
     public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 
+    public virtual ICollection<LessonSubmission> LessonSubmissions { get; set; } = new List<LessonSubmission>();
+
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

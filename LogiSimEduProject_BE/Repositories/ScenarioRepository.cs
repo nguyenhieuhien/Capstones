@@ -14,7 +14,7 @@ namespace Repositories
         public ScenarioRepository() { }
         public async Task<List<Scenario>> GetAll()
         {
-            var scenarios = await _context.Scenarios.ToListAsync();
+            var scenarios = await _context.Scenarios.Where(a => a.IsActive == true).ToListAsync();
 
             return scenarios;
         }

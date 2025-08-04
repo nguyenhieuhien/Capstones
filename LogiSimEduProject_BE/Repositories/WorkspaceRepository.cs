@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<List<WorkSpace>> GetAll()
         {
-            var workspaces = await _context.WorkSpaces.ToListAsync();
+            var workspaces = await _context.WorkSpaces.Where(a => a.IsActive == true).ToListAsync();
 
             return workspaces;
         }

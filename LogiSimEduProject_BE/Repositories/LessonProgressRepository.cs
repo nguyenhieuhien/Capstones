@@ -14,7 +14,7 @@ namespace Repositories
         public LessonProgressRepository() { }
         public async Task<List<LessonProgress>> GetAll()
         {
-            var lessonProgresses = await _context.LessonProgresses.ToListAsync();
+            var lessonProgresses = await _context.LessonProgresses.Where(a => a.IsActive == true).ToListAsync();
 
             return lessonProgresses;
         }

@@ -31,15 +31,19 @@ namespace Services
             return await _repository.CreateAsync(entity);
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<(bool Success, string Message)> Delete(string id)
         {
             var item = await _repository.GetByIdAsync(id);
             if (item != null)
             {
-                return await _repository.RemoveAsync(item);
+                item.IsActive = false;
+                item.DeleteAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(item);
+                return (true, "Deleted successfully");
             }
 
-            return false;
+            return (false, "SceneOfWorkSpace not found");
         }
 
         public async Task<List<SceneOfWorkSpace>> GetAll()

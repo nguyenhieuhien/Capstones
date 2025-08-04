@@ -11,7 +11,11 @@ public partial class Lesson
 
     public Guid? TopicId { get; set; }
 
+    public Guid? ScenarioId { get; set; }
+
     public string LessonName { get; set; }
+
+    public int OrderIndex { get; set; }
 
     public string Title { get; set; }
 
@@ -29,7 +33,11 @@ public partial class Lesson
 
     public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 
+    public virtual ICollection<LessonSubmission> LessonSubmissions { get; set; } = new List<LessonSubmission>();
+
     public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+
+    public virtual Scenario Scenario { get; set; }
 
     public virtual LessonStatus StatusNavigation { get; set; }
 

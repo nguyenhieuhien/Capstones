@@ -67,10 +67,11 @@ namespace Services
                 if (item == null)
                     return (false, "Question not found");
 
-                var result = await _repository.RemoveAsync(item);
-                if (result)
-                    return (true, "Question deleted successfully");
-                return (false, "Failed to delete question");
+                item.IsActive = false;
+                item.DeleteAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(item);
+                return (true, "Deleted successfully");
             }
             catch (Exception ex)
             {

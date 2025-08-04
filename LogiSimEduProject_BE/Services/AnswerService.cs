@@ -43,8 +43,11 @@ namespace Services
             if (item == null)
                 return (false, "Answer not found");
 
-            var success = await _repository.RemoveAsync(item);
-            return success ? (true, "Deleted successfully") : (false, "Failed to delete answer");
+            item.IsActive = false;
+            item.DeleteAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(item);
+            return (true, "Deleted successfully");
         }
     }
 }

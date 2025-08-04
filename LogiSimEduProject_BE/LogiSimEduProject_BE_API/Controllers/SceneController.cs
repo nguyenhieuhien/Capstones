@@ -83,9 +83,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Delete scene", Description = "Remove a scene by its ID.")]
         public async Task<ActionResult<bool>> Delete(string id)
         {
-            var result = await _sceneService.Delete(id);
-            if (!result) return NotFound();
-            return Ok(result);
+            var (success, message) = await _sceneService.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }

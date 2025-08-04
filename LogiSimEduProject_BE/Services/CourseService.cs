@@ -61,8 +61,11 @@ namespace Services
             if (item == null)
                 return (false, "Course not found");
 
-            var result = await _repository.RemoveAsync(item);
-            return result ? (true, "Deleted successfully") : (false, "Delete failed");
+            item.IsActive = false;
+            item.DeleteAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(item);
+            return (true, "Deleted successfully");
         }
 
         public async Task<List<Course>> Search(string name, string description)

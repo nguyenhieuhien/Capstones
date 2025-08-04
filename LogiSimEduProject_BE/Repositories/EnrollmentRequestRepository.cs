@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<List<AccountOfCourse>> GetAll()
         {
-            return await _context.AccountOfCourses
+            return await _context.AccountOfCourses.Where(a => a.IsActive == true)
                 .Include(e => e.Account)
                 .Include(e => e.Course)
                 .ToListAsync();

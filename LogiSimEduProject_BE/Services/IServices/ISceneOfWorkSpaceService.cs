@@ -13,6 +13,6 @@ namespace Services.IServices
         Task<SceneOfWorkSpace> GetById(string id);
         Task<int> Create(SceneOfWorkSpace scWs);
         Task<int> Update(string id, SceneOfWorkSpace scWs);
-        Task<bool> Delete(string id);
+        Task<(bool Success, string Message)> Delete(string id);
     }
 }

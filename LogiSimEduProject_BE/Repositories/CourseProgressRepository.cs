@@ -14,7 +14,7 @@ namespace Repositories
         public CourseProgressRepository() { }
         public async Task<List<CourseProgress>> GetAll()
         {
-            var courseProgresses = await _context.CourseProgresses.ToListAsync();
+            var courseProgresses = await _context.CourseProgresses.Where(a => a.IsActive == true).ToListAsync();
 
             return courseProgresses;
         }

@@ -155,9 +155,10 @@ namespace LogiSimEduProject_BE_API.Controllers
         //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete_topic/{id}")]
         [SwaggerOperation(Summary = "Delete topic", Description = "Deletes a topic by ID.")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }

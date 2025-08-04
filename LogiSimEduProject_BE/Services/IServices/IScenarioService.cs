@@ -13,6 +13,6 @@ namespace Services.IServices
         Task<Scenario?> GetById(string id);
         Task<int> Create(Scenario scenario);
         Task<int> Update(Scenario scenario);
-        Task<bool> Delete(string id);
+        Task<(bool Success, string Message)> Delete(string id);
     }
 }

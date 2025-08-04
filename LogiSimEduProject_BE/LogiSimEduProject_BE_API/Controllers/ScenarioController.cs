@@ -140,11 +140,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Delete scenario", Description = "Deletes a scenario by its ID.")]
         public async Task<IActionResult> Delete(string id)
         {
-            var result = await _service.Delete(id);
-            if (!result)
-                return NotFound(new { Message = $"Scenario with ID {id} not found or already deleted." });
-
-            return Ok(new { Message = "Scenario deleted successfully." });
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }
+ 

@@ -5,19 +5,23 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Scenario
+public partial class LessonSubmission
 {
     public Guid Id { get; set; }
 
-    public Guid? SceneId { get; set; }
+    public Guid AccountId { get; set; }
+
+    public Guid LessonId { get; set; }
+
+    public DateTime SubmitTime { get; set; }
 
     public string FileUrl { get; set; }
 
-    public string ScenarioName { get; set; }
+    public string Note { get; set; }
 
-    public string Description { get; set; }
+    public double? TotalScore { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -25,7 +29,7 @@ public partial class Scenario
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+    public virtual Account Account { get; set; }
 
-    public virtual Scene Scene { get; set; }
+    public virtual Lesson Lesson { get; set; }
 }

@@ -83,9 +83,10 @@ namespace LogiSimEduProject_BE_API.Controllers
         //[Authorize(Roles = "1")]
         [HttpDelete("delete_sceneOfWorkSpace/{id}")]
         [SwaggerOperation(Summary = "Delete SceneOfWorkSpace", Description = "Deletes a SceneOfWorkSpace entry by its ID.")]
-        public async Task<bool> Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            return await _service.Delete(id);
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }
