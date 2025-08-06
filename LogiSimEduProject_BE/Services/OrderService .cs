@@ -27,26 +27,24 @@ namespace Services
 
         public async Task<Order> CreateAsync(OrderDTOCreate dto)
         {
-            // 1. Lấy plan từ repository
             var plan = await _subscriptionPlanRepo.GetByIdAsync(dto.SubscriptionPlanId);
             if (plan == null)
                 throw new Exception("Invalid subscription plan.");
 
-            // 2. Tính ngày kết thúc
             var startDate = DateTime.UtcNow;
             var endDate = startDate.AddMonths((int)plan.DurationInMonths);
 
-            // 3. Tạo Order
             var order = new Order
             {
+                Id = Guid.NewGuid(),
                 OrganizationId = dto.OrganizationId,
                 AccountId = dto.AccountId,
                 SubcriptionPlanId = dto.SubscriptionPlanId,
                 Description = $"Đăng ký: {plan.Name} - {plan.Description}",
-                TotalPrice = plan.Price, // lấy đúng giá theo plan
+                TotalPrice = plan.Price,
                 StartDate = startDate,
                 EndDate = endDate,
-                Status = 1,        // pending
+                Status = 0,               // PENDING
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 OrderTime = DateTime.UtcNow
@@ -54,25 +52,15 @@ namespace Services
 
             return await _repo.CreateAsync(order);
         }
+        public async Task<bool> UpdateStatusAsync(Guid orderId, int newStatus)
+        {
+            var order = await _repo.GetByIdAsync(orderId);
+            if (order == null) return false;
 
+            order.Status = newStatus;
+            return await _repo.UpdateAsync(order); // Đảm bảo OrderRepository có phương thức UpdateAsync
+        }
 
-        //public async Task<Order?> UpdateAsync(Guid id, OrderDTOUpdate dto)
-        //{
-        //    var existing = await _repo.GetByIdAsync(id);
-        //    if (existing == null) return null;
-
-        //    existing.OrganizationId = dto.OrganizationId;
-        //    existing.AccountId = dto.AccountId;
-        //    existing.SubcriptionPlanId = dto.SubscriptionPlanId;
-        //    existing.Description = dto.Description;
-        //    existing.TotalPrice = dto.TotalPrice;
-        //    existing.StartDate = dto.StartDate;
-        //    existing.EndDate = dto.EndDate;
-        //    existing.Status = dto.Status;
-        //    existing.IsActive = dto.IsActive;
-
-        //    return await _repo.UpdateAsync(existing);
-        //}
 
         public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
     }
