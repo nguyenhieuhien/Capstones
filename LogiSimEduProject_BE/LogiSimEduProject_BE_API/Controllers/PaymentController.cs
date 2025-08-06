@@ -107,54 +107,102 @@ public class PaymentController : ControllerBase
             return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
         }
     }
-
-    /// <summary>
-    /// Dùng để PayOS kiểm tra URL webhook có tồn tại không
-    /// </summary>
-    [HttpHead("webhook")]
-    [HttpGet("webhook")]
-    public IActionResult WebhookHealthCheck()
-    {
-        _logger.LogInformation("Webhook health check (HEAD/GET) được gọi từ PayOS");
-        return Ok("Webhook đang hoạt động");
-    }
-
-    /// <summary>
-    /// Xử lý callback từ PayOS khi thanh toán thành công
-    /// </summary>
-    [HttpPost("webhook")]
-    public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookRoot payload)
+    [HttpPut("update")]
+    [SwaggerOperation(Summary = "Xác nhận trạng thái giao dịch từ PayOS và cập nhật hệ thống")]
+    public async Task<IActionResult> ConfirmPayOsTransaction([FromBody] PaymentDTO paymentDTO)
     {
         try
         {
-            if (payload == null || payload.Data == null || payload.Data.OrderCode == 0)
-            {
-                _logger.LogWarning("Webhook dữ liệu không hợp lệ: {@Payload}", payload);
-                return BadRequest(new { message = "Invalid payload from PayOS" });
-            }
+            // Gọi tới PayOS để lấy trạng thái đơn hàng
+            var transactionInfo = await _payOS.getPaymentLinkInformation(paymentDTO.OrderCode);
 
-            var data = payload.Data;
-
-            _logger.LogInformation("Webhook PayOS nhận được: {@Data}", data);
-
-            var payment = await _paymentService.GetByOrderCodeAsync(data.OrderCode);
+            var payment = await _paymentService.GetByOrderCodeAsync(paymentDTO.OrderCode);
             if (payment == null)
             {
-                _logger.LogWarning("Không tìm thấy payment với orderCode: {OrderCode}", data.OrderCode);
-                return NotFound(new { message = "Không tìm thấy thanh toán" });
+                _logger.LogWarning("Không tìm thấy thanh toán với OrderCode: {OrderCode}", paymentDTO.OrderCode);
+                return NotFound(new { message = "Không tìm thấy thanh toán." });
             }
 
-            payment.Status = 1; // Thành công
+            int newStatus = payment.Status ?? 0;
+
+            if (transactionInfo.status == "CANCELLED")
+            {
+                newStatus = 2; // ví dụ: 2 = CANCELLED
+            }
+            else if (transactionInfo.status == "PAID")
+            {
+                newStatus = 1; // ví dụ: 1 = PAID
+            }
+            else
+            {
+                return BadRequest(new { message = "Trạng thái giao dịch không hợp lệ." });
+            }
+
+            payment.Status = newStatus;
+
             await _paymentService.UpdatePaymentAsync(payment);
 
-            _logger.LogInformation("Cập nhật trạng thái thanh toán thành công cho OrderCode: {OrderCode}", data.OrderCode);
-
-            return Ok(new { message = "OK" });
+            _logger.LogInformation("Đã cập nhật trạng thái thanh toán: {Status} cho OrderCode: {OrderCode}", newStatus, paymentDTO.OrderCode);
+            return Ok(new { message = $"Cập nhật trạng thái: {newStatus} thành công." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi khi xử lý webhook PayOS");
-            return StatusCode(500, new { message = "Webhook xử lý lỗi", error = ex.Message });
+            _logger.LogError(ex, "Lỗi xác nhận thanh toán cho OrderCode: {OrderCode}", paymentDTO.OrderCode);
+            return StatusCode(500, new { message = "Lỗi server", error = ex.Message });
         }
     }
 }
+
+
+
+
+//    /// <summary>
+//    /// Dùng để PayOS kiểm tra URL webhook có tồn tại không
+//    /// </summary>
+//    [HttpHead("webhook")]
+//    [HttpGet("webhook")]
+//    public IActionResult WebhookHealthCheck()
+//    {
+//        _logger.LogInformation("Webhook health check (HEAD/GET) được gọi từ PayOS");
+//        return Ok("Webhook đang hoạt động");
+//    }
+
+//    /// <summary>
+//    /// Xử lý callback từ PayOS khi thanh toán thành công
+//    /// </summary>
+//    [HttpPost("webhook")]
+//    public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookRoot payload)
+//    {
+//        try
+//        {
+//            if (payload == null || payload.Data == null || payload.Data.OrderCode == 0)
+//            {
+//                _logger.LogWarning("Webhook dữ liệu không hợp lệ: {@Payload}", payload);
+//                return BadRequest(new { message = "Invalid payload from PayOS" });
+//            }
+
+//            var data = payload.Data;
+
+//            _logger.LogInformation("Webhook PayOS nhận được: {@Data}", data);
+
+//            var payment = await _paymentService.GetByOrderCodeAsync(data.OrderCode);
+//            if (payment == null)
+//            {
+//                _logger.LogWarning("Không tìm thấy payment với orderCode: {OrderCode}", data.OrderCode);
+//                return NotFound(new { message = "Không tìm thấy thanh toán" });
+//            }
+
+//            payment.Status = 1; // Thành công
+//            await _paymentService.UpdatePaymentAsync(payment);
+
+//            _logger.LogInformation("Cập nhật trạng thái thanh toán thành công cho OrderCode: {OrderCode}", data.OrderCode);
+
+//            return Ok(new { message = "OK" });
+//        }
+//        catch (Exception ex)
+//        {
+//            _logger.LogError(ex, "Lỗi khi xử lý webhook PayOS");
+//            return StatusCode(500, new { message = "Webhook xử lý lỗi", error = ex.Message });
+//        }
+//    }
+//}
