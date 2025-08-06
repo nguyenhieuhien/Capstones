@@ -13,7 +13,7 @@ namespace Services.IServices
         Task<List<Order>> GetAllAsync();
         Task<Order?> GetByIdAsync(Guid id);
         Task<Order> CreateAsync(OrderDTOCreate dto);
-        //Task<Order?> UpdateAsync(Guid id, OrderDTOUpdate dto);
+        Task<bool> UpdateStatusAsync(Guid orderId, int newStatus);
         Task<bool> DeleteAsync(Guid id);
     }
 

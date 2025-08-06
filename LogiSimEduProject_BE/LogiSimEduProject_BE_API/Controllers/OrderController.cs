@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.DTO.Order;
 using Services.IServices;
 
@@ -29,19 +30,23 @@ namespace LogiSimEduProject_BE_API.Controllers
             return result == null ? NotFound() : Ok(result);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] OrderDTOCreate dto)
         {
             var result = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Update(Guid id, [FromBody] OrderDTOUpdate dto)
-        //{
-        //    var result = await _service.UpdateAsync(id, dto);
-        //    return result == null ? NotFound() : Ok(result);
-        //}
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromQuery] int status)
+        {
+            var success = await _service.UpdateStatusAsync(id, status);
+            if (!success)
+                return NotFound("Order not found or update failed.");
+
+            return Ok("Status updated successfully.");
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
