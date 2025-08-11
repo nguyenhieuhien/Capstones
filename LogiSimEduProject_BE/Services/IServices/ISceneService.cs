@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<Scene>> GetAll();
         Task<Scene?> GetById(string id);
+        Task<List<Scene>> GetAllByOrgId(Guid orgId);
         Task<int> Create(Scene scene);
         Task<int> Update(Scene scene);
         Task<(bool Success, string Message)> Delete(string id);

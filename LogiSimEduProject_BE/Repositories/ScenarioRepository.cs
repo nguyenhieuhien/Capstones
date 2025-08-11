@@ -18,5 +18,14 @@ namespace Repositories
 
             return scenarios;
         }
+
+        public async Task<List<Scenario>> GetAllByOrgId(Guid orgId)
+        {
+            var scenarios = await _context.Scenarios
+                .Where(s => s.Scene.SceneOfWorkSpaces.Any(sw => sw.WorkSpace.OrganizationId == orgId) && s.IsActive == true)
+                .ToListAsync();
+
+            return scenarios;
+        }
     }
 }

@@ -27,6 +27,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Course>> GetAllByOrgId(Guid orgId)
+        {
+            return await _repository.GetAllByOrgId(orgId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(Course course)
         {
             if (course == null || string.IsNullOrWhiteSpace(course.CourseName))

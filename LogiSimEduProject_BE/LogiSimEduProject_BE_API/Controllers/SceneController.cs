@@ -40,6 +40,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scene);
         }
 
+        [HttpGet("get_all_by_org/{orgId}")]
+        [SwaggerOperation(Summary = "Get all scenes by organization ID", Description = "Retrieve all scenes that belong to a specific organization.")]
+        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        {
+            var scenes = await _sceneService.GetAllByOrgId(orgId);
+            return Ok(scenes);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
         [SwaggerOperation(Summary = "Create new scene", Description = "Create a new scene with basic information.")]

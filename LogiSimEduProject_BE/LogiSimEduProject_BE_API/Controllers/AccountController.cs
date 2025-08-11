@@ -31,6 +31,14 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Get account by ID")]
         public async Task<Account> Get(string id) => await _accountService.GetById(id);
 
+        [HttpGet("get_all_by_org/{orgId}")]
+        [SwaggerOperation(Summary = "Get all accounts by organization ID", Description = "Retrieve all accounts that belong to a specific organization.")]
+        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        {
+            var accounts = await _accountService.GetAllByOrgId(orgId);
+            return Ok(accounts);
+        }
+
         [HttpPost("login")]
         [SwaggerOperation(Summary = "Login Account")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -44,7 +52,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new
             {
                 token,
-                user = new { account.Id, account.UserName, account.Email,account.RoleId, account.OrganizationId }
+                user = new { account.Id, account.UserName, account.FullName, account.Email,account.RoleId, account.OrganizationId }
             });
         }
 

@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<WorkSpace>> GetAll();
         Task<WorkSpace> GetById(string id);
+        Task<List<WorkSpace>> GetAllByOrgId(Guid orgId);
         Task<int> Create(WorkSpace workspace);
         Task<int> Update(WorkSpace workspace);
         Task<bool> Delete(string id);

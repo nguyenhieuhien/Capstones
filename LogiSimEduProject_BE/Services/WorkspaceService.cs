@@ -51,6 +51,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<WorkSpace>> GetAllByOrgId(Guid orgId)
+        {
+            return await _repository.GetAllByOrgId(orgId);
+        }
+
         public async Task<int> Update(WorkSpace workspace)
         {
             return await _repository.UpdateAsync(workspace);

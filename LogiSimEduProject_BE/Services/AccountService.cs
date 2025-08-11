@@ -64,6 +64,8 @@ namespace Services
                 FullName = request.FullName,
                 Email = request.Email,
                 Phone = request.Phone,
+                Address = request.Address,
+                Gender = request.Gender,
                 IsActive = true,
                 IsEmailVerify = false,
                 CreatedAt = DateTime.UtcNow,
@@ -96,6 +98,8 @@ namespace Services
                 UserName = request.UserName,
                 Email = request.Email,
                 Phone = request.Phone,
+                Address = request.Address,
+                Gender = request.Gender,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
                 RoleId = 2, // Organization_Admin
@@ -138,6 +142,8 @@ namespace Services
                 UserName = request.UserName,
                 Email = request.Email,
                 Phone = request.Phone,
+                Address = request.Address,
+                Gender = request.Gender,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 RoleId = 3,             // Instructor
                 IsActive = true,
@@ -177,6 +183,8 @@ namespace Services
                 UserName = request.UserName,
                 Email = request.Email,
                 Phone = request.Phone,
+                Address = request.Address,
+                Gender = request.Gender,
                 Password = passwordHasher.HashPassword(null, rawPassword),
                 OrganizationId = request.OrganizationId,
                 RoleId = 4, // Student
@@ -365,6 +373,12 @@ namespace Services
 
         public async Task<List<Account>> GetAll() => await _repository.GetAll();
         public async Task<Account> GetById(string id) => await _repository.GetById(id);
+
+        public async Task<List<Account>> GetAllByOrgId(Guid orgId)
+        {
+            return await _repository.GetAllByOrgId(orgId);
+        }
+
         public async Task<int> Register(Account account) { account.Id = Guid.NewGuid(); return await _repository.CreateAsync(account); }
         public async Task<int> Update(Account account) => await _repository.UpdateAsync(account);
         public async Task<bool> Delete(string id) { var acc = await _repository.GetById(id); return await _repository.RemoveAsync(acc); }

@@ -23,6 +23,7 @@ namespace Services.IServices
         // CRUD
         Task<List<Account>> GetAll();
         Task<Account> GetById(string id);
+        Task<List<Account>> GetAllByOrgId(Guid orgId);
         Task<int> Register(Account account);
         Task<int> Update(Account account);
         Task<bool> Delete(string id);

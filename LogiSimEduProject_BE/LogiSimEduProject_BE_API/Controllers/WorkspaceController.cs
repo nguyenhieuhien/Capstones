@@ -7,6 +7,7 @@ using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Services.DTO.Workspace;
+using Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,6 +39,14 @@ namespace LogiSimEduProject_BE_API.Controllers
         public async Task<WorkSpace> Get(string id)
         {
             return await _service.GetById(id);
+        }
+
+        [HttpGet("get_all_by_org/{orgId}")]
+        [SwaggerOperation(Summary = "Get all workspaces by organization ID", Description = "Retrieve all workspaces that belong to a specific organization.")]
+        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        {
+            var workspaces = await _service.GetAllByOrgId(orgId);
+            return Ok(workspaces);
         }
 
         //[Authorize(Roles = "Organization_Admin")]
