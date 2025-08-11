@@ -58,103 +58,35 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         [HttpPost("register-admin-account")]
         [SwaggerOperation(Summary = "Register new admin account", Description = "Create a new admin account and send OTP for email verification")]
-        public async Task<IActionResult> RegisterAdminAccount(AccountDTOCreateAd request)
+        public async Task<IActionResult> RegisterAdminAccount([FromBody] AccountDTOCreateAd request)
         {
-            var account = new Account
-            {
-                RoleId = 1,
-                UserName = request.UserName,
-                FullName = request.FullName,
-                Email = request.Email,
-                Phone = request.Phone,
-                IsActive = true,
-                IsEmailVerify = false,
-                CreatedAt = DateTime.UtcNow,
-                Password = request.Password,
-            };
-
-            var (success, message) = await _accountService.RegisterAdminAccountAsync(account);
-
-            if (!success)
-                return BadRequest(message);
-
-            return Ok(message);
+            var (success, message) = await _accountService.RegisterAdminAccountAsync(request);
+            return success ? Ok(message) : BadRequest(message);
         }
 
         //[Authorize(Roles = "Admin")]
         [HttpPost("register-organization-admin-account")]
         public async Task<IActionResult> RegisterOrganizationAdmin([FromBody] AccountDTOCreateOg request)
-        {  
-
-            var account = new Account
-            {
-                FullName = request.FullName,
-                UserName = request.UserName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Password = request.Password,
-                OrganizationId = request.OrganizationId,
-                RoleId = 2,
-                IsActive = true,
-                IsEmailVerify = true,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var (success, message) = await _accountService.RegisterOrganizationAdminAccountAsync(account);
-
-            if (!success)
-                return BadRequest(message);
-
-            return Ok(message);
+        {
+            var (success, message) = await _accountService.RegisterOrganizationAdminAccountAsync(request);
+            return success ? Ok(message) : BadRequest(message);
         }
 
+        //[Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-instructor-account")]
         public async Task<IActionResult> RegisterInstructor([FromBody] AccountDTOCreate request)
         {
-            var account = new Account
-            {
-                OrganizationId = request.OrganizationId,
-                FullName = request.FullName,
-                UserName = request.UserName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Password = request.Password,
-                RoleId = 3,
-                IsActive = true,
-                IsEmailVerify = true,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var (success, message) = await _accountService.RegisterInstructorAccountAsync(account);
-
-            if (!success)
-                return BadRequest(message);
-            return Ok(message);
+            var (success, message) = await _accountService.RegisterInstructorAccountAsync(request);
+            return success ? Ok(message) : BadRequest(message);
         }
 
+
+        //[Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-student-account")]
         public async Task<IActionResult> RegisterStudent([FromBody] AccountDTOCreate request)
         {
-            var account = new Account
-            {
-                OrganizationId = request.OrganizationId,
-                FullName = request.FullName,
-                UserName = request.UserName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Password = request.Password,
-                RoleId = 4,
-                IsActive = true,
-                IsEmailVerify = true,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var (success, message) = await _accountService.RegisterStudentAccountAsync(account);
-
-            if (!success)
-                return BadRequest(message);
-
-            return Ok(message);
+            var (success, message) = await _accountService.RegisterStudentAccountAsync(request);
+            return success ? Ok(message) : BadRequest(message);
         }
 
 
