@@ -1,33 +1,35 @@
-﻿// File: Services/IAccountService.cs
-using Repositories;
-using Repositories.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Repositories;
+using Repositories.Models;
+using Services.DTO.Account;
+using Services.IServices;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Services.IServices;
 
 namespace Services
 {
     public class AccountService : IAccountService
     {
-        private readonly AccountRepository _repository;
+        private readonly AccountRepository _accountRepository;
+        private readonly OrganizationRepository _organizationRepository;
         private readonly IMemoryCache _cache;
         private readonly EmailService _emailService;
 
-        public AccountService(AccountRepository repository, IMemoryCache cache, EmailService emailService)
+        public AccountService(AccountRepository accountRepository,OrganizationRepository organizationRepository, IMemoryCache cache, EmailService emailService)
         {
-            _repository = repository;
+            _accountRepository = accountRepository;
+            _organizationRepository = organizationRepository;// Assuming this is how you instantiate it
             _cache = cache;
             _emailService = emailService;
         }
 
         public async Task<Account> Authenticate(string username, string password)
         {
-            var account = await _repository.GetAccountByUserName(username);
+            var account = await _accountRepository.GetAccountByUserName(username);
             if (account == null) return null;
 
             var hasher = new PasswordHasher<Account>();
@@ -47,167 +49,187 @@ namespace Services
             );
         }
 
-        public async Task<(bool Success, string Message)> RegisterAdminAccountAsync(Account request)
+        // Admin: tạo tài khoản + gửi OTP xác minh email
+        public async Task<(bool Success, string Message)> RegisterAdminAccountAsync(AccountDTOCreateAd dto)
         {
-            var passwordHasher = new PasswordHasher<Account>();
-
-            var existingAccount = await _repository.GetByEmailAsync(request.Email);
-            if (existingAccount != null)
+            // Validate email/username
+            if (await _accountRepository.GetByEmailAsync(dto.Email) is not null)
                 return (false, "This email is already in use.");
+            //if (!string.IsNullOrWhiteSpace(dto.UserName) &&
+            //    await _repository.GetByUserNameAsync(dto.UserName) is not null)
+            //    return (false, "This username is already in use.");
 
             var account = new Account
             {
                 Id = Guid.NewGuid(),
-                OrganizationId = request.OrganizationId,
-                RoleId = 1,
-                UserName = request.UserName,
-                FullName = request.FullName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Address = request.Address,
-                Gender = request.Gender,
+                RoleId = 1, // Admin
+                UserName = dto.UserName,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                Address = dto.Address,
+                Gender = dto.Gender,
                 IsActive = true,
                 IsEmailVerify = false,
-                CreatedAt = DateTime.UtcNow,
-                Password = passwordHasher.HashPassword(new Account(), request.Password)
+                CreatedAt = DateTime.UtcNow
             };
 
-            var result = await _repository.CreateAsync(account);
-            if (result <= 0)
-                return (false, "Đăng ký thất bại");
+            var hasher = new PasswordHasher<Account>();
+            account.Password = hasher.HashPassword(account, dto.Password);
 
-            // Gọi hàm gửi OTP xác thực email
+            var result = await _accountRepository.CreateAsync(account);
+            if (result <= 0) return (false, "Đăng ký thất bại");
+
             await SendEmailVerificationOTPAsync(account.Email);
 
             return (true, "Tài khoản đã được tạo. Vui lòng kiểm tra email để lấy mã xác thực.");
         }
 
-        public async Task<(bool Success, string Message)> RegisterOrganizationAdminAccountAsync(Account request)
+        // Organization Admin: tạo tài khoản + gửi email chứa mật khẩu (giữ theo yêu cầu)
+        public async Task<(bool Success, string Message)> RegisterOrganizationAdminAccountAsync(AccountDTOCreateOg dto)
         {
-            var passwordHasher = new PasswordHasher<Account>();
-            var rawPassword = request.Password;
-
-            var existingAccount = await _repository.GetByEmailAsync(request.Email);
-            if (existingAccount != null)
+            // Validate email/username
+            if (await _accountRepository.GetByEmailAsync(dto.Email) is not null)
                 return (false, "This email is already in use.");
+            //if (!string.IsNullOrWhiteSpace(dto.UserName) &&
+            //    await _repository.GetByUserNameAsync(dto.UserName) is not null)
+            //    return (false, "This username is already in use.");
 
             var account = new Account
             {
                 Id = Guid.NewGuid(),
-                FullName = request.FullName,
-                UserName = request.UserName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Address = request.Address,
-                Gender = request.Gender,
-                Password = passwordHasher.HashPassword(null, rawPassword),
-                OrganizationId = request.OrganizationId,
+                OrganizationId = dto.OrganizationId,
                 RoleId = 2, // Organization_Admin
+                UserName = dto.UserName,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                Address = dto.Address,
+                Gender = dto.Gender,
                 IsActive = true,
                 IsEmailVerify = true,
                 CreatedAt = DateTime.UtcNow
             };
 
-            var result = await _repository.CreateAsync(account);
-            if (result <= 0)
-                return (false, "Tạo tài khoản quản trị tổ chức thất bại");
+            var hasher = new PasswordHasher<Account>();
+            account.Password = hasher.HashPassword(account, dto.Password);
 
-            // Gửi email chứa thông tin đăng nhập
+            var result = await _accountRepository.CreateAsync(account);
+            if (result <= 0) return (false, "Tạo tài khoản quản trị tổ chức thất bại");
+
             var emailBody = $@"
-        <p>Chào {account.FullName},</p>
-        <p>Bạn được chỉ định là quản trị viên tổ chức trên hệ thống LogiSimEdu.</p>
-        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
-        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
-        <p>Vui lòng đăng nhập và đổi mật khẩu để đảm bảo an toàn.</p>";
+<p>Chào {account.FullName},</p>
+<p>Bạn được chỉ định là quản trị viên tổ chức trên hệ thống LogiSimEdu.</p>
+<p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+<p><strong>Mật khẩu:</strong> {dto.Password}</p>
+<p>Vui lòng đăng nhập và đổi mật khẩu để đảm bảo an toàn.</p>";
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản quản trị tổ chức - LogiSimEdu", emailBody);
 
             return (true, "Tài khoản Organization_Admin đã được tạo và gửi email thành công.");
         }
 
-        public async Task<(bool Success, string Message)> RegisterInstructorAccountAsync(Account request)
+
+        public async Task<(bool Success, string Message)> RegisterInstructorAccountAsync(AccountDTOCreate dto)
         {
-            var passwordHasher = new PasswordHasher<Account>();
-            var rawPassword = request.Password;
+            // 0) Check Organization
+            var org = await _organizationRepository.GetByIdAsync(dto.OrganizationId);
+            if (org == null)
+                return (false, "Organization không tồn tại.");
+            if (org.IsActive != true)
+                return (false, "Organization chưa được kích hoạt, vui lòng thanh toán.");
 
-            var existingAccount = await _repository.GetByEmailAsync(request.Email);
-            if (existingAccount != null)
+            // 1) Validate email/username
+            if (await _accountRepository.GetByEmailAsync(dto.Email) is not null)
                 return (false, "This email is already in use.");
+            //if (!string.IsNullOrWhiteSpace(dto.UserName) &&
+            //    await _repository.GetByUserNameAsync(dto.UserName) is not null)
+            //    return (false, "This username is already in use.");
 
+            // 2) Tạo account
             var account = new Account
             {
                 Id = Guid.NewGuid(),
-                OrganizationId = request.OrganizationId,
-                FullName = request.FullName,
-                UserName = request.UserName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Address = request.Address,
-                Gender = request.Gender,
-                Password = passwordHasher.HashPassword(null, rawPassword),
-                RoleId = 3,             // Instructor
+                OrganizationId = dto.OrganizationId,
+                FullName = dto.FullName,
+                UserName = dto.UserName,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                Address = dto.Address,
+                Gender = dto.Gender,
+                RoleId = 3, // Instructor
                 IsActive = true,
                 IsEmailVerify = true,
                 CreatedAt = DateTime.UtcNow
             };
 
-            var result = await _repository.CreateAsync(account);
+            var hasher = new PasswordHasher<Account>();
+            account.Password = hasher.HashPassword(account, dto.Password);
+
+            var result = await _accountRepository.CreateAsync(account);
             if (result <= 0)
                 return (false, "Tạo tài khoản Instructor thất bại");
 
+            // Gửi email kèm mật khẩu (theo yêu cầu bạn giữ)
             var emailBody = $@"
-        <p>Chào {account.FullName},</p>
-        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Instructor</strong> trên hệ thống LogiSimEdu.</p>
-        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
-        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
-        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+<p>Chào {account.FullName},</p>
+<p>Bạn đã được thêm vào tổ chức với vai trò <strong>Instructor</strong> trên hệ thống LogiSimEdu.</p>
+<p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+<p><strong>Mật khẩu:</strong> {dto.Password}</p>
+<p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản Giảng viên - LogiSimEdu", emailBody);
 
             return (true, "Tài khoản Instructor đã được tạo và gửi email thành công.");
         }
 
-        public async Task<(bool Success, string Message)> RegisterStudentAccountAsync(Account request)
-        {
-            var passwordHasher = new PasswordHasher<Account>();
-            var rawPassword = request.Password;
 
-            var existingAccount = await _repository.GetByEmailAsync(request.Email);
-            if (existingAccount != null)
+
+        public async Task<(bool Success, string Message)> RegisterStudentAccountAsync(AccountDTOCreate dto)
+        {
+            // Validate trùng email/username (khuyến nghị)
+            if (await   _accountRepository.GetByEmailAsync(dto.Email) is not null)
                 return (false, "This email is already in use.");
+            //if (!string.IsNullOrWhiteSpace(dto.UserName) &&
+            //    await _repository.GetByUserNameAsync(dto.UserName) is not null)
+            //    return (false, "This username is already in use.");
 
             var account = new Account
             {
                 Id = Guid.NewGuid(),
-                FullName = request.FullName,
-                UserName = request.UserName,
-                Email = request.Email,
-                Phone = request.Phone,
-                Address = request.Address,
-                Gender = request.Gender,
-                Password = passwordHasher.HashPassword(null, rawPassword),
-                OrganizationId = request.OrganizationId,
-                RoleId = 4, // Student
+                OrganizationId = dto.OrganizationId,
+                FullName = dto.FullName,
+                UserName = dto.UserName,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                Address = dto.Address,
+                Gender = dto.Gender,
+                RoleId = 4,             // Student
                 IsActive = true,
                 IsEmailVerify = true,
                 CreatedAt = DateTime.UtcNow
             };
 
-            var result = await _repository.CreateAsync(account);
+            var hasher = new PasswordHasher<Account>();
+            account.Password = hasher.HashPassword(account, dto.Password); // dùng instance account, không truyền null
+
+            var result = await _accountRepository.CreateAsync(account);
             if (result <= 0)
                 return (false, "Tạo tài khoản Student thất bại");
 
+            // Gửi email kèm mật khẩu theo yêu cầu
             var emailBody = $@"
-        <p>Chào {account.FullName},</p>
-        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
-        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
-        <p><strong>Mật khẩu:</strong> {rawPassword}</p>
-        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+<p>Chào {account.FullName},</p>
+<p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
+<p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+<p><strong>Mật khẩu:</strong> {dto.Password}</p>
+<p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản Học viên - LogiSimEdu", emailBody);
 
             return (true, "Tài khoản Student đã được tạo và gửi email thành công.");
         }
+
 
         public string GenerateToken(Account account, IConfiguration config)
         {
@@ -251,7 +273,7 @@ namespace Services
 
         public async Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword)
         {
-            var account = await _repository.GetAccountByUserName(email);
+            var account = await _accountRepository.GetAccountByUserName(email);
             if (account == null) return (false, "Account not found.");
 
             var hasher = new PasswordHasher<Account>();
@@ -266,7 +288,7 @@ namespace Services
             account.Password = hasher.HashPassword(account, newPassword);
             account.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(account);
+            await _accountRepository.UpdateAsync(account);
             return (true, "Password changed successfully.");
         }
 
@@ -275,12 +297,12 @@ namespace Services
             if (!_cache.TryGetValue(token, out string email) || string.IsNullOrEmpty(email))
                 return (false, "Invalid or expired token.");
 
-            var account = await _repository.GetByEmailAsync(email);
+            var account = await _accountRepository.GetByEmailAsync(email);
             if (account == null) return (false, "Account not found.");
 
             var hasher = new PasswordHasher<Account>();
             account.Password = hasher.HashPassword(account, newPassword);
-            await _repository.UpdateAsync(account);
+            await _accountRepository.UpdateAsync(account);
             _cache.Remove(token);
 
             return (true, "Password reset successfully.");
@@ -288,7 +310,7 @@ namespace Services
 
         public async Task<(bool Success, string Message)> SendResetPasswordEmail(string email)
         {
-            var account = await _repository.GetByEmailAsync(email);
+            var account = await _accountRepository.GetByEmailAsync(email);
             if (account == null) return (false, "Email does not exist.");
 
             var token = Guid.NewGuid().ToString();
@@ -306,10 +328,10 @@ namespace Services
             if (currentEmail.Equals(newEmail, StringComparison.OrdinalIgnoreCase))
                 return (false, "New email must be different from current email.");
 
-            if (await _repository.GetByEmailAsync(newEmail) != null)
+            if (await _accountRepository.GetByEmailAsync(newEmail) != null)
                 return (false, "Email already in use.");
 
-            var user = await _repository.GetByEmailAsync(currentEmail);
+            var user = await _accountRepository.GetByEmailAsync(currentEmail);
             if (user == null) return (false, "User not found.");
 
             var result = new PasswordHasher<Account>().VerifyHashedPassword(user, user.Password, password);
@@ -329,13 +351,13 @@ namespace Services
         {
             if (!_cache.TryGetValue($"change_email_token_{otp}", out dynamic data) || data == null)
                 return (false, "Invalid or expired OTP.");
-
-            var user = await _repository.GetByEmailAsync((string)data.OldEmail);
+                
+            var user = await _accountRepository.GetByEmailAsync((string)data.OldEmail);
             if (user == null) return (false, "User not found.");
 
             user.Email = data.NewEmail;
             user.IsEmailVerify = true;
-            await _repository.UpdateAsync(user);
+            await _accountRepository.UpdateAsync(user);
             _cache.Remove($"change_email_token_{otp}");
 
             return (true, "Email updated successfully.");
@@ -346,11 +368,11 @@ namespace Services
             if (!_cache.TryGetValue($"verify_email_token_{otp}", out string email) || string.IsNullOrEmpty(email))
                 return (false, "Invalid or expired OTP.");
 
-            var user = await _repository.GetByEmailAsync(email);
+            var user = await _accountRepository.GetByEmailAsync(email);
             if (user == null) return (false, "User not found.");
 
             user.IsEmailVerify = true;
-            await _repository.UpdateAsync(user);
+            await _accountRepository.UpdateAsync(user);
             _cache.Remove($"verify_email_token_{otp}");
 
             return (true, "Email verified successfully.");
@@ -358,7 +380,7 @@ namespace Services
 
         public async Task<(bool Success, string Message)> ResendVerifyOtp(string email)
         {
-            var user = await _repository.GetByEmailAsync(email);
+            var user = await _accountRepository.GetByEmailAsync(email);
             if (user == null || user.IsEmailVerify == true)
                 return (false, "Invalid or already verified account.");
 
@@ -371,34 +393,34 @@ namespace Services
             return (true, "OTP resent successfully.");
         }
 
-        public async Task<List<Account>> GetAll() => await _repository.GetAll();
-        public async Task<Account> GetById(string id) => await _repository.GetById(id);
+        public async Task<List<Account>> GetAll() => await _accountRepository.GetAll();
+        public async Task<Account> GetById(string id) => await _accountRepository.GetById(id);
 
         public async Task<List<Account>> GetAllByOrgId(Guid orgId)
         {
-            return await _repository.GetAllByOrgId(orgId);
+            return await _accountRepository.GetAllByOrgId(orgId);
         }
 
-        public async Task<int> Register(Account account) { account.Id = Guid.NewGuid(); return await _repository.CreateAsync(account); }
-        public async Task<int> Update(Account account) => await _repository.UpdateAsync(account);
-        public async Task<bool> Delete(string id) { var acc = await _repository.GetById(id); return await _repository.RemoveAsync(acc); }
-        public async Task<List<Account>> Search(string username, string fullname, string email, string phone) => await _repository.Search(username, fullname, email, phone);
+        public async Task<int> Register(Account account) { account.Id = Guid.NewGuid(); return await _accountRepository.CreateAsync(account); }
+        public async Task<int> Update(Account account) => await _accountRepository.UpdateAsync(account);
+        public async Task<bool> Delete(string id) { var acc = await _accountRepository.GetById(id); return await _accountRepository.RemoveAsync(acc); }
+        public async Task<List<Account>> Search(string username, string fullname, string email, string phone) => await _accountRepository.Search(username, fullname, email, phone);
 
         public async Task<bool> BanAccount(string id)
         {
-            var account = await _repository.GetById(id);
+            var account = await _accountRepository.GetById(id);
             if (account == null || account.IsActive == false) return false;
             account.IsActive = false;
-            await _repository.UpdateAsync(account);
+            await _accountRepository.UpdateAsync(account);
             return true;
         }
 
         public async Task<bool> UnbanAccount(string id)
         {
-            var account = await _repository.GetById(id);
+            var account = await _accountRepository.GetById(id);
             if (account == null || account.IsActive == true) return false;
             account.IsActive = true;
-            await _repository.UpdateAsync(account);
+            await _accountRepository.UpdateAsync(account);
             return true;
         }
 

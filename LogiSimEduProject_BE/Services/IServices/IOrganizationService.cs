@@ -13,6 +13,7 @@ namespace Services.IServices
         Task<Organization?> GetById(string id);
         Task<(bool Success, string Message, Guid? Id)> Create(Organization organization);
         Task<(bool Success, string Message)> Update(Organization organization);
+        Task<bool> UpdateActiveAsync(Guid organizationId, bool isActive);
         Task<(bool Success, string Message)> Delete(string id);
     }
 

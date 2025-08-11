@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Net.payOS;
 using Net.payOS.Types;
 using Repositories.Models;
+using Services;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -12,11 +13,12 @@ public class PaymentController : ControllerBase
 {
     private readonly PayOS _payOS;
     private readonly IOrderService _orderService;
+    private readonly IOrganizationService _organizationService;
     private readonly IPaymentService _paymentService;
     private readonly ILogger<PaymentController> _logger;
     private readonly IConfiguration _configuration;
 
-    public PaymentController(IConfiguration configuration, IOrderService orderService, IPaymentService paymentService, ILogger<PaymentController> logger)
+    public PaymentController(IConfiguration configuration, IOrderService orderService, IPaymentService paymentService, IOrganizationService organizationService, ILogger<PaymentController> logger)
     {
         _configuration = configuration;
         string clientId = configuration["PayOS:ClientId"];
@@ -28,6 +30,7 @@ public class PaymentController : ControllerBase
             throw new ArgumentException("PayOS configuration is missing or invalid.");
         }
 
+        _organizationService = organizationService;
         _payOS = new PayOS(clientId, apiKey, checksumKey);
         _orderService = orderService;
         _paymentService = paymentService;
@@ -107,15 +110,23 @@ public class PaymentController : ControllerBase
             return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
         }
     }
+
+
+
+
+
+
+
     [HttpPut("update")]
     [SwaggerOperation(Summary = "Xác nhận trạng thái giao dịch từ PayOS và cập nhật hệ thống")]
     public async Task<IActionResult> ConfirmPayOsTransaction([FromBody] PaymentDTO paymentDTO)
     {
         try
         {
-            // Gọi tới PayOS để lấy trạng thái đơn hàng
+            // 1) Lấy trạng thái đơn trên PayOS (tránh trust dữ liệu client)
             var transactionInfo = await _payOS.getPaymentLinkInformation(paymentDTO.OrderCode);
 
+            // 2) Tìm payment trong hệ thống
             var payment = await _paymentService.GetByOrderCodeAsync(paymentDTO.OrderCode);
             if (payment == null)
             {
@@ -123,27 +134,107 @@ public class PaymentController : ControllerBase
                 return NotFound(new { message = "Không tìm thấy thanh toán." });
             }
 
-            int newStatus = payment.Status ?? 0;
-
-            if (transactionInfo.status == "CANCELLED")
+            // (2b) Tìm order để nắm OrganizationId
+            if (!payment.OrderId.HasValue)
             {
-                newStatus = 2; // ví dụ: 2 = CANCELLED
+                _logger.LogError("Payment không có OrderId. OrderCode: {OrderCode}", paymentDTO.OrderCode);
+                return StatusCode(500, new { message = "Dữ liệu thanh toán không hợp lệ (thiếu OrderId)." });
             }
-            else if (transactionInfo.status == "PAID")
+
+            var order = await _orderService.GetByIdAsync(payment.OrderId.Value);
+            if (order == null)
             {
-                newStatus = 1; // ví dụ: 1 = PAID
+                _logger.LogWarning("Không tìm thấy Order với Id: {OrderId}", payment.OrderId);
+                return NotFound(new { message = "Không tìm thấy đơn hàng tương ứng với thanh toán." });
+            }
+
+            // 3) Xác định trạng thái mới
+            int newPaymentStatus;
+            int? newOrderStatus = null;
+            bool shouldActivateOrganization = false;
+
+            if (string.Equals(transactionInfo.status, "PAID", StringComparison.OrdinalIgnoreCase))
+            {
+                newPaymentStatus = 1;   // PAID
+                newOrderStatus = 1;     // CONFIRMED
+                shouldActivateOrganization = true; // <-- cần kích hoạt org
+            }
+            else if (string.Equals(transactionInfo.status, "CANCELLED", StringComparison.OrdinalIgnoreCase))
+            {
+                newPaymentStatus = 2;   // CANCELLED
+                newOrderStatus = 2;     // CANCELLED
+                shouldActivateOrganization = false; // chỉ kích hoạt khi PAID
             }
             else
             {
-                return BadRequest(new { message = "Trạng thái giao dịch không hợp lệ." });
+                return BadRequest(new { message = $"Trạng thái giao dịch không hợp lệ: {transactionInfo.status}" });
             }
 
-            payment.Status = newStatus;
+            // 4) Idempotency: nếu trạng thái không đổi thì vẫn đảm bảo Order & Organization đúng
+            if ((payment.Status ?? 0) == newPaymentStatus)
+            {
+                if (newOrderStatus.HasValue)
+                    await _orderService.UpdateStatusAsync(order.Id, newOrderStatus.Value);
 
+                if (shouldActivateOrganization && order.OrganizationId.HasValue)
+                {
+                    var orgUpdated = await _organizationService.UpdateActiveAsync(order.OrganizationId.Value, true);
+                    if (!orgUpdated)
+                    {
+                        _logger.LogError("Cập nhật Organization active thất bại. OrgId: {OrgId}", order.OrganizationId);
+                        return StatusCode(500, new { message = "Cập nhật tổ chức thất bại." });
+                    }
+                }
+
+                _logger.LogInformation("Bỏ qua cập nhật vì trạng thái thanh toán đã là {Status} cho OrderCode: {OrderCode}",
+                    newPaymentStatus, paymentDTO.OrderCode);
+
+                return Ok(new
+                {
+                    message = "Trạng thái đã được cập nhật trước đó.",
+                    paymentStatus = newPaymentStatus,
+                    orderStatus = newOrderStatus,
+                    organizationActivated = shouldActivateOrganization
+                });
+            }
+
+            // 5) Cập nhật Payment
+            payment.Status = newPaymentStatus;
             await _paymentService.UpdatePaymentAsync(payment);
 
-            _logger.LogInformation("Đã cập nhật trạng thái thanh toán: {Status} cho OrderCode: {OrderCode}", newStatus, paymentDTO.OrderCode);
-            return Ok(new { message = $"Cập nhật trạng thái: {newStatus} thành công." });
+            // 6) Cập nhật Order
+            if (newOrderStatus.HasValue)
+            {
+                var orderUpdated = await _orderService.UpdateStatusAsync(order.Id, newOrderStatus.Value);
+                if (!orderUpdated)
+                {
+                    _logger.LogError("Cập nhật Order thất bại cho OrderId: {OrderId}", order.Id);
+                    return StatusCode(500, new { message = "Cập nhật đơn hàng thất bại." });
+                }
+            }
+
+            // 7) Kích hoạt Organization nếu PAID
+            if (shouldActivateOrganization && order.OrganizationId.HasValue)
+            {
+                var orgUpdated = await _organizationService.UpdateActiveAsync(order.OrganizationId.Value, true);
+                if (!orgUpdated)
+                {
+                    _logger.LogError("Cập nhật Organization active thất bại. OrgId: {OrgId}", order.OrganizationId);
+                    return StatusCode(500, new { message = "Cập nhật tổ chức thất bại." });
+                }
+            }
+
+            _logger.LogInformation(
+                "Đã cập nhật Payment.Status={PaymentStatus}, Order.Status={OrderStatus}, OrgActivated={OrgActivated} cho OrderCode: {OrderCode}",
+                newPaymentStatus, newOrderStatus, shouldActivateOrganization, paymentDTO.OrderCode);
+
+            return Ok(new
+            {
+                message = "Cập nhật trạng thái thanh toán, đơn hàng và tổ chức thành công.",
+                paymentStatus = newPaymentStatus,
+                orderStatus = newOrderStatus,
+                organizationActivated = shouldActivateOrganization
+            });
         }
         catch (Exception ex)
         {
@@ -156,53 +247,4 @@ public class PaymentController : ControllerBase
 
 
 
-//    /// <summary>
-//    /// Dùng để PayOS kiểm tra URL webhook có tồn tại không
-//    /// </summary>
-//    [HttpHead("webhook")]
-//    [HttpGet("webhook")]
-//    public IActionResult WebhookHealthCheck()
-//    {
-//        _logger.LogInformation("Webhook health check (HEAD/GET) được gọi từ PayOS");
-//        return Ok("Webhook đang hoạt động");
-//    }
 
-//    /// <summary>
-//    /// Xử lý callback từ PayOS khi thanh toán thành công
-//    /// </summary>
-//    [HttpPost("webhook")]
-//    public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookRoot payload)
-//    {
-//        try
-//        {
-//            if (payload == null || payload.Data == null || payload.Data.OrderCode == 0)
-//            {
-//                _logger.LogWarning("Webhook dữ liệu không hợp lệ: {@Payload}", payload);
-//                return BadRequest(new { message = "Invalid payload from PayOS" });
-//            }
-
-//            var data = payload.Data;
-
-//            _logger.LogInformation("Webhook PayOS nhận được: {@Data}", data);
-
-//            var payment = await _paymentService.GetByOrderCodeAsync(data.OrderCode);
-//            if (payment == null)
-//            {
-//                _logger.LogWarning("Không tìm thấy payment với orderCode: {OrderCode}", data.OrderCode);
-//                return NotFound(new { message = "Không tìm thấy thanh toán" });
-//            }
-
-//            payment.Status = 1; // Thành công
-//            await _paymentService.UpdatePaymentAsync(payment);
-
-//            _logger.LogInformation("Cập nhật trạng thái thanh toán thành công cho OrderCode: {OrderCode}", data.OrderCode);
-
-//            return Ok(new { message = "OK" });
-//        }
-//        catch (Exception ex)
-//        {
-//            _logger.LogError(ex, "Lỗi khi xử lý webhook PayOS");
-//            return StatusCode(500, new { message = "Webhook xử lý lỗi", error = ex.Message });
-//        }
-//    }
-//}
