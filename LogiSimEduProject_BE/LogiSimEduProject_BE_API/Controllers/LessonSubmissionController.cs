@@ -10,7 +10,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace LogiSimEduProject_BE_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/lessonSubmission")]
     [ApiController]
     public class LessonSubmissionController : ControllerBase
     {
