@@ -58,7 +58,7 @@ namespace Services
                 return (false, "Học viên đã gửi yêu cầu hoặc đang theo học khóa học này", null);
 
             request.Id = Guid.NewGuid();
-            request.Status = 1;
+            request.Status = 0;
             request.IsActive = true;
             request.CreatedAt = DateTime.UtcNow;
 
