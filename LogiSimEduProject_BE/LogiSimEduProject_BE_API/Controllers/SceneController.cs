@@ -40,6 +40,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scene);
         }
 
+        [HttpGet("get_all_by_org/{orgId}")]
+        [SwaggerOperation(Summary = "Get all scenes by organization ID", Description = "Retrieve all scenes that belong to a specific organization.")]
+        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        {
+            var scenes = await _sceneService.GetAllByOrgId(orgId);
+            return Ok(scenes);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
         [SwaggerOperation(Summary = "Create new scene", Description = "Create a new scene with basic information.")]
@@ -83,9 +91,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Delete scene", Description = "Remove a scene by its ID.")]
         public async Task<ActionResult<bool>> Delete(string id)
         {
-            var result = await _sceneService.Delete(id);
-            if (!result) return NotFound();
-            return Ok(result);
+            var (success, message) = await _sceneService.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }

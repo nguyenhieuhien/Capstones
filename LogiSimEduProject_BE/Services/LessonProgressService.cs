@@ -111,10 +111,11 @@ namespace Services
                 if (lessonProgress == null)
                     return (false, "Lesson progress not found");
 
-                var result = await _repository.RemoveAsync(lessonProgress);
-                if (result)
-                    return (true, "Lesson progress deleted successfully");
-                return (false, "Failed to delete Lesson progress");
+                lessonProgress.IsActive = false;
+                lessonProgress.DeleteAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(lessonProgress);
+                return (true, "Deleted successfully");
             }
             catch (Exception ex)
             {

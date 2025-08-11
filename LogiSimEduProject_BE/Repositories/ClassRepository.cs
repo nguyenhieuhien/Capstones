@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<List<Class>> GetAll()
         {
-            var classes = await _context.Classes.ToListAsync();
+            var classes = await _context.Classes.Where(a => a.IsActive == true).ToListAsync();
 
             return classes;
         }

@@ -14,6 +14,6 @@ namespace Services.IServices
         Task<List<Topic>> GetTopicsByCourseId(Guid courseId);
         Task<int> Create(Topic topic);
         Task<int> Update(Topic topic);
-        Task<bool> Delete(string id);
+        Task<(bool Success, string Message)> Delete(string id);
     }
 }

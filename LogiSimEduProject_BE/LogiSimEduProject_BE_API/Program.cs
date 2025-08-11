@@ -106,6 +106,8 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<AnswerRepository>();
 builder.Services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
 builder.Services.AddScoped<QuizSubmissionRepository>();
+builder.Services.AddScoped<ILessonSubmissionService, LessonSubmissionService>();
+builder.Services.AddScoped<LessonSubmissionRepository>();
 
 // Notification & Enrollment
 builder.Services.AddScoped<INotificationService, NotificationService>();

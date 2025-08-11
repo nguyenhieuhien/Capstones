@@ -13,6 +13,8 @@ public partial class Topic
 
     public string TopicName { get; set; }
 
+    public int OrderIndex { get; set; }
+
     public string ImgUrl { get; set; }
 
     public string Description { get; set; }
@@ -28,6 +30,4 @@ public partial class Topic
     public virtual Course Course { get; set; }
 
     public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
-
-    public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
 }

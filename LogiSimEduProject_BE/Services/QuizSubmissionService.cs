@@ -30,6 +30,7 @@ namespace Services
                 Id = Guid.NewGuid(),
                 QuizId = quizId,
                 AccountId = accountId,
+                IsActive = true,
                 SubmitTime = DateTime.UtcNow,
             };
 
@@ -50,6 +51,7 @@ namespace Services
                     Id = Guid.NewGuid(),
                     QuizSubmissionId = submission.Id,
                     QuestionId = questionId,
+                    IsActive = true,
                     SelectedAnswerId = answerId
                 };
 

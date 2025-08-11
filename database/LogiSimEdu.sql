@@ -40,10 +40,6 @@ CREATE TABLE LessonProgressStatus (
     Name NVARCHAR(50)
 );
 
-CREATE TABLE PaymentMethod (
-    Id INT PRIMARY KEY,
-    Name NVARCHAR(50)
-);
 
 CREATE TABLE PaymentStatus (
     Id INT PRIMARY KEY,
@@ -205,6 +201,7 @@ CREATE TABLE Topic (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     CourseId UNIQUEIDENTIFIER,
     TopicName NVARCHAR(100),
+	OrderIndex INT NOT NULL DEFAULT 0,
     ImgURL NVARCHAR(255),
     Description NVARCHAR(255),
     IsActive BIT,
@@ -217,7 +214,6 @@ CREATE TABLE Topic (
 CREATE TABLE Scenario (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     SceneId UNIQUEIDENTIFIER,
-    TopicId UNIQUEIDENTIFIER,
     FileURL NVARCHAR(255),
     ScenarioName NVARCHAR(100),
     Description NVARCHAR(255),
@@ -225,14 +221,15 @@ CREATE TABLE Scenario (
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME,
-    FOREIGN KEY (SceneId) REFERENCES Scene(Id),
-    FOREIGN KEY (TopicId) REFERENCES Topic(Id)
+    FOREIGN KEY (SceneId) REFERENCES Scene(Id)
 );
 
 CREATE TABLE Lesson (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     TopicId UNIQUEIDENTIFIER,
+	ScenarioId UNIQUEIDENTIFIER NULL,
     LessonName NVARCHAR(100),
+	OrderIndex INT NOT NULL DEFAULT 0,
     Title NVARCHAR(255),
     Description NVARCHAR(255),
     Status INT,
@@ -241,7 +238,25 @@ CREATE TABLE Lesson (
     Updated_At DATETIME,
     Delete_At DATETIME,
     FOREIGN KEY (TopicId) REFERENCES Topic(Id),
-    FOREIGN KEY (Status) REFERENCES LessonStatus(Id)
+    FOREIGN KEY (Status) REFERENCES LessonStatus(Id),
+	FOREIGN KEY (ScenarioId) REFERENCES Scenario(Id)
+);
+
+CREATE TABLE LessonSubmission (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    AccountId UNIQUEIDENTIFIER NOT NULL,       
+    LessonId UNIQUEIDENTIFIER NOT NULL,        
+    SubmitTime DATETIME NOT NULL DEFAULT GETDATE(),  
+    FileUrl NVARCHAR(MAX),                    
+    Note NVARCHAR(MAX),                        
+    TotalScore FLOAT,                          
+    IsActive BIT NOT NULL DEFAULT 1,           
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME,
+
+    FOREIGN KEY (AccountId) REFERENCES Account(Id),
+    FOREIGN KEY (LessonId) REFERENCES Lesson(Id)
 );
 
 CREATE TABLE Quiz (
@@ -438,13 +453,15 @@ CREATE TABLE [Order] (
 CREATE TABLE Payment (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     OrderId UNIQUEIDENTIFIER,
-    TransactionCode NVARCHAR(100),
-    Method INT,
+    OrderCode BIGINT,
     Status INT,
-    PaidAmount FLOAT,
-    PaidAt DATETIME,
+    Amount FLOAT,
+    Description NVARCHAR(MAX) NULL,
+    PaymentLink NVARCHAR(MAX) NULL,
+    ReturnUrl NVARCHAR(500) NULL,
+    CancelUrl NVARCHAR(500) NULL,
+	CreatedAt DATETIME NULL,
     FOREIGN KEY (OrderId) REFERENCES [Order](Id),
-    FOREIGN KEY (Method) REFERENCES PaymentMethod(Id),
     FOREIGN KEY (Status) REFERENCES PaymentStatus(Id)
 );
 
@@ -463,3 +480,7 @@ INSERT INTO Role VALUES (1, 'Admin'), (2, 'Organization_Admin'), (3, 'Instructor
 INSERT INTO LessonStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
 
 INSERT INTO EnrollmentStatus VALUES (1, 'Pending'), (2, 'Accepted'), (3, 'Rejected');
+
+INSERT INTO CourseProgressStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
+
+INSERT INTO LessonProgressStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');

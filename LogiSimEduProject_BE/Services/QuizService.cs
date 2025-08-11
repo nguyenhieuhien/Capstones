@@ -5,6 +5,7 @@ using Repositories.DBContext;
 using Repositories.Models;
 using Services.DTO.Answer;
 using Services.DTO.Question;
+using Services.DTO.QuizSubmission;
 using Services.IServices;
 
 namespace Services
@@ -111,6 +112,27 @@ namespace Services
             }
         }
 
+        public async Task<List<QuizReviewDTO>> GetQuizReview(Guid accountId, Guid quizId)
+        {
+            var questions = await _repository.GetQuestionsWithAnswersByQuizId(quizId);
+            var submissions = await _repository.GetQuestionSubmissions(accountId, quizId);
+
+            var result = questions.Select(q => new QuizReviewDTO
+            {
+                QuestionId = q.Id,
+                QuestionDescription = q.Description,
+                Answers = q.Answers.Select(a => new AnswerReviewDTO
+                {
+                    AnswerId = a.Id,
+                    Description = a.Description,
+                    IsCorrect = a.IsCorrect ?? false
+                }).ToList(),
+                SelectedAnswerId = submissions.FirstOrDefault(s => s.QuestionId == q.Id)?.SelectedAnswerId
+            }).ToList();
+
+            return result;
+        }
+
         public async Task<(bool Success, string Message)> Update(Quiz quiz)
         {
             try
@@ -135,10 +157,11 @@ namespace Services
                 if (item == null)
                     return (false, "Quiz not found");
 
-                var result = await _repository.RemoveAsync(item);
-                if (result)
-                    return (true, "Quiz deleted successfully");
-                return (false, "Failed to delete quiz");
+                item.IsActive = false;
+                item.DeleteAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(item);
+                return (true, "Deleted successfully");
             }
             catch (Exception ex)
             {

@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<List<SceneOfWorkSpace>> GetAll()
         {
-            var scWs = await _context.SceneOfWorkSpaces.ToListAsync();
+            var scWs = await _context.SceneOfWorkSpaces.Where(a => a.IsActive == true).ToListAsync();
 
             return scWs;
         }

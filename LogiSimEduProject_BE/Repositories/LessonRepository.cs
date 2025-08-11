@@ -14,7 +14,7 @@ namespace Repositories
         public LessonRepository() { }
         public async Task<List<Lesson>> GetAll()
         {
-            var lessons = await _context.Lessons.ToListAsync();
+            var lessons = await _context.Lessons.Where(a => a.IsActive == true).ToListAsync();
 
             return lessons;
         }

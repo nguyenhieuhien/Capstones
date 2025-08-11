@@ -16,7 +16,7 @@ namespace Repositories
 
         public new async Task<List<Category>> GetAll()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var categories = await _context.Categories.Where(a => a.IsActive == true).ToListAsync();
             return categories ?? new List<Category>(); // đảm bảo không null
         }
 

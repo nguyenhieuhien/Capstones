@@ -15,7 +15,16 @@ namespace Repositories
 
         public async Task<List<WorkSpace>> GetAll()
         {
-            var workspaces = await _context.WorkSpaces.ToListAsync();
+            var workspaces = await _context.WorkSpaces.Where(a => a.IsActive == true).ToListAsync();
+
+            return workspaces;
+        }
+
+        public async Task<List<WorkSpace>> GetAllByOrgId(Guid orgId)
+        {
+            var workspaces = await _context.WorkSpaces
+                .Where(w => w.OrganizationId == orgId && w.IsActive == true)
+                .ToListAsync();
 
             return workspaces;
         }

@@ -29,6 +29,7 @@ namespace Services
                     Id = Guid.NewGuid(),
                     TopicId = request.TopicId,
                     LessonName = request.LessonName,
+                    OrderIndex = request.OrderIndex,
                     Description = request.Description,
                     Title = request.Title,
                     Status = request.Status,        
@@ -55,10 +56,11 @@ namespace Services
                 if (lesson == null)
                     return (false, "Lesson not found");
 
-                var result = await _repository.RemoveAsync(lesson);
-                if (result)
-                    return (true, "Lesson deleted successfully");
-                return (false, "Failed to delete lesson");
+                lesson.IsActive = false;
+                lesson.DeleteAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(lesson);
+                return (true, "Deleted successfully");
             }
             catch (Exception ex)
             {
@@ -99,6 +101,7 @@ namespace Services
                 var lesson = new Lesson
                 {
                     LessonName = request.LessonName,
+                    OrderIndex = request.OrderIndex,
                     Description = request.Description,
                     Title = request.Title,
                     Status = request.Status,

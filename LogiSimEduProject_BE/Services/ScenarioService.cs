@@ -27,6 +27,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Scenario>> GetAllByOrgId(Guid orgId)
+        {
+            return await _repository.GetAllByOrgId(orgId);
+        }
+
         public async Task<int> Create(Scenario scenario)
         {
             if (scenario == null || string.IsNullOrWhiteSpace(scenario.ScenarioName))
@@ -52,14 +57,17 @@ namespace Services
             return await _repository.UpdateAsync(scenario);
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<(bool Success, string Message)> Delete(string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return false;
 
             var scenario = await _repository.GetByIdAsync(id);
-            if (scenario == null) return false;
+            if (scenario == null) return (false, "Scenario not found");
 
-            return await _repository.RemoveAsync(scenario);
+            scenario.IsActive = false;
+            scenario.DeleteAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(scenario);
+            return (true, "Deleted successfully");
         }
     }
 }

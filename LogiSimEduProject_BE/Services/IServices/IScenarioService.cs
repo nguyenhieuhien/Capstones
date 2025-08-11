@@ -11,8 +11,9 @@ namespace Services.IServices
     {
         Task<List<Scenario>> GetAll();
         Task<Scenario?> GetById(string id);
+        Task<List<Scenario>> GetAllByOrgId(Guid orgId);
         Task<int> Create(Scenario scenario);
         Task<int> Update(Scenario scenario);
-        Task<bool> Delete(string id);
+        Task<(bool Success, string Message)> Delete(string id);
     }
 }

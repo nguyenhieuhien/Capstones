@@ -27,6 +27,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Course>> GetAllByOrgId(Guid orgId)
+        {
+            return await _repository.GetAllByOrgId(orgId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(Course course)
         {
             if (course == null || string.IsNullOrWhiteSpace(course.CourseName))
@@ -61,8 +66,11 @@ namespace Services
             if (item == null)
                 return (false, "Course not found");
 
-            var result = await _repository.RemoveAsync(item);
-            return result ? (true, "Deleted successfully") : (false, "Delete failed");
+            item.IsActive = false;
+            item.DeleteAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(item);
+            return (true, "Deleted successfully");
         }
 
         public async Task<List<Course>> Search(string name, string description)

@@ -15,7 +15,16 @@ namespace Repositories
 
         public async Task<List<Course>> GetAll()
         {
-            var courses = await _context.Courses.ToListAsync();
+            var courses = await _context.Courses.Where(a => a.IsActive == true).ToListAsync();
+
+            return courses;
+        }
+
+        public async Task<List<Course>> GetAllByOrgId(Guid orgId)
+        {
+            var courses = await _context.Courses
+                .Where(c => c.WorkSpace.OrganizationId == orgId && c.IsActive == true)
+                .ToListAsync();
 
             return courses;
         }

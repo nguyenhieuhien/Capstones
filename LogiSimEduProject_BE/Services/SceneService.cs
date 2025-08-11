@@ -29,6 +29,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Scene>> GetAllByOrgId(Guid orgId)
+        {
+            return await _repository.GetAllByOrgId(orgId);
+        }
+
         public async Task<int> Create(Scene scene)
         {
             if (scene == null || string.IsNullOrWhiteSpace(scene.SceneName)) return 0;
@@ -53,20 +58,22 @@ namespace Services
             return await _repository.UpdateAsync(scene);
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<(bool Success, string Message)> Delete(string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return false;
-
+            
             var scene = await _repository.GetByIdAsync(id);
-            if (scene == null) return false;
+            if (scene == null) return (false, "Scenario not found");
 
             var sceneList = await _sceneWpRepo.GetBySceneIdAsync(Guid.Parse(id));
             foreach (var item in sceneList)
             {
-                await _sceneWpRepo.RemoveAsync(item);
+                scene.IsActive = false;
+                scene.DeleteAt = DateTime.UtcNow;
+
+                await _repository.UpdateAsync(scene);
             }
 
-            return await _repository.RemoveAsync(scene);
+            return (true, "Deleted successfully");
         }
     }
 }

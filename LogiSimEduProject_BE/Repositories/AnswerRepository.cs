@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<List<Answer>> GetAll()
         {
-            var answers = await _context.Answers.ToListAsync();
+            var answers = await _context.Answers.Where(a => a.IsActive == true).ToListAsync();
 
             return answers;
         }

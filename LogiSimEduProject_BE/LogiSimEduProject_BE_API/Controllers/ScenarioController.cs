@@ -45,6 +45,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenario);
         }
 
+        [HttpGet("get_all_by_org/{orgId}")]
+        [SwaggerOperation(Summary = "Get all scenarios by organization ID", Description = "Retrieve all scenarios that belong to a specific organization.")]
+        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        {
+            var scenarios = await _service.GetAllByOrgId(orgId);
+            return Ok(scenarios);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
         [SwaggerOperation(Summary = "Create new scenario", Description = "Instructor can create a new simulation scenario.")]
@@ -140,11 +148,9 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Delete scenario", Description = "Deletes a scenario by its ID.")]
         public async Task<IActionResult> Delete(string id)
         {
-            var result = await _service.Delete(id);
-            if (!result)
-                return NotFound(new { Message = $"Scenario with ID {id} not found or already deleted." });
-
-            return Ok(new { Message = "Scenario deleted successfully." });
+            var (success, message) = await _service.Delete(id);
+            return success ? Ok(message) : NotFound(message);
         }
     }
 }
+ 

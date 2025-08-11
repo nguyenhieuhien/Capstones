@@ -43,6 +43,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return course != null ? Ok(course) : NotFound("Course not found.");
         }
 
+        [HttpGet("get_all_by_org/{orgId}")]
+        [SwaggerOperation(Summary = "Get all courses by organization ID", Description = "Retrieve all courses that belong to a specific organization.")]
+        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        {
+            var courses = await _courseService.GetAllByOrgId(orgId);
+            return Ok(courses);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create a course", Description = "Create a new course with optional image.")]

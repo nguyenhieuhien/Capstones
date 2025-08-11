@@ -25,6 +25,8 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(Organization organization)
         {
             try
