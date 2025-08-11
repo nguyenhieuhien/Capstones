@@ -58,7 +58,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         [HttpPost("register-admin-account")]
         [SwaggerOperation(Summary = "Register new admin account", Description = "Create a new admin account and send OTP for email verification")]
-        public async Task<IActionResult> RegisterAdminAccount(AccountDTOCreate request)
+        public async Task<IActionResult> RegisterAdminAccount(AccountDTOCreateAd request)
         {
             var account = new Account
             {
