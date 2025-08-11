@@ -115,6 +115,9 @@ builder.Services.AddScoped<NotificationRepository>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
 builder.Services.AddScoped<EnrollmentRequestRepository>();
 
+// Certificate & Certificate Templete
+builder.Services.AddScoped<ICertificateTemplateService, CertificateTemplateService>();
+builder.Services.AddScoped<CertificateTemplateRepository>();
 
 //Order & Payment
 builder.Services.AddScoped<IOrderService, OrderService>();

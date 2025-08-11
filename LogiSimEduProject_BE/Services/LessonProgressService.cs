@@ -1,4 +1,5 @@
-﻿using Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories;
 using Repositories.DBContext;
 using Repositories.Models;
 using Services.IServices;
@@ -16,6 +17,8 @@ namespace Services
         private readonly LessonRepository _lessonRepo;
         private readonly TopicRepository _topicRepo;
         private readonly CourseProgressRepository _courseProgressRepo;
+        private readonly CertificateRepository _certificateRepo;
+        private readonly CertificateTemplateRepository _templateRepo;
         private readonly LogiSimEduContext _dbContext;
         public LessonProgressService(LogiSimEduContext dbContext)
         {
@@ -23,6 +26,8 @@ namespace Services
             _lessonRepo = new LessonRepository();
             _topicRepo = new TopicRepository();
             _courseProgressRepo = new CourseProgressRepository();
+            _certificateRepo = new CertificateRepository();
+            _templateRepo = new CertificateTemplateRepository();
             _dbContext = dbContext;
         }
         public async Task<(bool Success, string Message, Guid? Id)> Create(LessonProgress request)
@@ -64,7 +69,7 @@ namespace Services
 
                 if (result > 0 && progress.Status == 2)
                 {
-                    await UpdateCourseProgress(progress.AccountId.Value, progress.LessonId.Value);
+                    await UpdateCourseProgressAndCertificate(progress.AccountId.Value, progress.LessonId.Value);
                 }
 
                 return result > 0
@@ -77,7 +82,7 @@ namespace Services
             }
         }
 
-        private async Task UpdateCourseProgress(Guid accountId, Guid lessonId)
+        private async Task UpdateCourseProgressAndCertificate(Guid accountId, Guid lessonId)
         {
             var lesson = await _lessonRepo.GetByIdAsync(lessonId);
             if (lesson?.TopicId == null) return;
@@ -100,6 +105,43 @@ namespace Services
                 courseProgress.ProgressPercent = percent;
                 courseProgress.UpdatedAt = DateTime.UtcNow;
                 await _courseProgressRepo.UpdateAsync(courseProgress);
+            }
+
+            // Nếu hoàn thành 100% → tạo Certificate
+            if (percent == 100)
+            {
+                var existingCert = await _certificateRepo.GetByAccountAndCourse(accountId, courseId);
+                if (existingCert.Any()) return; // Đã có certificate
+
+                var template = await _templateRepo.GetByCourseIdAsync(courseId);
+                if (template == null) return;
+
+                var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+                var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+
+                if (account == null || course == null) return;
+
+                string htmlContent = template.HtmlTemplate
+                    .Replace("{FullName}", account.FullName ?? "")
+                    .Replace("{CourseName}", course.CourseName ?? "")
+                    .Replace("{Date}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
+                    .Replace("{BackgroundUrl}", template.BackgroundUrl ?? "");
+
+                var certificate = new Certificate
+                {
+                    Id = Guid.NewGuid(),
+                    AccountId = accountId,
+                    CourseId = courseId,
+                    CertiTempId = template.Id,
+                    CertificateName = $"{account.FullName} - {course.CourseName}",
+                    Score = null,
+                    Rank = null,
+                    FileUrl = htmlContent, // Thực tế sẽ lưu file PDF hoặc URL, ở đây để test lưu HTML
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _certificateRepo.CreateAsync(certificate);
             }
         }
 

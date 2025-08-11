@@ -104,17 +104,28 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "Instructor")]
-        [HttpPut("update_enrollmentRequest/{id}")]
-        [SwaggerOperation(Summary = "Update request status", Description = "Approve or deny an enrollment request (only for instructors).")]
-        public async Task<IActionResult> Put(string id, [FromBody] int status)
+        [HttpPut("accepted_enrollmentRequest/{id}")]
+        [SwaggerOperation(Summary = "Accepted request status", Description = "Approve an enrollment request (only for instructors).")]
+        public async Task<IActionResult> AcceptedEnroll(string id)
         {
             var request = await _service.GetById(id);
             if (request == null) return NotFound("Request not found");
 
-            if (status != 2 && status != 3)
-                return BadRequest("Invalid status");
+            request.Status = 1;
+            var (success, message) = await _service.Update(request);
+            if (!success) return BadRequest(message);
 
-            request.Status = status;
+            return Ok(new { Message = message });
+        }
+
+        [HttpPut("rejected_enrollmentRequest/{id}")]
+        [SwaggerOperation(Summary = "Rejected request status", Description = "Approve an enrollment request (only for instructors).")]
+        public async Task<IActionResult> RejectedEnroll(string id)
+        {
+            var request = await _service.GetById(id);
+            if (request == null) return NotFound("Request not found");
+
+            request.Status = 2;
             var (success, message) = await _service.Update(request);
             if (!success) return BadRequest(message);
 

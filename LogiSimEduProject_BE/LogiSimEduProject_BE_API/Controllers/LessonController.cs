@@ -92,7 +92,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message });
         }
 
-        [HttpDelete("delete_notification/{id}")]
+        [HttpDelete("delete_lesson/{id}")]
         [SwaggerOperation(Summary = "Delete a lesson", Description = "Deletes a lesson by its ID.")]
         public async Task<IActionResult> Delete(string id)
         {
