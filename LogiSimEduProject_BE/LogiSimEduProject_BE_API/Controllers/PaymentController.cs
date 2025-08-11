@@ -4,164 +4,157 @@ using Net.payOS;
 using Net.payOS.Types;
 using Repositories.Models;
 using Services.IServices;
-
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace LogiSimEduProject_BE_API.Controllers
+[ApiController]
+[Route("api/payment")]
+public class PaymentController : ControllerBase
 {
-    [ApiController]
-    [Route("api/payment")]
-    public class PaymentController : ControllerBase
+    private readonly PayOS _payOS;
+    private readonly IOrderService _orderService;
+    private readonly IPaymentService _paymentService;
+    private readonly ILogger<PaymentController> _logger;
+    private readonly IConfiguration _configuration;
+
+    public PaymentController(IConfiguration configuration, IOrderService orderService, IPaymentService paymentService, ILogger<PaymentController> logger)
     {
-        private readonly PayOS _payOS;
-        private readonly IOrderService _orderService;
-        private readonly IPaymentService _paymentService;
-        private readonly ILogger<PaymentController> _logger;
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+        string clientId = configuration["PayOS:ClientId"];
+        string apiKey = configuration["PayOS:ApiKey"];
+        string checksumKey = configuration["PayOS:ChecksumKey"];
 
-        public PaymentController(IConfiguration configuration, IOrderService orderService, IPaymentService paymentService, ILogger<PaymentController> logger)
+        if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(checksumKey))
         {
-            _configuration = configuration;
-            string clientId = configuration["PayOS:ClientId"];
-            string apiKey = configuration["PayOS:ApiKey"];
-            string checksumKey = configuration["PayOS:ChecksumKey"];
-
-            if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(checksumKey))
-            {
-                throw new ArgumentException("PayOS configuration is missing or invalid.");
-            }
-
-            _payOS = new PayOS(clientId, apiKey, checksumKey);
-            _orderService = orderService;
-            _paymentService = paymentService;
-            _logger = logger;
+            throw new ArgumentException("PayOS configuration is missing or invalid.");
         }
 
-        [HttpPost("create-payment/{orderId}")]
-        [SwaggerOperation(Summary = "Tạo liên kết thanh toán cho đơn hàng")]
-        public async Task<IActionResult> CreatePayment(Guid orderId)
+        _payOS = new PayOS(clientId, apiKey, checksumKey);
+        _orderService = orderService;
+        _paymentService = paymentService;
+        _logger = logger;
+    }
+
+    [HttpPost("create-payment/{orderId}")]
+    [SwaggerOperation(Summary = "Tạo liên kết thanh toán cho đơn hàng")]
+    public async Task<IActionResult> CreatePayment(Guid orderId)
+    {
+        try
         {
-            try
+            var order = await _orderService.GetByIdAsync(orderId);
+            if (order == null)
             {
-                var order = await _orderService.GetByIdAsync(orderId);
-                if (order == null)
-                {
-                    _logger.LogWarning("Không tìm thấy đơn hàng với ID: {OrderId}", orderId);
-                    return NotFound(new { message = "Không tìm thấy đơn hàng." });
-                }
-
-                if (order.TotalPrice <= 0)
-                {
-                    _logger.LogWarning("Giá trị thanh toán không hợp lệ. ID: {OrderId}, TotalPrice: {TotalPrice}", orderId, order.TotalPrice);
-                    return BadRequest(new { message = "Tổng giá trị đơn hàng phải lớn hơn 0." });
-                }
-
-                var orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
-                var items = new List<ItemData>
-                {
-                    new ItemData($"Order {order.Id} - {order.Description}", 1, (int)order.TotalPrice)
-                };
-
-                var paymentData = new PaymentData(
-                    orderCode: orderCode,
-                    amount: (int)order.TotalPrice,
-                    description: $"DH-{order.Id.ToString().Substring(0, 8)}", // Giới hạn ký tự
-                    items: items,
-                    cancelUrl: _configuration["PayOS:CancelUrl"],
-                    returnUrl: _configuration["PayOS:ReturnUrl"]
-                );
-
-                var paymentLink = await _payOS.createPaymentLink(paymentData);
-                if (paymentLink == null || string.IsNullOrEmpty(paymentLink.checkoutUrl))
-                {
-                    _logger.LogError("Không tạo được link thanh toán cho OrderId: {OrderId}", orderId);
-                    return BadRequest(new { message = "Lỗi tạo liên kết thanh toán." });
-                }
-
-                var payment = new Payment
-                {
-                    Id = Guid.NewGuid(),
-                    OrderId = order.Id,
-                    OrderCode = orderCode,
-                    Amount = order.TotalPrice,
-                    Description = paymentData.description,
-                    PaymentLink = paymentLink.checkoutUrl,
-                    ReturnUrl = paymentData.returnUrl,
-                    CancelUrl = paymentData.cancelUrl,
-                    Status = 0, // Trạng thái mặc định: Pending
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                await _paymentService.CreatePaymentAsync(payment);
-
-                _logger.LogInformation("Tạo thanh toán thành công cho OrderId: {OrderId}, OrderCode: {OrderCode}", orderId, orderCode);
-
-                return Ok(new
-                {
-                    orderId = order.Id,
-                    orderCode = orderCode,
-                    checkoutUrl = paymentLink.checkoutUrl
-                });
+                _logger.LogWarning("Không tìm thấy đơn hàng với ID: {OrderId}", orderId);
+                return NotFound(new { message = "Không tìm thấy đơn hàng." });
             }
-            catch (Exception ex)
+
+            if (order.TotalPrice <= 0)
             {
-                _logger.LogError(ex, "Lỗi khi tạo thanh toán cho OrderId: {OrderId}", orderId);
-                return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
+                _logger.LogWarning("Giá trị thanh toán không hợp lệ. ID: {OrderId}, TotalPrice: {TotalPrice}", orderId, order.TotalPrice);
+                return BadRequest(new { message = "Tổng giá trị đơn hàng phải lớn hơn 0." });
             }
+
+            var orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            var items = new List<ItemData>
+            {
+                new ItemData($"Order {order.Id} - {order.Description}", 1, (int)order.TotalPrice)
+            };
+
+            var paymentData = new PaymentData(
+                orderCode: orderCode,
+                amount: (int)order.TotalPrice,
+                description: $"DH-{order.Id.ToString().Substring(0, 8)}",
+                items: items,
+                cancelUrl: _configuration["PayOS:CancelUrl"],
+                returnUrl: _configuration["PayOS:ReturnUrl"]
+            );
+
+            var paymentLink = await _payOS.createPaymentLink(paymentData);
+            if (paymentLink == null || string.IsNullOrEmpty(paymentLink.checkoutUrl))
+            {
+                _logger.LogError("Không tạo được link thanh toán cho OrderId: {OrderId}", orderId);
+                return BadRequest(new { message = "Lỗi tạo liên kết thanh toán." });
+            }
+
+            var payment = new Payment
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                OrderCode = orderCode,
+                Amount = order.TotalPrice,
+                Description = paymentData.description,
+                PaymentLink = paymentLink.checkoutUrl,
+                ReturnUrl = paymentData.returnUrl,
+                CancelUrl = paymentData.cancelUrl,
+                Status = 0,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _paymentService.CreatePaymentAsync(payment);
+
+            _logger.LogInformation("Tạo thanh toán thành công cho OrderId: {OrderId}, OrderCode: {OrderCode}", orderId, orderCode);
+
+            return Ok(new
+            {
+                orderId = order.Id,
+                orderCode = orderCode,
+                checkoutUrl = paymentLink.checkoutUrl
+            });
         }
-
-        [HttpPost("webhook")]
-        [SwaggerOperation(Summary = "Webhook nhận thông báo thanh toán từ PayOS")]
-        public async Task<IActionResult> PaymentWebhook([FromBody] PaymentWebhookData data)
+        catch (Exception ex)
         {
-            try
-            {
-                _logger.LogInformation("Webhook nhận từ PayOS: {@WebhookData}", data);
-
-                if (data == null || data.orderCode == 0)
-                {
-                    _logger.LogWarning("Dữ liệu webhook không hợp lệ.");
-                    return BadRequest(new { message = "Webhook data is invalid." });
-                }
-
-                var payment = await _paymentService.GetByOrderCodeAsync(data.orderCode);
-                if (payment == null)
-                {
-                    _logger.LogWarning("Không tìm thấy payment với OrderCode: {OrderCode}", data.orderCode);
-                    return NotFound(new { message = "Không tìm thấy thanh toán tương ứng." });
-                }
-
-                switch (data.transactionStatus)
-                {
-                    case 1: // Thành công
-                        payment.Status = 1;
-                        payment.CreatedAt = DateTime.UtcNow;
-                        break;
-
-                    case 2: // Hủy
-                        payment.Status = 2;
-                        break;
-
-                    default:
-                        _logger.LogWarning("Trạng thái không xác định từ webhook: {TransactionStatus}", data.transactionStatus);
-                        break;
-                }
-
-                await _paymentService.UpdatePaymentAsync(payment);
-
-                _logger.LogInformation("Cập nhật trạng thái thanh toán thành công. OrderCode: {OrderCode}, Status: {Status}", data.orderCode, data.transactionStatus);
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi xử lý webhook thanh toán từ PayOS.");
-                return StatusCode(500, new { message = "Lỗi xử lý webhook", error = ex.Message });
-            }
+            _logger.LogError(ex, "Lỗi khi tạo thanh toán cho OrderId: {OrderId}", orderId);
+            return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
         }
+    }
 
+    /// <summary>
+    /// Dùng để PayOS kiểm tra URL webhook có tồn tại không
+    /// </summary>
+    [HttpHead("webhook")]
+    [HttpGet("webhook")]
+    public IActionResult WebhookHealthCheck()
+    {
+        _logger.LogInformation("Webhook health check (HEAD/GET) được gọi từ PayOS");
+        return Ok("Webhook đang hoạt động");
+    }
 
+    /// <summary>
+    /// Xử lý callback từ PayOS khi thanh toán thành công
+    /// </summary>
+    [HttpPost("webhook")]
+    public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookRoot payload)
+    {
+        try
+        {
+            if (payload == null || payload.Data == null || payload.Data.OrderCode == 0)
+            {
+                _logger.LogWarning("Webhook dữ liệu không hợp lệ: {@Payload}", payload);
+                return BadRequest(new { message = "Invalid payload from PayOS" });
+            }
+
+            var data = payload.Data;
+
+            _logger.LogInformation("Webhook PayOS nhận được: {@Data}", data);
+
+            var payment = await _paymentService.GetByOrderCodeAsync(data.OrderCode);
+            if (payment == null)
+            {
+                _logger.LogWarning("Không tìm thấy payment với orderCode: {OrderCode}", data.OrderCode);
+                return NotFound(new { message = "Không tìm thấy thanh toán" });
+            }
+
+            payment.Status = 1; // Thành công
+            await _paymentService.UpdatePaymentAsync(payment);
+
+            _logger.LogInformation("Cập nhật trạng thái thanh toán thành công cho OrderCode: {OrderCode}", data.OrderCode);
+
+            return Ok(new { message = "OK" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi xử lý webhook PayOS");
+            return StatusCode(500, new { message = "Webhook xử lý lỗi", error = ex.Message });
+        }
     }
 }
-

@@ -35,36 +35,16 @@ namespace Repositories
 
         public async Task<Order> CreateAsync(Order order)
         {
-            order.Id = Guid.NewGuid();
-            order.CreatedAt = DateTime.UtcNow;
-            order.OrderTime = DateTime.UtcNow;
-            order.Status = 1; // pending mặc định
-            order.IsActive = true;
-
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
             return order;
         }
+        public async Task<bool> UpdateAsync(Order order)
+        {
+            _context.Orders.Update(order);
+            return await _context.SaveChangesAsync() > 0;
+        }
 
-        //public async Task<Order?> UpdateAsync(Order updatedOrder)
-        //{
-        //    var existing = await GetByIdAsync(updatedOrder.Id);
-        //    if (existing == null) return null;
-
-        //    existing.OrganizationId = updatedOrder.OrganizationId;
-        //    existing.AccountId = updatedOrder.AccountId;
-        //    existing.SubcriptionPlanId = updatedOrder.SubcriptionPlanId;
-        //    existing.Description = updatedOrder.Description;
-        //    existing.TotalPrice = updatedOrder.TotalPrice;
-        //    existing.StartDate = updatedOrder.StartDate;
-        //    existing.EndDate = updatedOrder.EndDate;
-        //    existing.Status = updatedOrder.Status;
-        //    existing.IsActive = updatedOrder.IsActive;
-        //    existing.UpdatedAt = DateTime.UtcNow;
-
-        //    await _context.SaveChangesAsync();
-        //    return existing;
-        //}
 
         public async Task<bool> DeleteAsync(Guid id)
         {
