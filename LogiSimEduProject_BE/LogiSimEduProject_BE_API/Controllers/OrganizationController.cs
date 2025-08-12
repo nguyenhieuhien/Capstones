@@ -21,7 +21,7 @@ namespace Controllers
             _organizationService = organizationService;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("get_all_organization")]
         [SwaggerOperation(Summary = "Get all organizations", Description = "Returns a list of all active organizations.")]
         public async Task<IActionResult> GetAll()
@@ -30,7 +30,7 @@ namespace Controllers
             return Ok(organizations);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("get_organization/{id}")]
         [SwaggerOperation(Summary = "Get organization by ID", Description = "Retrieve a single organization by its unique ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -64,7 +64,7 @@ namespace Controllers
             return Ok(new { Message = message, OrganizationId = id });
         }
 
-        [Authorize(Roles = "Admin,Organization_Admin")]
+        //[Authorize(Roles = "Admin,Organization_Admin")]
         [HttpPut("update_organization/{id}")]
         [SwaggerOperation(Summary = "Update organization", Description = "Update an existing organization by ID.")]
         public async Task<IActionResult> Update(string id, [FromBody] OrganizationUpdateDTO dto)
@@ -85,7 +85,7 @@ namespace Controllers
             return Ok(new { Message = message });
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("delete_organization/{id}")]
         [SwaggerOperation(Summary = "Delete organization", Description = "Delete an organization by its ID.")]
         public async Task<IActionResult> Delete(string id)

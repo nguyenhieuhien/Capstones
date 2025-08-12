@@ -14,6 +14,9 @@ using Services.IServices;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using Services.PDF;
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -54,6 +57,12 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
     var account = new Account(config.CloudName, config.ApiKey, config.ApiSecret);
     return new Cloudinary(account);
 });
+// Pdf Service
+var context = new CustomAssemblyLoadContext();
+context.LoadUnmanagedLibrary(Path.Combine(Directory.GetCurrentDirectory(), "Libraries", "libwkhtmltox.dll"));
+builder.Services.AddSingleton(typeof(DinkToPdf.Contracts.IConverter),
+    new DinkToPdf.SynchronizedConverter(new DinkToPdf.PdfTools()));
+builder.Services.AddScoped<IPdfService, PdfService>();
 
 // -----------------------
 // 📦 Dependency Injection: Services + Repositories
@@ -118,6 +127,8 @@ builder.Services.AddScoped<EnrollmentRequestRepository>();
 // Certificate & Certificate Templete
 builder.Services.AddScoped<ICertificateTemplateService, CertificateTemplateService>();
 builder.Services.AddScoped<CertificateTemplateRepository>();
+builder.Services.AddScoped<ICertificateService, CertificateService>();
+builder.Services.AddScoped<CertificateRepository>();
 
 //Order & Payment
 builder.Services.AddScoped<IOrderService, OrderService>();

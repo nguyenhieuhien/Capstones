@@ -38,7 +38,7 @@ namespace Repositories
         public async Task<AccountOfCourse?> GetByAccountAndCourse(Guid accountOfCourseId)
         {
             return await _context.AccountOfCourses
-                .FirstOrDefaultAsync(x => x.Id == accountOfCourseId && x.Status == 2 && x.IsActive == true);
+                .FirstOrDefaultAsync(x => x.Id == accountOfCourseId && x.Status == 1 && x.IsActive == true);
         }
 
         public async Task<AccountOfCourse?> GetActiveByAccountAndCourseAsync(Guid accountId, Guid courseId)

@@ -73,7 +73,7 @@ namespace Services
             var record = await _repository.GetByAccountAndCourse(accountOfCourseId);
 
             if (record == null)
-                return (false, "Không tìm thấy học viên đủ điều kiện (status = 2, isActive = true)");
+                return (false, "Không tìm thấy học viên đủ điều kiện (status = 1, isActive = true)");
 
             record.ClassId = classId;
             record.UpdatedAt = DateTime.UtcNow;
