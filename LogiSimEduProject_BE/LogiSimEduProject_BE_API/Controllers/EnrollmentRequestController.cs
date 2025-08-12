@@ -24,7 +24,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_all_enrollmentRequest")]
         [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
         public async Task<IActionResult> GetAll()
@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_enrollmentRequest_by_corse/{courseId}")]
         [SwaggerOperation(Summary = "Get requests by course", Description = "Get all enrollment requests submitted for a specific course.")]
         public async Task<IActionResult> GetByCourse(string courseId)

@@ -479,7 +479,7 @@ INSERT INTO Role VALUES (1, 'Admin'), (2, 'Organization_Admin'), (3, 'Instructor
 
 INSERT INTO LessonStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
 
-INSERT INTO EnrollmentStatus VALUES (1, 'Pending'), (2, 'Accepted'), (3, 'Rejected');
+INSERT INTO EnrollmentStatus VALUES (0, 'Pending'), (1, 'Accepted'), (2, 'Rejected');
 
 INSERT INTO CourseProgressStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
 

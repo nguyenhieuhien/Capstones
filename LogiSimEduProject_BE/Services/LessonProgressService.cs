@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
+using Microsoft.EntityFrameworkCore;
 using Repositories;
 using Repositories.DBContext;
 using Repositories.Models;
+using Services.DTO.Certificate;
 using Services.IServices;
 using System;
 using System.Collections.Generic;
@@ -19,15 +22,28 @@ namespace Services
         private readonly CourseProgressRepository _courseProgressRepo;
         private readonly CertificateRepository _certificateRepo;
         private readonly CertificateTemplateRepository _templateRepo;
+        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
+        private readonly IPdfService _pdfService;
         private readonly LogiSimEduContext _dbContext;
-        public LessonProgressService(LogiSimEduContext dbContext)
+        public LessonProgressService(
+               LessonProgressRepository repository,
+               LessonRepository lessonRepo,
+               TopicRepository topicRepo,
+               CourseProgressRepository courseProgressRepo,
+               CertificateRepository certificateRepo,
+               CertificateTemplateRepository templateRepo,
+               CloudinaryDotNet.Cloudinary cloudinary,
+               IPdfService pdfService,
+               LogiSimEduContext dbContext)
         {
-            _repository = new LessonProgressRepository();
-            _lessonRepo = new LessonRepository();
-            _topicRepo = new TopicRepository();
-            _courseProgressRepo = new CourseProgressRepository();
-            _certificateRepo = new CertificateRepository();
-            _templateRepo = new CertificateTemplateRepository();
+            _repository = repository;
+            _lessonRepo = lessonRepo;
+            _topicRepo = topicRepo;
+            _courseProgressRepo = courseProgressRepo;
+            _certificateRepo = certificateRepo;
+            _templateRepo = templateRepo;
+            _cloudinary = cloudinary;
+            _pdfService = pdfService;
             _dbContext = dbContext;
         }
         public async Task<(bool Success, string Message, Guid? Id)> Create(LessonProgress request)
@@ -55,40 +71,42 @@ namespace Services
             }
         }
 
-        public async Task<(bool Success, string Message)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId, int status)
+        public async Task<(bool Success, string Message, CertificateDTO? Certificate)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId, int status)
         {
             try
             {
                 var progress = await _repository.GetByAccountAndLesson(accountId, lessonId);
                 if (progress == null)
-                    return (false, "LessonProgress not found.");
+                    return (false, "LessonProgress not found.", null);
 
                 progress.Status = status;
                 progress.UpdatedAt = DateTime.UtcNow;
                 var result = await _repository.UpdateAsync(progress);
 
+                CertificateDTO? certificate = null;
+
                 if (result > 0 && progress.Status == 2)
                 {
-                    await UpdateCourseProgressAndCertificate(progress.AccountId.Value, progress.LessonId.Value);
+                    certificate = await UpdateCourseProgressAndCertificate(progress.AccountId.Value, progress.LessonId.Value);
                 }
 
                 return result > 0
-                    ? (true, "Lesson progress updated and course progress refreshed")
-                    : (false, "Failed to update lesson progress");
+                    ? (true, "Lesson progress updated and course progress refreshed", certificate)
+                    : (false, "Failed to update lesson progress", null);
             }
             catch (Exception ex)
             {
-                return (false, ex.Message);
+                return (false, ex.Message, null);
             }
         }
 
-        private async Task UpdateCourseProgressAndCertificate(Guid accountId, Guid lessonId)
+        private async Task<CertificateDTO?> UpdateCourseProgressAndCertificate(Guid accountId, Guid lessonId)
         {
             var lesson = await _lessonRepo.GetByIdAsync(lessonId);
-            if (lesson?.TopicId == null) return;
+            if (lesson?.TopicId == null) return null;
 
             var topic = await _topicRepo.GetByIdAsync(lesson.TopicId.Value);
-            if (topic?.CourseId == null) return;
+            if (topic?.CourseId == null) return null;
 
             var courseId = topic.CourseId.Value;
 
@@ -111,22 +129,53 @@ namespace Services
             if (percent == 100)
             {
                 var existingCert = await _certificateRepo.GetByAccountAndCourse(accountId, courseId);
-                if (existingCert.Any()) return; // Đã có certificate
+                if (existingCert.Any())
+                {
+                    var cert = existingCert.First();
+                    return new CertificateDTO
+                    {
+                        Id = cert.Id,
+                        FileUrl = cert.FileUrl
+                    };
+                }
 
                 var template = await _templateRepo.GetByCourseIdAsync(courseId);
-                if (template == null) return;
+                if (template == null) return null;
 
                 var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
                 var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
 
-                if (account == null || course == null) return;
+                if (account == null || course == null) return null;
 
                 string htmlContent = template.HtmlTemplate
                     .Replace("{FullName}", account.FullName ?? "")
                     .Replace("{CourseName}", course.CourseName ?? "")
-                    .Replace("{Date}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
                     .Replace("{BackgroundUrl}", template.BackgroundUrl ?? "");
 
+                // 4. Convert HTML sang PDF
+                var pdfBytes = _pdfService.ConvertHtmlToPdf(htmlContent);
+
+                // Upload to Cloudinary
+                string fileUrl;
+                await using (var stream = new MemoryStream(pdfBytes))
+                {
+                    var uploadParams = new RawUploadParams
+                    {
+                        File = new FileDescription($"certificate_{accountId}_{courseId}.pdf", stream),
+                        Folder = "LogiSimEdu_Certificates",
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                        throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
+
+                    fileUrl = uploadResult.SecureUrl.ToString();
+                }
+
+                // 4. Lưu certificate vào DB
                 var certificate = new Certificate
                 {
                     Id = Guid.NewGuid(),
@@ -134,15 +183,22 @@ namespace Services
                     CourseId = courseId,
                     CertiTempId = template.Id,
                     CertificateName = $"{account.FullName} - {course.CourseName}",
-                    Score = null,
+                    Score = 95, // hoặc giá trị thực tế
                     Rank = null,
-                    FileUrl = htmlContent, // Thực tế sẽ lưu file PDF hoặc URL, ở đây để test lưu HTML
+                    FileUrl = fileUrl,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 await _certificateRepo.CreateAsync(certificate);
+
+                return new CertificateDTO
+                {
+                    Id = certificate.Id,
+                    FileUrl = certificate.FileUrl
+                };
             }
+            return null;
         }
 
         public async Task<(bool Success, string Message)> Delete(string id)
