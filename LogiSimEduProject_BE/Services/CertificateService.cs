@@ -1,9 +1,11 @@
-﻿using Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories;
 using Repositories.Models;
 using Services.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,29 +24,24 @@ namespace Services
 
         public async Task<Certificate> GetById(string id) => await _repository.GetByIdAsync(id);
 
-        //public async Task<(bool Success, string Message, byte[]? FileData, string? FileName)> DownloadCertificateAsync(Guid accountId, Guid courseId)
-        //{
-        //    var certificateList = await _repository.GetByAccountAndCourse(accountId, courseId);
-        //    if (certificateList == null || !certificateList.Any())
-        //        return (false, "Certificate not found", null, null);
+        public async Task<Stream?> DownloadCertificateAsync(string certificateId)
+        {
+            var certificate = await _repository.GetByIdAsync(certificateId);
 
-        //    var cert = certificateList.First();
+            if (certificate == null || string.IsNullOrEmpty(certificate.FileUrl))
+                return null;
 
-        //    using (var httpClient = new HttpClient())
-        //    {
-        //        httpClient.DefaultRequestHeaders.Authorization =
-        //        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "YOUR_ACCESS_TOKEN");
+            using (var httpClient = new HttpClient())
+            {
+                var response = await httpClient.GetAsync(certificate.FileUrl);
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Cannot download file from URL: {certificate.FileUrl} - Status: {response.StatusCode}");
 
-        //        try
-        //        {
-        //            var fileBytes = await httpClient.GetByteArrayAsync(cert.FileUrl);
-        //            return (true, "Download successful", fileBytes, $"{cert.CertificateName}.pdf");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return (false, $"Download failed: {ex.Message}", null, null);
-        //        }
-        //    }
-        //}
+                var ms = new MemoryStream();
+                await response.Content.CopyToAsync(ms);
+                ms.Position = 0;
+                return ms;
+            }
+        }
     }
 }

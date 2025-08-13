@@ -22,7 +22,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _config = config;
             _accountService = accountService;
         }
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all accounts")]
         public async Task<IEnumerable<Account>> Get() => await _accountService.GetAll();
