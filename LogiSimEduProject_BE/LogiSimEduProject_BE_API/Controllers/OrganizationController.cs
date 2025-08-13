@@ -41,6 +41,7 @@ namespace Controllers
             return Ok(organization);
         }
 
+
         [Authorize(Roles = "Admin")]
         [HttpPost("create_organization")]
         [SwaggerOperation(Summary = "Create new organization", Description = "Create a new organization and return its ID.")]
@@ -64,26 +65,37 @@ namespace Controllers
             return Ok(new { Message = message, OrganizationId = id });
         }
 
+
         [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpPut("update_organization/{id}")]
-        [SwaggerOperation(Summary = "Update organization", Description = "Update an existing organization by ID.")]
         public async Task<IActionResult> Update(string id, [FromBody] OrganizationUpdateDTO dto)
         {
             var existingOrg = await _organizationService.GetById(id);
             if (existingOrg == null)
                 return NotFound(new { Message = "Organization not found." });
 
-            existingOrg.OrganizationName = dto.OrganizationName;
-            existingOrg.Email = dto.Email;
-            existingOrg.Phone = dto.Phone;
-            existingOrg.Address = dto.Address;
+            if (!string.IsNullOrWhiteSpace(dto.OrganizationName))
+                existingOrg.OrganizationName = dto.OrganizationName.Trim();
+
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+                existingOrg.Email = dto.Email.Trim().ToLowerInvariant();
+
+            if (!string.IsNullOrWhiteSpace(dto.Phone))
+                existingOrg.Phone = dto.Phone.Trim();
+
+            if (!string.IsNullOrWhiteSpace(dto.Address))
+                existingOrg.Address = dto.Address.Trim();
+
+            if (!string.IsNullOrWhiteSpace(dto.ImgUrl))
+                existingOrg.ImgUrl = dto.ImgUrl.Trim();
+
+            existingOrg.UpdatedAt = DateTime.UtcNow;
 
             var (success, message) = await _organizationService.Update(existingOrg);
-            if (!success)
-                return BadRequest(new { Message = message });
-
-            return Ok(new { Message = message });
+            return success ? Ok(new { Message = message, Data = existingOrg }) : BadRequest(new { Message = message });
         }
+
+
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete_organization/{id}")]

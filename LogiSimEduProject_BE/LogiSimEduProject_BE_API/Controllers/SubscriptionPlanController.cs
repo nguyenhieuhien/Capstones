@@ -44,17 +44,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
-                Price = request.Price,
+                Price = (double)request.Price,
                 DurationInMonths = request.DurationInMonths,
                 MaxWorkSpaces = request.MaxWorkSpaces,
                 Description = request.Description,
-                IsActive = request.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
 
             var (success, message) = await _service.Create(plan);
             return success ? Ok(new { message, data = plan }) : BadRequest(message);
         }
+
 
         [Authorize(Roles = "Admin")]
         [HttpPut("update/{id}")]
@@ -65,17 +65,29 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (existing == null)
                 return NotFound($"Subscription plan with ID {id} not found.");
 
-            existing.Name = request.Name;
-            existing.Price = request.Price;
-            existing.DurationInMonths = request.DurationInMonths;
-            existing.MaxWorkSpaces = request.MaxWorkSpaces;
-            existing.Description = request.Description;
-            existing.IsActive = request.IsActive;
+            // Strings: bỏ qua nếu null/white-space, có thì Trim
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                existing.Name = request.Name.Trim();
+
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                existing.Description = request.Description.Trim();
+            // Numbers/booleans: chỉ gán khi HasValue
+            if (request.Price.HasValue)
+                existing.Price = (double)request.Price.Value;
+
+            if (request.DurationInMonths.HasValue)
+                existing.DurationInMonths = request.DurationInMonths.Value;
+
+            if (request.MaxWorkSpaces.HasValue)
+                existing.MaxWorkSpaces = request.MaxWorkSpaces.Value;
+
+            // UpdatedAt
             existing.UpdatedAt = DateTime.UtcNow;
 
             var (success, message) = await _service.Update(existing);
             return success ? Ok(new { message, data = existing }) : BadRequest(message);
         }
+
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id}")]
