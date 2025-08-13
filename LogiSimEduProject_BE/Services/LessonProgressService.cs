@@ -120,7 +120,7 @@ namespace Services
 
             var percent = totalLessons == 0 ? 0 : (completedCount * 100.0 / totalLessons);
 
-            var courseProgress = await _courseProgressRepo.GetByAccountAndCourse(accountId, courseId);
+            var courseProgress = await _courseProgressRepo.GetByAccAndCourse(accountId, courseId);
 
             if (courseProgress != null && percent < 100)
             {

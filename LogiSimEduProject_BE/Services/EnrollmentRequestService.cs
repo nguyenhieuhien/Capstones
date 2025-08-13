@@ -57,19 +57,16 @@ namespace Services
             return await _repository.GetPendingCoursesByAccountId(accountId);
         }
 
-        public async Task<string> CheckEnrollmentStatusAsync(Guid accountId, Guid courseId)
+        public async Task<int> CheckEnrollmentStatusAsync(Guid accountId, Guid courseId)
         {
             var status = await _repository.GetEnrollmentStatusAsync(accountId, courseId);
 
+            // Nếu không tìm thấy thì trả về -1
             if (status == null)
-                return "Chưa enroll";
+                return -1;
 
-            return status switch
-            {
-                0 => "Đã gửi request",
-                1 => "Đã join course",
-                _ => "Trạng thái không xác định"
-            };
+            // Đảm bảo chỉ trả về 0, 1, 2
+            return status.Value;
         }
 
         public async Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request)
@@ -146,6 +143,16 @@ namespace Services
                     await _dbContext.LessonProgresses.AddAsync(lessonProgress);
                 }
             }
+
+            //// 🔹 Tăng số lượng học viên trong Class
+            //var classEntity = await _dbContext.Classes.FindAsync(classId);
+            //if (classEntity != null)
+            //{
+            //    classEntity.NumberOfStudent = (classEntity.NumberOfStudent ?? 0) + 1;
+            //    classEntity.UpdatedAt = DateTime.UtcNow;
+            //    _dbContext.Classes.Update(classEntity);
+            //}
+
 
             _dbContext.AccountOfCourses.Update(record);
             await _dbContext.SaveChangesAsync();

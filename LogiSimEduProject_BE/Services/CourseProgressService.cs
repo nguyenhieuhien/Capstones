@@ -31,7 +31,7 @@ namespace Services
 
         public async Task<CourseProgress?> GetByAccIdandCourseId(Guid accId, Guid courseId)
         {
-            return await _repository.GetByAccountAndCourse(accId, courseId);
+            return await _repository.GetByAccAndCourse(accId, courseId);
         }
 
         public async Task<(bool Success, string Message, Guid? Id)> Create(CourseProgress request)

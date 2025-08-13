@@ -22,7 +22,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_lesson")]
         [SwaggerOperation(Summary = "Get all lessons", Description = "Returns a list of all lessons.")]
         public async Task<IActionResult> GetAll()
@@ -31,7 +31,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_lesson/{id}")]
         [SwaggerOperation(Summary = "Get lesson by ID", Description = "Returns a specific lesson based on the provided ID.")]
         public async Task<IActionResult> Get(string id)
@@ -41,7 +41,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(lesson);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("by-topic/{topicId}")]
         [SwaggerOperation(Summary = "Get lessons by Topic ID", Description = "Returns all lessons associated with a specific Topic ID.")]
         public async Task<IActionResult> GetByTopicId(Guid topicId)
@@ -50,7 +50,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(lessons);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("{lessonId}/quizzes")]
         public async Task<IActionResult> GetQuizzesForLesson(Guid lessonId)
         {
@@ -59,7 +59,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(quizzes);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_lesson")]
         [SwaggerOperation(Summary = "Create a new lesson", Description = "Creates a new lesson and saves it to the database.")]
         public async Task<IActionResult> Post([FromBody] LessonDTOCreate request)

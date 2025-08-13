@@ -19,7 +19,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_answer")]
         [SwaggerOperation(Summary = "Get all answers", Description = "Retrieve all answers from the system")]
         public async Task<IActionResult> GetAll()
@@ -28,7 +28,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(answers);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+       // [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_answer/{id}")]
         [SwaggerOperation(Summary = "Get an answer by ID", Description = "Retrieve a specific answer by its ID")]
         public async Task<IActionResult> GetById(string id)

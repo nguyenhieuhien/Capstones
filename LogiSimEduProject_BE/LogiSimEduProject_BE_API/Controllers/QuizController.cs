@@ -18,7 +18,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         private readonly IQuizService _service;
         public QuizController(IQuizService service) => _service = service;
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_all_quiz")]
         [SwaggerOperation(Summary = "Get all quizzes", Description = "Returns a list of all quizzes.")]
         public async Task<IActionResult> GetAll()
@@ -27,7 +27,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_quiz/{id}")]
         [SwaggerOperation(Summary = "Get quiz by ID", Description = "Returns quiz details by quiz ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -37,7 +37,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("{quizId}/questions")]
         [SwaggerOperation(Summary = "Get all questions and answers in a quiz")]
         public async Task<IActionResult> GetQuestionsWithAnswers(Guid quizId)
@@ -47,7 +47,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_quiz")]
         [SwaggerOperation(Summary = "Create a new quiz", Description = "Creates a basic quiz with topic and score.")]
         public async Task<IActionResult> Create([FromBody] QuizDTOCreate request)
@@ -65,7 +65,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message, QuizId = id });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_full_quiz")]
         [SwaggerOperation(Summary = "Create quiz with full questions & answers", Description = "Creates a quiz including its questions and answers in one go.")]
         public async Task<IActionResult> CreateFullQuiz([FromBody] QuizDTO dto)
@@ -90,7 +90,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message });
         }
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("review_quiz")]
         public async Task<IActionResult> GetReview([FromQuery] Guid accountId, [FromQuery] Guid quizId)
         {

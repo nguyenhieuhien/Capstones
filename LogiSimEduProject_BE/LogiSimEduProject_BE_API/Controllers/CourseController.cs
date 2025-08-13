@@ -34,7 +34,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(courses);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_by_id/{id}")]
         [SwaggerOperation(Summary = "Get course by ID", Description = "Retrieve a course by ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -46,7 +46,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_by_org/{orgId}")]
         [SwaggerOperation(Summary = "Get all courses by organization ID", Description = "Retrieve all courses that belong to a specific organization.")]
         public async Task<IActionResult> GetAllByOrgId(Guid orgId)
