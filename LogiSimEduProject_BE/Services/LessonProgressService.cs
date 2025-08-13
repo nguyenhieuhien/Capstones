@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using DinkToPdf;
 
 namespace Services
 {
@@ -23,7 +27,7 @@ namespace Services
         private readonly CertificateRepository _certificateRepo;
         private readonly CertificateTemplateRepository _templateRepo;
         private readonly CloudinaryDotNet.Cloudinary _cloudinary;
-        private readonly IPdfService _pdfService;
+        //private readonly IPdfService _pdfService;
         private readonly LogiSimEduContext _dbContext;
         public LessonProgressService(
                LessonProgressRepository repository,
@@ -33,7 +37,7 @@ namespace Services
                CertificateRepository certificateRepo,
                CertificateTemplateRepository templateRepo,
                CloudinaryDotNet.Cloudinary cloudinary,
-               IPdfService pdfService,
+               //IPdfService pdfService,
                LogiSimEduContext dbContext)
         {
             _repository = repository;
@@ -43,7 +47,7 @@ namespace Services
             _certificateRepo = certificateRepo;
             _templateRepo = templateRepo;
             _cloudinary = cloudinary;
-            _pdfService = pdfService;
+            //_pdfService = pdfService;
             _dbContext = dbContext;
         }
         public async Task<(bool Success, string Message, Guid? Id)> Create(LessonProgress request)
@@ -71,7 +75,7 @@ namespace Services
             }
         }
 
-        public async Task<(bool Success, string Message, CertificateDTO? Certificate)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId, int status)
+        public async Task<(bool Success, string Message, CertificateDTO? Certificate)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId)
         {
             try
             {
@@ -79,7 +83,7 @@ namespace Services
                 if (progress == null)
                     return (false, "LessonProgress not found.", null);
 
-                progress.Status = status;
+                progress.Status = 2;
                 progress.UpdatedAt = DateTime.UtcNow;
                 var result = await _repository.UpdateAsync(progress);
 
@@ -118,86 +122,111 @@ namespace Services
 
             var courseProgress = await _courseProgressRepo.GetByAccountAndCourse(accountId, courseId);
 
-            if (courseProgress != null)
+            if (courseProgress != null && percent < 100)
             {
                 courseProgress.ProgressPercent = percent;
+                courseProgress.Status = 2;
+                courseProgress.UpdatedAt = DateTime.UtcNow;
+                await _courseProgressRepo.UpdateAsync(courseProgress);
+            }
+            else if (percent == 100)
+            {
+                courseProgress.ProgressPercent = percent;
+                courseProgress.Status = 3;
                 courseProgress.UpdatedAt = DateTime.UtcNow;
                 await _courseProgressRepo.UpdateAsync(courseProgress);
             }
 
+
             // Nếu hoàn thành 100% → tạo Certificate
-            if (percent == 100)
-            {
-                var existingCert = await _certificateRepo.GetByAccountAndCourse(accountId, courseId);
-                if (existingCert.Any())
-                {
-                    var cert = existingCert.First();
-                    return new CertificateDTO
-                    {
-                        Id = cert.Id,
-                        FileUrl = cert.FileUrl
-                    };
-                }
+            //if (percent == 100)
+            //{
+            //    var existingCert = await _certificateRepo.GetByAccountAndCourse(accountId, courseId);
+            //    if (existingCert.Any())
+            //    {
+            //        var cert = existingCert.First();
+            //        return new CertificateDTO
+            //        {
+            //            Id = cert.Id,
+            //            FileUrl = cert.FileUrl
+            //        };
+            //    }
 
-                var template = await _templateRepo.GetByCourseIdAsync(courseId);
-                if (template == null) return null;
+            //    var template = await _templateRepo.GetByCourseIdAsync(courseId);
+            //    if (template == null) return null;
 
-                var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
-                var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            //    var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+            //    var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
 
-                if (account == null || course == null) return null;
+            //    if (account == null || course == null) return null;
 
-                string htmlContent = template.HtmlTemplate
-                    .Replace("{FullName}", account.FullName ?? "")
-                    .Replace("{CourseName}", course.CourseName ?? "")
-                    .Replace("{BackgroundUrl}", template.BackgroundUrl ?? "");
+            //    string html = template.HtmlTemplate
+            //        .Replace("{FullName}", account.FullName ?? "")
+            //        .Replace("{CourseName}", course.CourseName ?? "")
+            //        .Replace("{BackgroundUrl}", template.BackgroundUrl ?? "");
 
-                // 4. Convert HTML sang PDF
-                var pdfBytes = _pdfService.ConvertHtmlToPdf(htmlContent);
+            //    // 4. Convert HTML sang PDF
+            //    var converter = new SynchronizedConverter(new PdfTools());
+            //    var doc = new HtmlToPdfDocument()
+            //    {
+            //        GlobalSettings = {
+            //        PaperSize = PaperKind.A4,
+            //        Orientation = Orientation.Portrait
+            //    },
+            //        Objects = {
+            //            new ObjectSettings() {
+            //            HtmlContent = html,
+            //            WebSettings = { DefaultEncoding = "utf-8" }
+            //            }   
+            //        }
+            //    };
 
-                // Upload to Cloudinary
-                string fileUrl;
-                await using (var stream = new MemoryStream(pdfBytes))
-                {
-                    var uploadParams = new RawUploadParams
-                    {
-                        File = new FileDescription($"certificate_{accountId}_{courseId}.pdf", stream),
-                        Folder = "LogiSimEdu_Certificates",
-                        UseFilename = true,
-                        UniqueFilename = false,
-                        Overwrite = true
-                    };
+            //    byte[] pdfBytes = converter.Convert(doc);
 
-                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
-                        throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
+            //    // Upload to Cloudinary
+            //    string fileUrl;
+            //    await using (var stream = new MemoryStream(pdfBytes))
+            //    {
+            //        var uploadParams = new RawUploadParams
+            //        {
+            //            File = new FileDescription($"certificate_{accountId}_{courseId}.pdf", stream),
+            //            Folder = "LogiSimEdu_Certificates",
+            //            UseFilename = true,
+            //            UniqueFilename = false,
+            //            Overwrite = true,
+            //            AccessMode = "public"
+            //        };
 
-                    fileUrl = uploadResult.SecureUrl.ToString();
-                }
+            //        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            //        if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+            //            throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
 
-                // 4. Lưu certificate vào DB
-                var certificate = new Certificate
-                {
-                    Id = Guid.NewGuid(),
-                    AccountId = accountId,
-                    CourseId = courseId,
-                    CertiTempId = template.Id,
-                    CertificateName = $"{account.FullName} - {course.CourseName}",
-                    Score = 95, // hoặc giá trị thực tế
-                    Rank = null,
-                    FileUrl = fileUrl,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
+            //        fileUrl = uploadResult.SecureUrl.ToString();
+            //    }
 
-                await _certificateRepo.CreateAsync(certificate);
+            //    // 4. Lưu certificate vào DB
+            //    var certificate = new Certificate
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        AccountId = accountId,
+            //        CourseId = courseId,
+            //        CertiTempId = template.Id,
+            //        CertificateName = $"{account.FullName} - {course.CourseName}",
+            //        Score = 95, // hoặc giá trị thực tế
+            //        Rank = null,
+            //        FileUrl = fileUrl,
+            //        IsActive = true,
+            //        CreatedAt = DateTime.UtcNow
+            //    };
 
-                return new CertificateDTO
-                {
-                    Id = certificate.Id,
-                    FileUrl = certificate.FileUrl
-                };
-            }
+            //    await _certificateRepo.CreateAsync(certificate);
+
+            //    return new CertificateDTO
+            //    {
+            //        Id = certificate.Id,
+            //        FileUrl = certificate.FileUrl
+            //    };
+            //}
             return null;
         }
 

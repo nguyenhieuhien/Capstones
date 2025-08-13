@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Repositories.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,8 @@ namespace Services.IServices
 {
     public interface ICertificateService
     {
-        Task<(bool Success, string Message, byte[]? FileData, string? FileName)> DownloadCertificateAsync(Guid accountId, Guid courseId);
+        Task<List<Certificate>> GetAll();
+        Task<Certificate?> GetById(string id);
+        //Task<(bool Success, string Message, byte[]? FileData, string? FileName)> DownloadCertificateAsync(Guid accountId, Guid courseId);
     }
 }

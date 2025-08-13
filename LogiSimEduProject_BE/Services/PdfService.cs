@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using Services.IServices;
 
 namespace Services
@@ -18,31 +21,40 @@ namespace Services
             _converter = converter;
         }
 
-        public byte[] ConvertHtmlToPdf(string htmlContent)
+        public byte[] GenerateSamplePdf(string title, string content)
         {
-            var doc = new HtmlToPdfDocument()
+            var document = Document.Create(container =>
             {
-                GlobalSettings = {
-                PaperSize = PaperKind.A4,
-                Orientation = Orientation.Landscape
-            },
-                Objects = {
-                new ObjectSettings
+                container.Page(page =>
                 {
-                    HtmlContent = htmlContent,
-                    WebSettings = {
-                        DefaultEncoding = "utf-8",
-                        LoadImages = true // ✅ Cho phép tải ảnh
-                    },
-                    LoadSettings = {
-                        // Nếu dùng DinkToPdf, một số bản sẽ cần cái này để tránh lỗi SSL
-                        // Tùy bản bạn có thể bỏ nếu không hỗ trợ
-                    }
-                }
-            }
-            };
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, QuestPDF.Infrastructure.Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(14));
 
-            return _converter.Convert(doc);
+                    page.Header()
+                        .Text(title)
+                        .SemiBold().FontSize(20).FontColor(Colors.Blue.Medium);
+
+                    page.Content()
+                        .Text(content)
+                        .FontSize(14);
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span("Page ").FontSize(12);
+                            x.CurrentPageNumber().FontSize(12);
+                            x.Span(" / ").FontSize(12);
+                            x.TotalPages().FontSize(12);
+                        });
+                });
+            });
+
+            using var ms = new MemoryStream();
+            document.GeneratePdf(ms);
+            return ms.ToArray();
         }
     }
 }

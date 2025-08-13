@@ -16,7 +16,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using DinkToPdf;
 using DinkToPdf.Contracts;
-using Services.PDF;
+
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -58,11 +58,13 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
     return new Cloudinary(account);
 });
 // Pdf Service
-var context = new CustomAssemblyLoadContext();
-context.LoadUnmanagedLibrary(Path.Combine(Directory.GetCurrentDirectory(), "Libraries", "libwkhtmltox.dll"));
-builder.Services.AddSingleton(typeof(DinkToPdf.Contracts.IConverter),
-    new DinkToPdf.SynchronizedConverter(new DinkToPdf.PdfTools()));
-builder.Services.AddScoped<IPdfService, PdfService>();
+//var libPath = Path.Combine(AppContext.BaseDirectory, "libwkhtmltox.dll");
+//var context = new CustomAssemblyLoadContext();
+//context.LoadUnmanagedLibrary(libPath);
+
+//builder.Services.AddSingleton(typeof(DinkToPdf.Contracts.IConverter),
+//    new DinkToPdf.SynchronizedConverter(new DinkToPdf.PdfTools()));
+//builder.Services.AddScoped<IPdfService, PdfService>();
 
 // -----------------------
 // 📦 Dependency Injection: Services + Repositories

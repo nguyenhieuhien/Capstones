@@ -13,6 +13,11 @@ namespace Repositories
     {
         public CertificateTemplateRepository() { }
 
+        public async Task<List<CertificateTemplete>> GetAll()
+        {
+            return await _context.CertificateTempletes.Where(c => c.IsActive == true).ToListAsync();
+        }
+
         public async Task<CertificateTemplete> GetByCourseIdAsync(Guid courseId)
         {
             return await _context.CertificateTempletes
