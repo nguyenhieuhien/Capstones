@@ -154,23 +154,28 @@ namespace LogiSimEduProject_BE_API.Controllers
             var existing = await _accountService.GetById(id);
             if (existing == null) return NotFound("Không tìm thấy tài khoản.");
 
-            existing.OrganizationId = request.OrganizationId;
-            existing.UserName = request.UserName;
-            existing.FullName = request.FullName;
-            existing.Email = request.Email;
-            existing.Phone = request.Phone;
-            existing.Address = request.Address;
-            existing.AvtUrl = request.AvtUrl;
-            existing.Gender = request.Gender;
+            if (request.FullName != null)
+                existing.FullName = request.FullName;
 
-            if (request.RoleId is > 0 and <= 4)
-                existing.RoleId = request.RoleId;
-            else
-                return BadRequest("RoleId không hợp lệ.");
+            if (request.Phone != null)
+                existing.Phone = request.Phone;
+
+            if (request.Address != null)
+                existing.Address = request.Address;
+
+            if (request.AvtUrl != null)
+                existing.AvtUrl = request.AvtUrl;
+
+            if (request.Gender != null)
+                existing.Gender = request.Gender;
+
+            existing.UpdatedAt = DateTime.UtcNow;
 
             await _accountService.Update(existing);
             return Ok("Cập nhật thành công.");
         }
+
+
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete_account/{id}")]

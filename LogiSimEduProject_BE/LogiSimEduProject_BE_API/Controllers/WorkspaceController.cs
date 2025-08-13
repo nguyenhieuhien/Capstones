@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
-        [Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Admin,Organization_Admin,Instructor")]
         [HttpGet("get_workSpace/{id}")]
         [SwaggerOperation(Summary = "Get a workspace by ID", Description = "Returns details of a specific workspace.")]
         public async Task<WorkSpace> Get(string id)
