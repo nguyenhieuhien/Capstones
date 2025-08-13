@@ -8,6 +8,6 @@ namespace Services.IServices
 {
     public interface IPdfService
     {
-        byte[] ConvertHtmlToPdf(string htmlContent);
+        byte[] GenerateSamplePdf(string title, string content);
     }
 }

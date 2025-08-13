@@ -24,6 +24,8 @@ namespace Services
             _cloudinary = cloudinary;
         }
 
+        public async Task<List<CertificateTemplete>> GetAll() => await _repository.GetAll();
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(CertificateTemplateDto request)
         {
             try

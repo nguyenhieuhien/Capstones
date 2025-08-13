@@ -10,6 +10,7 @@ namespace Services.IServices
 {
     public interface ICertificateTemplateService
     {
+        Task<List<CertificateTemplete>> GetAll();
         Task<(bool Success, string Message, Guid? Id)> Create(CertificateTemplateDto request);
         Task<CertificateTemplete?> GetById(Guid id);
         Task<List<CertificateTemplete>> GetAllByOrgId(Guid organizationId);

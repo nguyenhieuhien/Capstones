@@ -17,6 +17,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+        [HttpGet("get_all")]
+        //[SwaggerOperation(Summary = "Get all categories", Description = "Returns a list of all active categories.")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _service.GetAll();
+            return Ok(result);
+        }
+
         [HttpPost("create")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] CertificateTemplateDto request)

@@ -13,6 +13,11 @@ namespace Repositories
     {
         public CertificateRepository() { }
 
+        public async Task<List<Certificate>> GetAll()
+        {
+            return await _context.Certificates.Where(c => c.IsActive == true).ToListAsync();
+        }
+
         public async Task<List<Certificate>> GetByAccountIdAsync(Guid accountId)
         {
             return await _context.Certificates
