@@ -39,6 +39,16 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(courseProgresses);
         }
 
+        [HttpGet("get_my_courseProgress")]
+        public async Task<IActionResult> GetByAccIdandCourseId(Guid accId, Guid courseId)
+        {
+            var courseProgresses = await _service.GetByAccIdandCourseId(accId,courseId);
+            if (courseProgresses == null)
+                return NotFound("Course Progresses not found");
+
+            return Ok(courseProgresses);
+        }
+
         [HttpPost("create_courseProgress")]
         public async Task<IActionResult> Create([FromBody] CourseProgressDTOCreate request)
         {

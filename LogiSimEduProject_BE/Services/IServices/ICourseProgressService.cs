@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<CourseProgress>> GetAll();
         Task<CourseProgress?> GetById(string id);
+        Task<CourseProgress?> GetByAccIdandCourseId(Guid accId, Guid courseId);
         Task<(bool Success, string Message, Guid? Id)> Create(CourseProgress courseProgress);
         Task<(bool Success, string Message)> Update(CourseProgress courseProgress);
         Task<(bool Success, string Message)> Delete(string id);

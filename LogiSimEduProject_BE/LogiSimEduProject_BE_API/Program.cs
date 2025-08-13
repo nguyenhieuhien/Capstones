@@ -16,12 +16,14 @@ using System.Text;
 using System.Text.Json.Serialization;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using QuestPDF.Infrastructure;
 
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
+QuestPDF.Settings.License = LicenseType.Community;
 // -----------------------
 // 🔐 Firebase Initialization
 // -----------------------
@@ -64,7 +66,7 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
 
 //builder.Services.AddSingleton(typeof(DinkToPdf.Contracts.IConverter),
 //    new DinkToPdf.SynchronizedConverter(new DinkToPdf.PdfTools()));
-//builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
 
 // -----------------------
 // 📦 Dependency Injection: Services + Repositories

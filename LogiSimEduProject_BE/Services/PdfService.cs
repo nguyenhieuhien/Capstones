@@ -14,47 +14,59 @@ namespace Services
 {
     public class PdfService : IPdfService
     {
-        private readonly IConverter _converter;
-
-        public PdfService(IConverter converter)
+        public byte[] GenerateCertificate(string fullName, string courseName, string backgroundUrl)
         {
-            _converter = converter;
-        }
+            byte[] imageBytes;
+            using (var client = new HttpClient())
+            {
+                imageBytes = client.GetByteArrayAsync(backgroundUrl).Result; // sync để tránh async trong QuestPDF
+            }
 
-        public byte[] GenerateSamplePdf(string title, string content)
-        {
-            var document = Document.Create(container =>
+            //            var htmlTemplate = $@"
+            //<div style='width: 100%; height: 100%; position: relative; text-align: center; font-family: Arial;'>
+            //    <img src='{backgroundUrl}' style='width: 100%; height: 100%; position: absolute; z-index: -1;' />
+            //    <div style='padding-top: 200px;'>
+            //        <h1 style='font-size: 48px; font-weight: bold;'>Certificate of Completion</h1>
+            //        <p style='font-size: 20px;'>This is proudly presented to</p>
+            //        <h2 style='font-size: 36px; margin: 10px 0;'>{fullName}</h2>
+            //        <p style='font-size: 18px;'>for successfully completing the course</p>
+            //        <h3 style='font-size: 28px; margin: 10px 0;'>{courseName}</h3>
+            //    </div>
+            //</div>";
+
+            // 2. Tạo PDF
+            // Tạo PDF A4 ngang
+            var pdf = Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, QuestPDF.Infrastructure.Unit.Centimetre);
-                    page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(14));
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(0);
+                    page.Background().Image(imageBytes).FitArea();
 
-                    page.Header()
-                        .Text(title)
-                        .SemiBold().FontSize(20).FontColor(Colors.Blue.Medium);
+                    page.Content().AlignMiddle().AlignCenter().Column(col =>
+                    {
+                        col.Spacing(10); // khoảng cách giữa các dòng
 
-                    page.Content()
-                        .Text(content)
-                        .FontSize(14);
+                        col.Item().Text("Certificate of Completion")
+                            .FontSize(40).Bold().AlignCenter();
 
-                    page.Footer()
-                        .AlignCenter()
-                        .Text(x =>
-                        {
-                            x.Span("Page ").FontSize(12);
-                            x.CurrentPageNumber().FontSize(12);
-                            x.Span(" / ").FontSize(12);
-                            x.TotalPages().FontSize(12);
-                        });
+                        col.Item().Text("This is proudly presented to")
+                            .FontSize(20).AlignCenter();
+
+                        col.Item().Text(fullName)
+                            .FontSize(32).Bold().AlignCenter();
+
+                        col.Item().Text("for successfully completing the course")
+                            .FontSize(18).AlignCenter();
+
+                        col.Item().Text(courseName)
+                            .FontSize(26).Bold().AlignCenter();
+                    });
                 });
-            });
+            }).GeneratePdf();
 
-            using var ms = new MemoryStream();
-            document.GeneratePdf(ms);
-            return ms.ToArray();
+            return pdf;
         }
     }
 }

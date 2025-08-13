@@ -8,6 +8,6 @@ namespace Services.IServices
 {
     public interface IPdfService
     {
-        byte[] GenerateSamplePdf(string title, string content);
+        byte[] GenerateCertificate(string fullName, string courseName, string backgroundUrl);
     }
 }

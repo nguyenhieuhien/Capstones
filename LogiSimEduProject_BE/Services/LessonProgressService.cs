@@ -27,7 +27,7 @@ namespace Services
         private readonly CertificateRepository _certificateRepo;
         private readonly CertificateTemplateRepository _templateRepo;
         private readonly CloudinaryDotNet.Cloudinary _cloudinary;
-        //private readonly IPdfService _pdfService;
+        private readonly IPdfService _pdfService;
         private readonly LogiSimEduContext _dbContext;
         public LessonProgressService(
                LessonProgressRepository repository,
@@ -37,7 +37,7 @@ namespace Services
                CertificateRepository certificateRepo,
                CertificateTemplateRepository templateRepo,
                CloudinaryDotNet.Cloudinary cloudinary,
-               //IPdfService pdfService,
+               IPdfService pdfService,
                LogiSimEduContext dbContext)
         {
             _repository = repository;
@@ -47,7 +47,7 @@ namespace Services
             _certificateRepo = certificateRepo;
             _templateRepo = templateRepo;
             _cloudinary = cloudinary;
-            //_pdfService = pdfService;
+            _pdfService = pdfService;
             _dbContext = dbContext;
         }
         public async Task<(bool Success, string Message, Guid? Id)> Create(LessonProgress request)
@@ -131,102 +131,83 @@ namespace Services
             }
             else if (percent == 100)
             {
-                courseProgress.ProgressPercent = percent;
-                courseProgress.Status = 3;
-                courseProgress.UpdatedAt = DateTime.UtcNow;
-                await _courseProgressRepo.UpdateAsync(courseProgress);
+                // Update trạng thái course progress
+                if (courseProgress != null)
+                {
+                    courseProgress.ProgressPercent = percent;
+                    courseProgress.Status = 3;
+                    courseProgress.UpdatedAt = DateTime.UtcNow;
+                    await _courseProgressRepo.UpdateAsync(courseProgress);
+                }
+
+                // Check certificate đã tồn tại chưa
+                var existingCert = await _certificateRepo.GetByAccountAndCourse(accountId, courseId);
+                if (existingCert.Any())
+                {
+                    var cert = existingCert.First();
+                    return new CertificateDTO
+                    {
+                        Id = cert.Id,
+                        FileUrl = cert.FileUrl
+                    };
+                }
+
+                // Lấy thông tin account và course
+                var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+                var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+
+                if (account == null || course == null) return null;
+
+                byte[] pdfBytes = _pdfService.GenerateCertificate(
+                                 account.FullName,
+                                 course.CourseName,
+                                "https://png.pngtree.com/background/20250424/original/pngtree-certificate-of-achievement-picture-image_16452391.jpg"
+                );
+
+                // Upload PDF lên Cloudinary
+                string fileUrl;
+                await using (var stream = new MemoryStream(pdfBytes))
+                {
+                    var uploadParams = new RawUploadParams
+                    {
+                        File = new FileDescription($"certificate_{accountId}_{courseId}.pdf", stream),
+                        Folder = "LogiSimEdu_Certificates",
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true,
+                        AccessMode = "public"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                        throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
+
+                    fileUrl = uploadResult.SecureUrl.ToString();
+                }
+
+                // Lưu certificate vào DB
+                var certificate = new Certificate
+                {
+                    Id = Guid.NewGuid(),
+                    AccountId = accountId,
+                    CourseId = courseId,
+                    CertiTempId = null, // vì không dùng template DB
+                    CertificateName = $"{account.FullName} - {course.CourseName}",
+                    Score = 95,
+                    Rank = null,
+                    FileUrl = fileUrl,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _certificateRepo.CreateAsync(certificate);
+
+                return new CertificateDTO
+                {
+                    Id = certificate.Id,
+                    FileUrl = certificate.FileUrl
+                };
             }
-
-
-            // Nếu hoàn thành 100% → tạo Certificate
-            //if (percent == 100)
-            //{
-            //    var existingCert = await _certificateRepo.GetByAccountAndCourse(accountId, courseId);
-            //    if (existingCert.Any())
-            //    {
-            //        var cert = existingCert.First();
-            //        return new CertificateDTO
-            //        {
-            //            Id = cert.Id,
-            //            FileUrl = cert.FileUrl
-            //        };
-            //    }
-
-            //    var template = await _templateRepo.GetByCourseIdAsync(courseId);
-            //    if (template == null) return null;
-
-            //    var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
-            //    var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
-
-            //    if (account == null || course == null) return null;
-
-            //    string html = template.HtmlTemplate
-            //        .Replace("{FullName}", account.FullName ?? "")
-            //        .Replace("{CourseName}", course.CourseName ?? "")
-            //        .Replace("{BackgroundUrl}", template.BackgroundUrl ?? "");
-
-            //    // 4. Convert HTML sang PDF
-            //    var converter = new SynchronizedConverter(new PdfTools());
-            //    var doc = new HtmlToPdfDocument()
-            //    {
-            //        GlobalSettings = {
-            //        PaperSize = PaperKind.A4,
-            //        Orientation = Orientation.Portrait
-            //    },
-            //        Objects = {
-            //            new ObjectSettings() {
-            //            HtmlContent = html,
-            //            WebSettings = { DefaultEncoding = "utf-8" }
-            //            }   
-            //        }
-            //    };
-
-            //    byte[] pdfBytes = converter.Convert(doc);
-
-            //    // Upload to Cloudinary
-            //    string fileUrl;
-            //    await using (var stream = new MemoryStream(pdfBytes))
-            //    {
-            //        var uploadParams = new RawUploadParams
-            //        {
-            //            File = new FileDescription($"certificate_{accountId}_{courseId}.pdf", stream),
-            //            Folder = "LogiSimEdu_Certificates",
-            //            UseFilename = true,
-            //            UniqueFilename = false,
-            //            Overwrite = true,
-            //            AccessMode = "public"
-            //        };
-
-            //        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            //        if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
-            //            throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
-
-            //        fileUrl = uploadResult.SecureUrl.ToString();
-            //    }
-
-            //    // 4. Lưu certificate vào DB
-            //    var certificate = new Certificate
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        AccountId = accountId,
-            //        CourseId = courseId,
-            //        CertiTempId = template.Id,
-            //        CertificateName = $"{account.FullName} - {course.CourseName}",
-            //        Score = 95, // hoặc giá trị thực tế
-            //        Rank = null,
-            //        FileUrl = fileUrl,
-            //        IsActive = true,
-            //        CreatedAt = DateTime.UtcNow
-            //    };
-
-            //    await _certificateRepo.CreateAsync(certificate);
-
-            //    return new CertificateDTO
-            //    {
-            //        Id = certificate.Id,
-            //        FileUrl = certificate.FileUrl
-            //    };
-            //}
             return null;
         }
 
