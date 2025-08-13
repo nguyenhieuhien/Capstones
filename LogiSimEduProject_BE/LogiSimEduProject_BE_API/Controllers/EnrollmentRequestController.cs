@@ -64,6 +64,18 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+        [HttpGet("student/{accountId}/pending-courses")]
+        [SwaggerOperation(Summary = "Get pending courses for a student", Description = "Returns all courses a student has pending.")]
+        public async Task<IActionResult> GetPendingCourses(Guid accountId)
+        {
+            var courses = await _service.GetPendingCoursesByAccountId(accountId);
+            return Ok(new
+            {
+                Message = $"Found {courses.Count} pending course(s)",
+                Data = courses
+            });
+        }
+
         //[Authorize(Roles = "Student")]
         [HttpPost("create_enrollmentRequest")]
         [SwaggerOperation(Summary = "Create enrollment request", Description = "Submit a request to enroll in a course (only for students).")]

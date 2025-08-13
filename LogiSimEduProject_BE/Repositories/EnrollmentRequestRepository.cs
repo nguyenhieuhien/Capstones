@@ -53,7 +53,16 @@ namespace Repositories
         public async Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId)
         {
             return await _context.AccountOfCourses
-                .Where(aoc => aoc.AccountId == accountId && aoc.Status == 2) // 2 = Enrolled accepted
+                .Where(aoc => aoc.AccountId == accountId && aoc.Status == 1) // 2 = Enrolled accepted
+                .Include(aoc => aoc.Course)
+                .Select(aoc => aoc.Course)
+                .ToListAsync();
+        }
+
+        public async Task<List<Course>> GetPendingCoursesByAccountId(Guid accountId)
+        {
+            return await _context.AccountOfCourses
+                .Where(aoc => aoc.AccountId == accountId && aoc.Status == 0) // 2 = Enrolled accepted
                 .Include(aoc => aoc.Course)
                 .Select(aoc => aoc.Course)
                 .ToListAsync();

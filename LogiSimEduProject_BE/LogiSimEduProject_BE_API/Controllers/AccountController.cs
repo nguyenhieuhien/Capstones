@@ -224,6 +224,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             existing.Phone = request.Phone;
             existing.Address = request.Address;
             existing.AvtUrl = request.AvtUrl;
+            existing.Gender = request.Gender;
 
             if (request.RoleId is > 0 and <= 4)
                 existing.RoleId = request.RoleId;

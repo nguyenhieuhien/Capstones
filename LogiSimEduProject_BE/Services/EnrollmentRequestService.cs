@@ -46,6 +46,11 @@ namespace Services
             return await _repository.GetEnrolledCoursesByAccountId(accountId);
         }
 
+        public async Task<List<Course>> GetPendingCoursesByAccountId(Guid accountId)
+        {
+            return await _repository.GetPendingCoursesByAccountId(accountId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request)
         {
             if (request == null || request.AccountId == Guid.Empty || request.CourseId == Guid.Empty)
