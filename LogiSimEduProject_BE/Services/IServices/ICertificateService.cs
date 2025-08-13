@@ -12,6 +12,7 @@ namespace Services.IServices
     {
         Task<List<Certificate>> GetAll();
         Task<Certificate?> GetById(string id);
+        Task<Certificate?> GetCertificateAsync(string id);
         //Task<Stream?> DownloadCertificateAsync(string certificateId);
         //Task<IActionResult> DownloadPdf(string publicId);
     }

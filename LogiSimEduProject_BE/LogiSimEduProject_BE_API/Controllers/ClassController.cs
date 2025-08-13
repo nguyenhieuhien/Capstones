@@ -54,6 +54,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(classes);
         }
 
+        [HttpGet("accounts/{accountId}/courses/{courseId}/class")]
+        public async Task<IActionResult> GetClassByAccountAndCourse(Guid accountId, Guid courseId)
+        {
+            var classEntity = await _service.GetClassByAccountAndCourseAsync(accountId, courseId);
+
+            if (classEntity == null)
+                return NotFound("No class found for this account in the given course.");
+
+            return Ok(classEntity);
+        }
+
 
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_class")]

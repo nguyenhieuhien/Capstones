@@ -27,6 +27,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<Class> GetClassByAccountAndCourseAsync(Guid accountId, Guid courseId)
+        {
+            return await _repository.GetClassByAccountAndCourseAsync(accountId, courseId);
+        }
+
         public async Task<List<Class>> GetAllClassByCourseId(Guid courseId)
         {
             if (courseId == Guid.Empty) return new List<Class>();

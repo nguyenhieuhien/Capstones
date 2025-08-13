@@ -42,7 +42,7 @@ namespace Services
             return await _repository.GetStudentsByClassId(classId);
         }
 
-        public async Task<List<Account>> GetEnrolledStudentsWithoutClass(Guid courseId)
+        public async Task<List<AccountOfCourse>> GetEnrolledStudentsWithoutClass(Guid courseId)
         {
             return await _repository.GetEnrolledStudentsWithoutClass(courseId);
         }

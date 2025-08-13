@@ -175,7 +175,8 @@ namespace Services
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true,
-                        AccessMode = "public"
+                        PublicId = $"certificate_{accountId}_{courseId}",
+                        Type = "upload"       // đảm bảo public
                     };
 
                     var uploadResult = await _cloudinary.UploadAsync(uploadParams);

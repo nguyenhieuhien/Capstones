@@ -4,6 +4,7 @@ using Repositories.Models;
 using Services.IServices;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
@@ -24,24 +25,35 @@ namespace Services
 
         public async Task<Certificate> GetById(string id) => await _repository.GetByIdAsync(id);
 
-        public async Task<Stream?> DownloadCertificateAsync(string certificateId)
+        public async Task<Certificate?> GetCertificateAsync(string id)
         {
-            var certificate = await _repository.GetByIdAsync(certificateId);
+            var certificate = await _repository.GetByIdAsync(id);
 
-            if (certificate == null || string.IsNullOrEmpty(certificate.FileUrl))
+            // Có thể kiểm tra trạng thái hoặc quyền ở đây nếu cần
+            if (certificate == null || string.IsNullOrWhiteSpace(certificate.FileUrl))
                 return null;
 
-            using (var httpClient = new HttpClient())
-            {
-                var response = await httpClient.GetAsync(certificate.FileUrl);
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Cannot download file from URL: {certificate.FileUrl} - Status: {response.StatusCode}");
-
-                var ms = new MemoryStream();
-                await response.Content.CopyToAsync(ms);
-                ms.Position = 0;
-                return ms;
-            }
+            return certificate;
         }
+
+        //public async Task<Stream?> DownloadCertificateAsync(string certificateId)
+        //{
+        //    var certificate = await _repository.GetByIdAsync(certificateId);
+
+        //    if (certificate == null || string.IsNullOrEmpty(certificate.FileUrl))
+        //        return null;
+
+        //    using (var httpClient = new HttpClient())
+        //    {
+        //        var response = await httpClient.GetAsync(certificate.FileUrl);
+        //        if (!response.IsSuccessStatusCode)
+        //            throw new Exception($"Cannot download file from URL: {certificate.FileUrl} - Status: {response.StatusCode}");
+
+        //        var ms = new MemoryStream();
+        //        await response.Content.CopyToAsync(ms);
+        //        ms.Position = 0;
+        //        return ms;
+        //    }
+        //}
     }
 }
