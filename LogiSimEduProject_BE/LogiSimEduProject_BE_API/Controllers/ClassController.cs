@@ -21,7 +21,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        //[Authorize(Roles = "Instructor")]
+
+        [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_all_class")]
         [SwaggerOperation(Summary = "Get all classes", Description = "Return a list of all classes.")]
         public async Task<IActionResult> GetAll()
@@ -30,7 +31,9 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(classes);
         }
 
-        //[Authorize(Roles = "Instructor")]
+
+
+        [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_class/{id}")]
         [SwaggerOperation(Summary = "Get class by ID", Description = "Return class details by its ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -41,6 +44,16 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok(_class);
         }
+
+        [Authorize(Roles = "Instructor,Student")]
+        [HttpGet("get_classes_by_course/{courseId}")]
+        [SwaggerOperation(Summary = "Get all classes by course ID", Description = "Return a list of all classes for a specific course.")]
+        public async Task<IActionResult> GetAllClassByCourseId(Guid courseId)
+        {
+            var classes = await _service.GetAllClassByCourseId(courseId);
+            return Ok(classes);
+        }
+
 
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_class")]
@@ -95,5 +108,6 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok(new { Message = message });
         }
+       
     }
 }

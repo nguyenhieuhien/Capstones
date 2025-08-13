@@ -24,7 +24,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             _accountService = accountService;
         }
 
-        //[Authorize(Roles = "Instructor")]
+
+        [Authorize(Roles = "Instructor")]
         [HttpGet("get_all_enrollmentRequest")]
         [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
         public async Task<IActionResult> GetAll()

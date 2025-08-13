@@ -38,6 +38,86 @@ public class PaymentController : ControllerBase
         _logger = logger;
     }
 
+    // ===================== GET: All Payments =====================
+    [Authorize(Roles = "Organization_Admin")]
+    [HttpGet("get_all_payment")]
+    [SwaggerOperation(Summary = "Lấy danh sách tất cả thanh toán (mới nhất trước)")]
+    public async Task<IActionResult> GetAllPayments()
+    {
+        try
+        {
+            var payments = await _paymentService.GetAllAsync();
+
+            // Sắp xếp mới nhất trước (nếu cần)
+            var result = payments
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.OrderId,
+                    p.OrderCode,
+                    p.Amount,
+                    p.Description,
+                    p.PaymentLink,
+                    p.ReturnUrl,
+                    p.CancelUrl,
+                    p.Status,
+                    p.CreatedAt,
+                });
+
+            _logger.LogInformation("Lấy {Count} payment(s) thành công.", result.Count());
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lấy danh sách thanh toán.");
+            return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
+        }
+    }
+
+    // ===================== GET: Payment by Id =====================
+    [Authorize(Roles = "Organization_Admin")]
+    [HttpGet("get_payment{id}")]
+    [SwaggerOperation(Summary = "Lấy thông tin thanh toán theo Id")]
+    public async Task<IActionResult> GetPaymentById(Guid id)
+    {
+        try
+        {
+            var payment = await _paymentService.GetByIdAsync(id);
+            if (payment == null)
+            {
+                _logger.LogWarning("Không tìm thấy thanh toán với Id: {Id}", id);
+                return NotFound(new { message = "Không tìm thấy thanh toán." });
+            }
+
+            var result = new
+            {
+                payment.Id,
+                payment.OrderId,
+                payment.OrderCode,
+                payment.Amount,
+                payment.Description,
+                payment.PaymentLink,
+                payment.ReturnUrl,
+                payment.CancelUrl,
+                payment.Status,
+                payment.CreatedAt,
+            };
+
+            _logger.LogInformation("Lấy thanh toán thành công. Id: {Id}", id);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lấy thanh toán Id: {Id}", id);
+            return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
+        }
+    }
+
+
+
+
+
     [Authorize(Roles = "Organization_Admin")]
     [HttpPost("create-payment/{orderId}")]
     [SwaggerOperation(Summary = "Tạo liên kết thanh toán cho đơn hàng")]

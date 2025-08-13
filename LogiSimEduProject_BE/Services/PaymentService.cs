@@ -40,5 +40,12 @@ namespace Services
         {
             await _paymentRepository.UpdatePaymentAsync(payment);
         }
+
+
+        public async Task<IEnumerable<Payment>> GetAllAsync() =>
+            await _paymentRepository.GetAll();
+
+        public async Task<Payment?> GetByIdAsync(Guid id) =>
+            await _paymentRepository.GetById(id);
     }
 }

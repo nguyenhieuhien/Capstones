@@ -19,5 +19,14 @@ namespace Repositories
 
             return classes;
         }
+
+        public async Task<List<Class>> GetByCourseAsync(Guid courseId)
+        {
+            var classes = await _context.Classes
+                .Where(a => a.IsActive == true && a.CourseId == courseId)
+                .ToListAsync();
+
+            return classes;
+        }
     }
 }

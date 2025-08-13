@@ -12,5 +12,8 @@ namespace Services.IServices
         Task<Payment> GetByOrderCodeAsync(long? orderCode);
         Task CreatePaymentAsync(Payment payment);
         Task UpdatePaymentAsync(Payment payment);
+        Task<IEnumerable<Payment>> GetAllAsync();
+        Task<Payment?> GetByIdAsync(Guid id);
+
     }
 }

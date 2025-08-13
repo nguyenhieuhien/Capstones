@@ -42,6 +42,10 @@ namespace LogiSimEduProject_BE_API.Controllers
             var course = await _courseService.GetById(id);
             return course != null ? Ok(course) : NotFound("Course not found.");
         }
+
+
+
+
         [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_by_org/{orgId}")]
         [SwaggerOperation(Summary = "Get all courses by organization ID", Description = "Retrieve all courses that belong to a specific organization.")]
@@ -139,6 +143,14 @@ namespace LogiSimEduProject_BE_API.Controllers
         {
             var (success, message) = await _courseService.Delete(id);
             return success ? Ok(new { Message = message }) : NotFound(message);
+        }
+        [Authorize(Roles = "Student,Instructor")]
+        [HttpGet("get_all_course_by_workspace/{workspaceId}")]
+        [SwaggerOperation(Summary = "Get all courses by workspace ID", Description = "Retrieve all courses that belong to a specific workspace.")]
+        public async Task<IActionResult> GetAllCourseByWorkspaceId(Guid workspaceId)
+        {
+            var courses = await _courseService.GetAllByWorkspaceId(workspaceId);
+            return Ok(courses);
         }
     }
 }
