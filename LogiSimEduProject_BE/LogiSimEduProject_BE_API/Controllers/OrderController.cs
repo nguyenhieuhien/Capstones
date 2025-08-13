@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services;
 using Services.DTO.Order;
 using Services.IServices;
@@ -16,6 +17,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -23,6 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -30,6 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return result == null ? NotFound() : Ok(result);
         }
 
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] OrderDTOCreate dto)
         {
@@ -47,7 +51,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok("Status updated successfully.");
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

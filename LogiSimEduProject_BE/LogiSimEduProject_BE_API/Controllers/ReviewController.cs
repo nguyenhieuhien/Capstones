@@ -21,6 +21,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _reviewService = reviewService;
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_all_review")]
         [SwaggerOperation(Summary = "Get all reviews", Description = "Returns a list of all reviews.")]
         public async Task<IActionResult> GetAll()
@@ -29,6 +30,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_review/{id}")]
         [SwaggerOperation(Summary = "Get a review by ID", Description = "Returns a specific review by its ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -38,7 +40,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound(new { Message = "Review not found." });
             return Ok(review);
         }
-
+        [Authorize(Roles = "Instructor,Student")]
         [HttpPost("create_review")]
         [SwaggerOperation(Summary = "Create a new review", Description = "Creates a new review for a course.")]
         public async Task<IActionResult> Create([FromBody] ReviewCreateDTO reviewDto)
@@ -63,6 +65,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = "Review created successfully.", ReviewId = review.Id });
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpPut("update_review/{id}")]
         [SwaggerOperation(Summary = "Update an existing review", Description = "Updates the description and rating of a review.")]
         public async Task<IActionResult> Update(string id, [FromBody] ReviewUpdateDTO reviewDto)
@@ -85,6 +88,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = "Review updated successfully." });
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpDelete("delete_review/{id}")]
         [SwaggerOperation(Summary = "Delete a review", Description = "Deletes a review by its ID.")]
         public async Task<IActionResult> Delete(string id)

@@ -22,15 +22,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             _config = config;
             _accountService = accountService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all accounts")]
         public async Task<IEnumerable<Account>> Get() => await _accountService.GetAll();
 
+        //[Authorize(Roles = "Admin,Organization_Admin,Instructor,Student")]
         [HttpGet("get_account/{id}")]
         [SwaggerOperation(Summary = "Get account by ID")]
         public async Task<Account> Get(string id) => await _accountService.GetById(id);
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet("get_all_by_org/{orgId}")]
         [SwaggerOperation(Summary = "Get all accounts by organization ID", Description = "Retrieve all accounts that belong to a specific organization.")]
         public async Task<IActionResult> GetAllByOrgId(Guid orgId)
@@ -38,6 +40,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var accounts = await _accountService.GetAllByOrgId(orgId);
             return Ok(accounts);
         }
+
 
         [HttpPost("login")]
         [SwaggerOperation(Summary = "Login Account")]
@@ -56,6 +59,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+
         [HttpPost("register-admin-account")]
         [SwaggerOperation(Summary = "Register new admin account", Description = "Create a new admin account and send OTP for email verification")]
         public async Task<IActionResult> RegisterAdminAccount([FromBody] AccountDTOCreateAd request)
@@ -64,7 +68,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(message) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("register-organization-admin-account")]
         public async Task<IActionResult> RegisterOrganizationAdmin([FromBody] AccountDTOCreateOg request)
         {
@@ -72,7 +76,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(message) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-instructor-account")]
         public async Task<IActionResult> RegisterInstructor([FromBody] AccountDTOCreate request)
         {
@@ -81,7 +85,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        //[Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-student-account")]
         public async Task<IActionResult> RegisterStudent([FromBody] AccountDTOCreate request)
         {
@@ -118,7 +122,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(message) : BadRequest(message);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("change_password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
@@ -127,7 +131,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { message }) : BadRequest(new { message });
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("request_change_email")]
         public async Task<IActionResult> RequestChangeEmail([FromBody] ChangeEmailRequest request)
         {
@@ -142,6 +146,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var (success, message) = await _accountService.ResendVerifyOtp(email);
             return success ? Ok(message) : BadRequest(message);
         }
+
 
         [HttpPut("update_account/{id}")]
         public async Task<IActionResult> UpdateAccount(string id, [FromBody] AccountDTOUpdate request)
@@ -172,6 +177,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok("Xóa tài khoản thành công.") : NotFound("Không tìm thấy tài khoản.");
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpPut("ban_account/{id}")]
         public async Task<IActionResult> BanAccount(string id)
         {
@@ -179,6 +185,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok("Tài khoản đã bị khóa.") : BadRequest("Không thể khóa tài khoản.");
         }
 
+        [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpPut("unban_account/{id}")]
         public async Task<IActionResult> UnbanAccount(string id)
         {

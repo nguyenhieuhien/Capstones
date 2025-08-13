@@ -1,4 +1,5 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS;
 using Net.payOS.Types;
@@ -37,6 +38,7 @@ public class PaymentController : ControllerBase
         _logger = logger;
     }
 
+    [Authorize(Roles = "Organization_Admin")]
     [HttpPost("create-payment/{orderId}")]
     [SwaggerOperation(Summary = "Tạo liên kết thanh toán cho đơn hàng")]
     public async Task<IActionResult> CreatePayment(Guid orderId)
@@ -110,11 +112,6 @@ public class PaymentController : ControllerBase
             return StatusCode(500, new { message = "Lỗi hệ thống", error = ex.Message });
         }
     }
-
-
-
-
-
 
 
     [HttpPut("update")]

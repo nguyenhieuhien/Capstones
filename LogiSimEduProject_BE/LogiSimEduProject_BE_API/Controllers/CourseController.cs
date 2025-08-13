@@ -25,7 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
-        //[Authorize(Roles = "Student,Instructor")]
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all courses", Description = "Retrieve all courses.")]
         public async Task<IActionResult> GetAll()
@@ -34,7 +34,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(courses);
         }
 
-        //[Authorize(Roles = "Student,Instructor")]
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_by_id/{id}")]
         [SwaggerOperation(Summary = "Get course by ID", Description = "Retrieve a course by ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -42,7 +42,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var course = await _courseService.GetById(id);
             return course != null ? Ok(course) : NotFound("Course not found.");
         }
-
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_by_org/{orgId}")]
         [SwaggerOperation(Summary = "Get all courses by organization ID", Description = "Retrieve all courses that belong to a specific organization.")]
         public async Task<IActionResult> GetAllByOrgId(Guid orgId)
@@ -51,7 +51,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(courses);
         }
 
-        //[Authorize(Roles = "Instructor")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create a course", Description = "Create a new course with optional image.")]
         public async Task<IActionResult> Create([FromForm] CourseDTOCreate dto)
@@ -91,7 +91,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { Message = message, CourseId = id }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Instructor")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update/{id}")]
         [SwaggerOperation(Summary = "Update course", Description = "Update an existing course.")]
         public async Task<IActionResult> Update(string id, [FromForm] CourseDTOUpdate dto)

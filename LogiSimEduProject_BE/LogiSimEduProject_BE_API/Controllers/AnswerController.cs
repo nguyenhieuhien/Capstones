@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 using Services.DTO.Answer;
@@ -18,6 +19,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_answer")]
         [SwaggerOperation(Summary = "Get all answers", Description = "Retrieve all answers from the system")]
         public async Task<IActionResult> GetAll()
@@ -26,6 +28,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(answers);
         }
 
+        [Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_answer/{id}")]
         [SwaggerOperation(Summary = "Get an answer by ID", Description = "Retrieve a specific answer by its ID")]
         public async Task<IActionResult> GetById(string id)
@@ -34,7 +37,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return answer != null ? Ok(answer) : NotFound($"Answer with ID {id} not found.");
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_answer")]
         [SwaggerOperation(Summary = "Create a new answer", Description = "Add a new answer for a specific question")]
         public async Task<IActionResult> Create([FromBody] AnswerDTOCreate request)
@@ -50,7 +53,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { message, data = answer }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update_answer/{id}")]
         [SwaggerOperation(Summary = "Update an existing answer", Description = "Update description or correctness of an existing answer")]
         public async Task<IActionResult> Update(string id, [FromBody] AnswerDTOUpdate request)
@@ -67,7 +70,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { message, data = existing }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete_answer/{id}")]
         [SwaggerOperation(Summary = "Delete an answer", Description = "Delete an answer by its ID")]
         public async Task<IActionResult> Delete(string id)
