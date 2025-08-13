@@ -1,4 +1,5 @@
-﻿using Repositories.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Repositories.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Services.IServices
     {
         Task<List<Certificate>> GetAll();
         Task<Certificate?> GetById(string id);
-        Task<Stream?> DownloadCertificateAsync(string certificateId);
+        //Task<Stream?> DownloadCertificateAsync(string certificateId);
+        //Task<IActionResult> DownloadPdf(string publicId);
     }
 }
