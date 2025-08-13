@@ -187,13 +187,21 @@ namespace Services
 
         public async Task<(bool Success, string Message)> RegisterStudentAccountAsync(AccountDTOCreate dto)
         {
-            // Validate trùng email/username (khuyến nghị)
-            if (await   _accountRepository.GetByEmailAsync(dto.Email) is not null)
+            // 0) Check Organization
+            var org = await _organizationRepository.GetByIdAsync(dto.OrganizationId);
+            if (org == null)
+                return (false, "Organization không tồn tại.");
+            if (org.IsActive != true)
+                return (false, "Organization chưa được kích hoạt, vui lòng thanh toán.");
+
+            // 1) Validate email/username
+            if (await _accountRepository.GetByEmailAsync(dto.Email) is not null)
                 return (false, "This email is already in use.");
             //if (!string.IsNullOrWhiteSpace(dto.UserName) &&
             //    await _repository.GetByUserNameAsync(dto.UserName) is not null)
             //    return (false, "This username is already in use.");
 
+            // 2) Tạo account
             var account = new Account
             {
                 Id = Guid.NewGuid(),
@@ -204,20 +212,20 @@ namespace Services
                 Phone = dto.Phone,
                 Address = dto.Address,
                 Gender = dto.Gender,
-                RoleId = 4,             // Student
+                RoleId = 4, // Student
                 IsActive = true,
                 IsEmailVerify = true,
                 CreatedAt = DateTime.UtcNow
             };
 
             var hasher = new PasswordHasher<Account>();
-            account.Password = hasher.HashPassword(account, dto.Password); // dùng instance account, không truyền null
+            account.Password = hasher.HashPassword(account, dto.Password);
 
             var result = await _accountRepository.CreateAsync(account);
             if (result <= 0)
                 return (false, "Tạo tài khoản Student thất bại");
 
-            // Gửi email kèm mật khẩu theo yêu cầu
+            // 3) Gửi email kèm mật khẩu
             var emailBody = $@"
 <p>Chào {account.FullName},</p>
 <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
