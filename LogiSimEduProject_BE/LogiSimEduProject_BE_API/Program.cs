@@ -59,13 +59,7 @@ builder.Services.AddSingleton<Cloudinary>(sp =>
     var account = new Account(config.CloudName, config.ApiKey, config.ApiSecret);
     return new Cloudinary(account);
 });
-// Pdf Service
-//var libPath = Path.Combine(AppContext.BaseDirectory, "libwkhtmltox.dll");
-//var context = new CustomAssemblyLoadContext();
-//context.LoadUnmanagedLibrary(libPath);
 
-//builder.Services.AddSingleton(typeof(DinkToPdf.Contracts.IConverter),
-//    new DinkToPdf.SynchronizedConverter(new DinkToPdf.PdfTools()));
 builder.Services.AddScoped<IPdfService, PdfService>();
 
 // -----------------------

@@ -14,6 +14,8 @@ namespace Services.IServices
         Task<List<AccountOfCourse>> GetByCourseId(string courseId);
         Task<List<Account>> GetStudentsInClass(Guid classId);
         Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId);
+        Task<List<Account>> GetEnrolledStudentsWithoutClass(Guid courseId);
+        Task<string> CheckEnrollmentStatusAsync(Guid accountId, Guid courseId);
         Task<List<Course>> GetPendingCoursesByAccountId(Guid accountId);
         Task<(bool Success, string Message)> AssignStudentToClass(Guid AccountOfCourseId, Guid classId);
         Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request);

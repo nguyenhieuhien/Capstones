@@ -25,7 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpGet("get_all_enrollmentRequest")]
         [SwaggerOperation(Summary = "Get all enrollment requests", Description = "Retrieve all enrollment requests from all students.")]
         public async Task<IActionResult> GetAll()
@@ -77,6 +77,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
+        [HttpGet("check-enrollment-status")]
+        public async Task<IActionResult> CheckEnrollmentStatus(Guid accountId, Guid courseId)
+        {
+            var statusText = await _service.CheckEnrollmentStatusAsync(accountId, courseId);
+            return Ok(new { status = statusText });
+        }
+
         //[Authorize(Roles = "Student")]
         [HttpPost("create_enrollmentRequest")]
         [SwaggerOperation(Summary = "Create enrollment request", Description = "Submit a request to enroll in a course (only for students).")]
@@ -113,6 +120,13 @@ namespace LogiSimEduProject_BE_API.Controllers
         public async Task<IActionResult> GetStudentsInClass(Guid classId)
         {
             var students = await _service.GetStudentsInClass(classId);
+            return Ok(students);
+        }
+
+        [HttpGet("class-course/{courseId}/students")]
+        public async Task<IActionResult> GetEnrolledStudentsWithoutClass(Guid courseId)
+        {
+            var students = await _service.GetEnrolledStudentsWithoutClass(courseId);
             return Ok(students);
         }
 

@@ -11,6 +11,6 @@ namespace Services.IServices
     {
         Task<List<Certificate>> GetAll();
         Task<Certificate?> GetById(string id);
-        //Task<(bool Success, string Message, byte[]? FileData, string? FileName)> DownloadCertificateAsync(Guid accountId, Guid courseId);
+        Task<Stream?> DownloadCertificateAsync(string certificateId);
     }
 }

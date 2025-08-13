@@ -25,7 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all courses", Description = "Retrieve all courses.")]
         public async Task<IActionResult> GetAll()
@@ -55,7 +55,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(courses);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create a course", Description = "Create a new course with optional image.")]
         public async Task<IActionResult> Create([FromForm] CourseDTOCreate dto)

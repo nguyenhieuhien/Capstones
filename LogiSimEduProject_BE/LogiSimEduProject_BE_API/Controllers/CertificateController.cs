@@ -36,15 +36,25 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(certificate);
         }
 
-        //[HttpGet("download")]
-        //public async Task<IActionResult> DownloadCertificate([FromQuery] Guid accountId, [FromQuery] Guid courseId)
-        //{
-        //    var (success, message, fileData, fileName) = await _service.DownloadCertificateAsync(accountId, courseId);
+        [HttpGet("download/{certificateId}")]
+        [SwaggerOperation(Summary = "Download certificate file", Description = "Download certificate file from Cloudinary by certificateId")]
+        public async Task<IActionResult> DownloadCertificate(string certificateId)
+        {
+            try
+            {
+                var fileStream = await _service.DownloadCertificateAsync(certificateId);
+                if (fileStream == null)
+                    return NotFound("Certificate not found or file not available.");
 
-        //    if (!success)
-        //        return NotFound(new { Message = message });
+                // Lấy tên file từ certificate (có thể lưu tên khi upload hoặc tự đặt)
+                var fileName = $"{certificateId}.pdf"; // hoặc .jpg, .png tùy định dạng
 
-        //    return File(fileData, "application/pdf", fileName);
-        //}
+                return File(fileStream, "application/octet-stream", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error downloading file: {ex.Message}");
+            }
+        }
     }
 }

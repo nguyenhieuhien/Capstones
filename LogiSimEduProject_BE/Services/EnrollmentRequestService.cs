@@ -41,6 +41,11 @@ namespace Services
             return await _repository.GetStudentsByClassId(classId);
         }
 
+        public async Task<List<Account>> GetEnrolledStudentsWithoutClass(Guid courseId)
+        {
+            return await _repository.GetEnrolledStudentsWithoutClass(courseId);
+        }
+
         public async Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId)
         {
             return await _repository.GetEnrolledCoursesByAccountId(accountId);
@@ -49,6 +54,21 @@ namespace Services
         public async Task<List<Course>> GetPendingCoursesByAccountId(Guid accountId)
         {
             return await _repository.GetPendingCoursesByAccountId(accountId);
+        }
+
+        public async Task<string> CheckEnrollmentStatusAsync(Guid accountId, Guid courseId)
+        {
+            var status = await _repository.GetEnrollmentStatusAsync(accountId, courseId);
+
+            if (status == null)
+                return "Chưa enroll";
+
+            return status switch
+            {
+                0 => "Đã gửi request",
+                1 => "Đã join course",
+                _ => "Trạng thái không xác định"
+            };
         }
 
         public async Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request)
