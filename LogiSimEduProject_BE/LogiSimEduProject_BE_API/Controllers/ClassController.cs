@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
 
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_class/{id}")]
         [SwaggerOperation(Summary = "Get class by ID", Description = "Return class details by its ID.")]
         public async Task<IActionResult> GetById(string id)
@@ -45,13 +45,24 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(_class);
         }
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_classes_by_course/{courseId}")]
         [SwaggerOperation(Summary = "Get all classes by course ID", Description = "Return a list of all classes for a specific course.")]
         public async Task<IActionResult> GetAllClassByCourseId(Guid courseId)
         {
             var classes = await _service.GetAllClassByCourseId(courseId);
             return Ok(classes);
+        }
+
+        [HttpGet("accounts/{accountId}/courses/{courseId}/class")]
+        public async Task<IActionResult> GetClassByAccountAndCourse(Guid accountId, Guid courseId)
+        {
+            var classEntity = await _service.GetClassByAccountAndCourseAsync(accountId, courseId);
+
+            if (classEntity == null)
+                return NotFound("No class found for this account in the given course.");
+
+            return Ok(classEntity);
         }
 
 

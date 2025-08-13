@@ -21,7 +21,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _sceneService = sceneService;
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_scene")]
         [SwaggerOperation(Summary = "Get all scenes", Description = "Retrieve a list of all scenes.")]
         public async Task<ActionResult<List<Scene>>> GetAll()
@@ -30,7 +30,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenes);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_scene/{id}")]
         [SwaggerOperation(Summary = "Get scene by ID", Description = "Retrieve a scene by its ID.")]
         public async Task<ActionResult<Scene>> GetById(string id)
@@ -48,7 +48,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenes);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
         [SwaggerOperation(Summary = "Create new scene", Description = "Create a new scene with basic information.")]
         public async Task<ActionResult<int>> Create([FromBody] SceneDTOCreate dto)

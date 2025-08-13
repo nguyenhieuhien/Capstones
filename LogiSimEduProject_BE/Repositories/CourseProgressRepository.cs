@@ -18,7 +18,7 @@ namespace Repositories
 
             return courseProgresses;
         }
-        public async Task<CourseProgress?> GetByAccountAndCourse(Guid accountId, Guid courseId)
+        public async Task<CourseProgress?> GetByAccAndCourse(Guid accountId, Guid courseId)
         {
             return await _context.CourseProgresses
                 .FirstOrDefaultAsync(cp => cp.AccountId == accountId && cp.CourseId == courseId && cp.IsActive == true);

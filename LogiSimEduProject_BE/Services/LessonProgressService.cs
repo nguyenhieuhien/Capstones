@@ -120,7 +120,7 @@ namespace Services
 
             var percent = totalLessons == 0 ? 0 : (completedCount * 100.0 / totalLessons);
 
-            var courseProgress = await _courseProgressRepo.GetByAccountAndCourse(accountId, courseId);
+            var courseProgress = await _courseProgressRepo.GetByAccAndCourse(accountId, courseId);
 
             if (courseProgress != null && percent < 100)
             {
@@ -175,7 +175,8 @@ namespace Services
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true,
-                        AccessMode = "public"
+                        PublicId = $"certificate_{accountId}_{courseId}",
+                        Type = "upload"       // đảm bảo public
                     };
 
                     var uploadResult = await _cloudinary.UploadAsync(uploadParams);

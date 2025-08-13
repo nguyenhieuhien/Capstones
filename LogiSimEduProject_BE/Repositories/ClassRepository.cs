@@ -28,5 +28,18 @@ namespace Repositories
 
             return classes;
         }
+
+        public async Task<Class?> GetClassByAccountAndCourseAsync(Guid accountId, Guid courseId)
+        {
+            var classEntity = await _context.AccountOfCourses
+                        .Where(aoc => aoc.IsActive == true
+                      && aoc.AccountId == accountId
+                      && aoc.CourseId == courseId
+                      && aoc.Class != null)
+                .Select(aoc => aoc.Class)
+                .FirstOrDefaultAsync(); // chỉ lấy 1 cái
+
+            return classEntity;
+        }
     }
 }

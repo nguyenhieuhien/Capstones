@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
-        [Authorize(Roles = "Admin,Organization_Admin,Instructor")]
+        //[Authorize(Roles = "Admin,Organization_Admin,Instructor")]
         [HttpGet("get_workSpace/{id}")]
         [SwaggerOperation(Summary = "Get a workspace by ID", Description = "Returns details of a specific workspace.")]
         public async Task<WorkSpace> Get(string id)
@@ -49,7 +49,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(workspaces);
         }
 
-        [Authorize(Roles = "Organization_Admin")]
+        //[Authorize(Roles = "Organization_Admin")]
         [HttpPost("create_workSpace")]
         [SwaggerOperation(Summary = "Create new workspace", Description = "Creates a new workspace with given information.")]
         public async Task<IActionResult> Post([FromForm] WorkspaceDTOCreate request)

@@ -24,7 +24,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_scenario")]
         [SwaggerOperation(Summary = "Get all scenarios", Description = "Returns all active scenarios.")]
         public async Task<ActionResult<IEnumerable<Scenario>>> GetAll()
@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenarios);
         }
 
-        [Authorize(Roles = "Student,Instructor")]
+        //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_scenario/{id}")]
         [SwaggerOperation(Summary = "Get scenario by ID", Description = "Retrieve a scenario using its unique identifier.")]
         public async Task<ActionResult<Scenario>> GetById(string id)
@@ -53,7 +53,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenarios);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
         [SwaggerOperation(Summary = "Create new scenario", Description = "Instructor can create a new simulation scenario.")]
         public async Task<IActionResult> Create([FromForm] ScenarioDTOCreate dto)
