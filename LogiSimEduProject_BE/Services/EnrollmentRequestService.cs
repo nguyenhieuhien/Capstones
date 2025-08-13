@@ -1,4 +1,5 @@
 ﻿// File: Services/IEnrollmentRequestService.cs
+using Microsoft.EntityFrameworkCore;
 using Repositories;
 using Repositories.DBContext;
 using Repositories.Models;
@@ -98,36 +99,55 @@ namespace Services
             var record = await _repository.GetByAccountAndCourse(accountOfCourseId);
 
             if (record == null)
-                return (false, "Không tìm thấy học viên đủ điều kiện (status = 1, isActive = true)");
+                return (false, "Không tìm thấy học viên đủ điều kiện");
 
             record.ClassId = classId;
             record.UpdatedAt = DateTime.UtcNow;
 
-            var courseProgress = new CourseProgress
-            {
-                Id = Guid.NewGuid(),
-                AccountId = record.AccountId,
-                CourseId = record.CourseId,
-                ProgressPercent = 0,
-                Status = 1,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
+            // 🔍 Check CourseProgress đã tồn tại chưa
+            var existsCourseProgress = await _dbContext.CourseProgresses
+                .AnyAsync(cp => cp.AccountId == record.AccountId && cp.CourseId == record.CourseId);
 
-            var lessons = await _lessonRepo.GetLessonsByCourseId(record.CourseId.Value);
-            var lessonProgressList = lessons.Select(lesson => new LessonProgress
+
+            if (!existsCourseProgress)
             {
-                Id = Guid.NewGuid(),
-                AccountId = record.AccountId,
-                LessonId = lesson.Id,
-                Status = 1,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            }).ToList();
+                var courseProgress = new CourseProgress
+                {
+                    Id = Guid.NewGuid(),
+                    AccountId = record.AccountId,
+                    CourseId = record.CourseId,
+                    ProgressPercent = 0,
+                    Status = 1,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _dbContext.CourseProgresses.AddAsync(courseProgress);
+            }
+
+            // 🔍 Check LessonProgress cho từng lesson
+            var lessons = await _lessonRepo.GetLessonsByCourseId(record.CourseId.Value);
+
+            foreach (var lesson in lessons)
+            {
+                bool existsLessonProgress = await _dbContext.LessonProgresses
+                    .AnyAsync(lp => lp.AccountId == record.AccountId && lp.LessonId == lesson.Id);
+
+                if (!existsLessonProgress)
+                {
+                    var lessonProgress = new LessonProgress
+                    {
+                        Id = Guid.NewGuid(),
+                        AccountId = record.AccountId,
+                        LessonId = lesson.Id,
+                        Status = 1,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await _dbContext.LessonProgresses.AddAsync(lessonProgress);
+                }
+            }
 
             _dbContext.AccountOfCourses.Update(record);
-            await _dbContext.CourseProgresses.AddAsync(courseProgress);
-            await _dbContext.LessonProgresses.AddRangeAsync(lessonProgressList);
             await _dbContext.SaveChangesAsync();
 
             return (true, "Đã gán học viên vào lớp và khởi tạo tiến độ thành công.");

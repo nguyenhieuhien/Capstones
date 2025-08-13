@@ -22,7 +22,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_all_class")]
         [SwaggerOperation(Summary = "Get all classes", Description = "Return a list of all classes.")]
         public async Task<IActionResult> GetAll()
@@ -55,7 +55,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create_class")]
         [SwaggerOperation(Summary = "Create a new class", Description = "Create a new class with course ID, name, and number of students.")]
         public async Task<IActionResult> Create([FromBody] ClassDTOCreate request)
