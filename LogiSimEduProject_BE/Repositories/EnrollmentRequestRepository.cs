@@ -87,7 +87,7 @@ namespace Repositories
             return enrollment; // null nếu không tìm thấy
         }
 
-        public async Task<List<Account>> GetEnrolledStudentsWithoutClass(Guid courseId)
+        public async Task<List<AccountOfCourse>> GetEnrolledStudentsWithoutClass(Guid courseId)
         {
             return await _context.AccountOfCourses
                 .Include(aoc => aoc.Account)
@@ -96,9 +96,9 @@ namespace Repositories
                     && aoc.ClassId == null
                     && aoc.Account.RoleId == 4
                     && aoc.IsActive == true)
-                .Select(aoc => aoc.Account)
                 .ToListAsync();
         }
+
 
         public async Task<AccountOfCourse?> GetAcceptedRequest(Guid studentId)
         {
