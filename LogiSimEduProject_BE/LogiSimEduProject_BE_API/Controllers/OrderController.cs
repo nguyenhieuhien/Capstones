@@ -17,6 +17,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+
         [Authorize(Roles = "Admin,Organization_Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -32,6 +33,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             var result = await _service.GetByIdAsync(id);
             return result == null ? NotFound() : Ok(result);
         }
+
+
 
         [Authorize(Roles = "Organization_Admin")]
         [HttpPost("create")]

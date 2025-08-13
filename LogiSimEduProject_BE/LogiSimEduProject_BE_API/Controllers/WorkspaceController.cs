@@ -25,7 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
-        [Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Admin,Organization_Admin,Instructor")]
         [HttpGet("get_all_workSpace")]
         [SwaggerOperation(Summary = "Get all workspaces", Description = "Returns a list of all workspaces.")]
         public async Task<IEnumerable<WorkSpace>> Get()
@@ -33,7 +33,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return await _service.GetAll();
         }
 
-        [Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Admin,Organization_Admin,Instructor")]
         [HttpGet("get_workSpace/{id}")]
         [SwaggerOperation(Summary = "Get a workspace by ID", Description = "Returns details of a specific workspace.")]
         public async Task<WorkSpace> Get(string id)
