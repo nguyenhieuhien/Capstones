@@ -53,7 +53,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenarios);
         }
 
-        //[Authorize(Roles = "Instructor")]
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
         [SwaggerOperation(Summary = "Create new scenario", Description = "Instructor can create a new simulation scenario.")]
         public async Task<IActionResult> Create([FromForm] ScenarioDTOCreate dto)

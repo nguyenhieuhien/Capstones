@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 using Services.DTO.Category;
@@ -35,7 +36,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound("Category not found");
             return Ok(category);
         }
-
+        [Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create new category", Description = "Create a new category and return its ID.")]
         public async Task<IActionResult> Create([FromBody] CategoryCreateDTO dto)
@@ -54,7 +55,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok(new { Message = message, Id = id });
         }
-
+        [Authorize(Roles = "Instructor")]
         [HttpPut("update/{id}")]
         [SwaggerOperation(Summary = "Update category", Description = "Update an existing category by ID.")]
         public async Task<IActionResult> Update(string id, [FromBody] CategoryUpdateDTO dto)
@@ -68,7 +69,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var (success, message) = await _categoryService.Update(existing);
             return success ? Ok(message) : BadRequest(message);
         }
-
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("delete/{id}")]
         [SwaggerOperation(Summary = "Delete category", Description = "Delete a category by its ID.")]
         public async Task<IActionResult> Delete(string id)

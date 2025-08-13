@@ -21,7 +21,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        //[Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student")]
         [HttpPost("submit_quiz")]
         [SwaggerOperation(Summary = "Submit quiz answers", Description = "Student submits their answers to a quiz and receives score.")]
         public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionRequest request)

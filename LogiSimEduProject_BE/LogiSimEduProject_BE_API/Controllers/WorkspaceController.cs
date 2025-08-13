@@ -25,7 +25,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _cloudinary = cloudinary;
         }
 
-        //[Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Organization_Admin")]
         [HttpGet("get_all_workSpace")]
         [SwaggerOperation(Summary = "Get all workspaces", Description = "Returns a list of all workspaces.")]
         public async Task<IEnumerable<WorkSpace>> Get()
@@ -49,7 +49,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(workspaces);
         }
 
-        //[Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPost("create_workSpace")]
         [SwaggerOperation(Summary = "Create new workspace", Description = "Creates a new workspace with given information.")]
         public async Task<IActionResult> Post([FromForm] WorkspaceDTOCreate request)
@@ -97,7 +97,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Data = workspace });
         }
 
-        //[Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Organization_Admin")]
         [HttpPut("update_workSpace/{id}")]
         [SwaggerOperation(Summary = "Update workspace", Description = "Updates an existing workspace by ID.")]
         public async Task<IActionResult> Put(string id, WorkspaceDTOUpdate request)
@@ -152,7 +152,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             });
         }
 
-        //[Authorize(Roles = "Organization_Admin")]
+        [Authorize(Roles = "Organization_Admin")]
         [HttpDelete("delete_workSpace/{id}")]
         [SwaggerOperation(Summary = "Delete workspace", Description = "Deletes a workspace by its ID.")]
         public async Task<bool> Delete(string id)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 using Services.DTO.Lesson;
@@ -21,6 +22,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_all_lessonProgress")]
         //[SwaggerOperation(Summary = "Get all lessons", Description = "Returns a list of all lessons.")]
         public async Task<IActionResult> GetAll()
@@ -29,6 +31,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_lessonProgress/{id}")]
         //[SwaggerOperation(Summary = "Get lesson by ID", Description = "Returns a specific lesson based on the provided ID.")]
         public async Task<IActionResult> Get(string id)
@@ -38,6 +41,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(lesson);
         }
 
+        [Authorize(Roles = "Student")]
         [HttpPost("create_lessonProgress")]
         //[SwaggerOperation(Summary = "Create a new lesson", Description = "Creates a new lesson and saves it to the database.")]
         public async Task<IActionResult> Post([FromBody] LessonProgressDTOCreate request)
@@ -54,6 +58,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             return Ok(new { Message = message, Id = id });
         }
+
 
         [HttpPut("update-lesson-progress")]
         [SwaggerOperation(Summary = "Update lesson progress", Description = "Update student's lesson progress and recalculate course progress.")]
@@ -80,13 +85,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message });
         }
 
-        [HttpDelete("delete_notification/{id}")]
-        //[SwaggerOperation(Summary = "Delete a lesson", Description = "Deletes a lesson by its ID.")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var (success, message) = await _service.Delete(id);
-            if (!success) return NotFound(message);
-            return Ok(new { Message = message });
-        }
+
+        //[HttpDelete("delete_lessonProgress/{id}")]
+        ////[SwaggerOperation(Summary = "Delete a lesson", Description = "Deletes a lesson by its ID.")]
+        //public async Task<IActionResult> Delete(string id)
+        //{
+        //    var (success, message) = await _service.Delete(id);
+        //    if (!success) return NotFound(message);
+        //    return Ok(new { Message = message });
+        //}
     }
 }

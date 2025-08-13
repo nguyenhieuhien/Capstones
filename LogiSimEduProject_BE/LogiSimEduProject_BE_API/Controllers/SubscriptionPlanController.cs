@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services.DTO.SubscriptionPlan;
 using Services.IServices;
@@ -17,6 +18,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+
         [HttpGet("get_all")]
         [SwaggerOperation(Summary = "Get all subscription plans", Description = "Retrieve all subscription plans")]
         public async Task<IActionResult> GetAll()
@@ -33,7 +35,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return plan != null ? Ok(plan) : NotFound($"Subscription plan with ID {id} not found.");
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create a new subscription plan", Description = "Add a new subscription plan")]
         public async Task<IActionResult> Create([FromBody] SubscriptionPlanDTOCreate request)
@@ -54,7 +56,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { message, data = plan }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("update/{id}")]
         [SwaggerOperation(Summary = "Update a subscription plan", Description = "Update properties of a subscription plan")]
         public async Task<IActionResult> Update(Guid id, [FromBody] SubscriptionPlanDTOUpdate request)
@@ -75,7 +77,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { message, data = existing }) : BadRequest(message);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id}")]
         [SwaggerOperation(Summary = "Delete a subscription plan", Description = "Soft delete a subscription plan by ID")]
         public async Task<IActionResult> Delete(Guid id)
