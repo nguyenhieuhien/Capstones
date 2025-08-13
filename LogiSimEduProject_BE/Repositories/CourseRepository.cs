@@ -29,12 +29,21 @@ namespace Repositories
             return courses;
         }
 
+
         public async Task<List<Course>> Search(string name, string description)
         {
             var courses = await _context.Courses.Include(t => t.CourseName).Include(t => t.Description).Where(tq =>
             (tq.CourseName.Contains(name) || string.IsNullOrEmpty(name)
             && (tq.Description.Contains(description)) || string.IsNullOrEmpty(description)
             )).ToListAsync();
+
+            return courses;
+        }
+        public async Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId)
+        {
+            var courses = await _context.Courses
+                .Where(c => c.WorkSpaceId == workspaceId && c.IsActive == true)
+                .ToListAsync();
 
             return courses;
         }

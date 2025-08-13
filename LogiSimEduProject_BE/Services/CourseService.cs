@@ -32,6 +32,11 @@ namespace Services
             return await _repository.GetAllByOrgId(orgId);
         }
 
+        public async Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId)
+        {
+            return await _repository.GetAllByWorkspaceId(workspaceId) ?? new List<Course>();
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(Course course)
         {
             if (course == null || string.IsNullOrWhiteSpace(course.CourseName))

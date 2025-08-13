@@ -17,6 +17,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
+
         [HttpGet("get_all_accountOfWorkSpace")]
         [SwaggerOperation(Summary = "Get all account-workspace relations", Description = "Retrieve all records of accounts assigned to workspaces")]
         public async Task<IActionResult> GetAll()

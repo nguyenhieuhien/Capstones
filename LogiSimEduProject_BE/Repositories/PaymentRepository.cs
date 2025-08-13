@@ -44,6 +44,20 @@ namespace Repositories
                 Console.WriteLine($"Failed to update payment for orderCode: {payment.OrderCode}");
             }
         }
+        public async Task<IEnumerable<Payment>> GetAll()
+        {
+            return await _context.Payments
+                .AsNoTracking()
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
+
+        public Task<Payment?> GetById(Guid id)
+        {
+            return _context.Payments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
 
     }
 }
