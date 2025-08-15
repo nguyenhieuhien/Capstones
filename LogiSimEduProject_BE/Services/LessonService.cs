@@ -1,4 +1,5 @@
-﻿using Google.Apis.Storage.v1.Data;
+﻿using CloudinaryDotNet;
+using Google.Apis.Storage.v1.Data;
 using Microsoft.AspNetCore.Identity;
 using Repositories;
 using Repositories.Models;
@@ -96,27 +97,12 @@ namespace Services
 
         public async Task<(bool Success, string Message)> Update(Lesson request)
         {
-            try
-            {
-                var lesson = new Lesson
-                {
-                    LessonName = request.LessonName,
-                    OrderIndex = request.OrderIndex,
-                    Description = request.Description,
-                    Title = request.Title,
-                    Status = request.Status,
-                    IsActive = true,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                var result = await _repository.UpdateAsync(lesson);
-                if (result > 0)
-                    return (true, "Lesson updated successfully");
-                return (false, "Failed to update lesson");
-            }
-            catch (Exception ex)
-            {
-                return (false, ex.Message);
-            }
+            if (request == null || request.Id == Guid.Empty || string.IsNullOrWhiteSpace(request.LessonName))
+                return (false, "Invalid update data");
+
+            request.UpdatedAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(request);
+            return result > 0 ? (true, "Updated successfully") : (false, "Update failed");
         }
     }
 }

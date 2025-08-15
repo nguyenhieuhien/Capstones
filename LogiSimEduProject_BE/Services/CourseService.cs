@@ -32,6 +32,19 @@ namespace Services
             return await _repository.GetAllByOrgId(orgId);
         }
 
+        public async Task<string?> GetInstructorFullNameAsync(Guid courseId)
+        {
+            var fullName = await _repository.GetInstructorFullNameByCourseIdAsync(courseId);
+
+            if (string.IsNullOrEmpty(fullName))
+            {
+                // Nếu muốn 404 thì throw, nếu không thì return null
+                throw new KeyNotFoundException("Instructor not found for the given CourseId");
+            }
+
+            return fullName;
+        }
+
         public async Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId)
         {
             return await _repository.GetAllByWorkspaceId(workspaceId) ?? new List<Course>();

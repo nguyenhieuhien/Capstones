@@ -12,6 +12,7 @@ namespace Services.IServices
         Task<List<Course>> GetAll();
         Task<Course?> GetById(string id);
         Task<List<Course>> GetAllByOrgId(Guid orgId);
+        Task<string?> GetInstructorFullNameAsync(Guid courseId);
         Task<(bool Success, string Message, Guid? Id)> Create(Course course);
         Task<(bool Success, string Message)> Update(Course course);
         Task<(bool Success, string Message)> Delete(string id);
