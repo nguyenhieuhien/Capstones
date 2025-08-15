@@ -3,6 +3,7 @@ using CloudinaryDotNet.Actions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Repositories.Models;
 using Services;
 using Services.DTO.Course;
@@ -85,6 +86,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 CategoryId = dto.CategoryId,
                 WorkSpaceId = dto.WorkSpaceId,
+                InstructorId = dto.InstructorId,
                 CourseName = dto.CourseName,
                 Description = dto.Description,
                 RatingAverage = dto.RatingAverage,
@@ -127,6 +129,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             existing.CategoryId = dto.CategoryId;
             existing.WorkSpaceId = dto.WorkSpaceId;
+            existing.InstructorId = dto.InstructorId;
             existing.CourseName = dto.CourseName;
             existing.Description = dto.Description;
             existing.RatingAverage = dto.RatingAverage;

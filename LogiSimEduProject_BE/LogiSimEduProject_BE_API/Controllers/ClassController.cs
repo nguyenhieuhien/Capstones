@@ -77,6 +77,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var newClass = new Class
             {
                 CourseId = request.CourseId,
+                InstructorId = request.InstructorId,
                 ClassName = request.ClassName,
                 NumberOfStudent = request.NumberOfStudent
             };
@@ -98,6 +99,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound("Class not found");
 
             existingClass.CourseId = request.CourseId;
+            existingClass.InstructorId = request.InstructorId;
             existingClass.ClassName = request.ClassName;
             existingClass.NumberOfStudent = request.NumberOfStudent;
 

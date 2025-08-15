@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Repositories.Models;
 using Services.DTO.Account;
 
@@ -32,6 +33,8 @@ namespace Services.IServices
         Task<(bool Success, string Message)> RegisterOrganizationAdminAccountAsync(AccountDTOCreateOg dto);
         Task<(bool Success, string Message)> RegisterInstructorAccountAsync(AccountDTOCreate dto);
         Task<(bool Success, string Message)> RegisterStudentAccountAsync(AccountDTOCreate dto);
+        Task<(int SuccessCount, List<string> Errors)> ImportInstructorAccountsAsync(IFormFile excelFile, Guid organizationId);
+        Task<(int SuccessCount, List<string> Errors)> ImportStudentAccountsAsync(IFormFile excelFile, Guid organizationId);
 
         // Search
         Task<List<Account>> Search(string username, string fullname, string email, string phone);

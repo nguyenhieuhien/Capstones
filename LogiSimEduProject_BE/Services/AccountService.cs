@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -6,9 +7,13 @@ using Repositories;
 using Repositories.Models;
 using Services.DTO.Account;
 using Services.IServices;
+using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
+using OfficeOpenXml;
+using QuestPDF.Infrastructure;
 
 namespace Services
 {
@@ -227,15 +232,103 @@ namespace Services
 
             // 3) Gửi email kèm mật khẩu
             var emailBody = $@"
-<p>Chào {account.FullName},</p>
-<p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
-<p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
-<p><strong>Mật khẩu:</strong> {dto.Password}</p>
-<p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+                <p>Chào {account.FullName},</p>
+                <p>Bạn đã được thêm vào tổ chức với vai trò <strong>Student</strong> trên hệ thống LogiSimEdu.</p>
+                <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+                <p><strong>Mật khẩu:</strong> {dto.Password}</p>
+                <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản Học viên - LogiSimEdu", emailBody);
 
             return (true, "Tài khoản Student đã được tạo và gửi email thành công.");
+        }
+
+        public async Task<(int SuccessCount, List<string> Errors)> ImportInstructorAccountsAsync(IFormFile excelFile, Guid organizationId)
+        {
+            return await ImportAccountsFromExcelAsync(excelFile, 3, "Instructor", organizationId);
+        }
+
+        public async Task<(int SuccessCount, List<string> Errors)> ImportStudentAccountsAsync(IFormFile excelFile, Guid organizationId)
+        {
+            return await ImportAccountsFromExcelAsync(excelFile, 4, "Student", organizationId);
+        }
+
+        private async Task<(int SuccessCount, List<string> Errors)> ImportAccountsFromExcelAsync(IFormFile excelFile, int roleId, string roleName, Guid organizationId)
+        {
+
+            var errors = new List<string>();
+            int successCount = 0;
+
+            using var stream = new MemoryStream();
+            await excelFile.CopyToAsync(stream);
+            using var package = new ExcelPackage(stream);
+
+            var worksheet = package.Workbook.Worksheets.First();
+            int rowCount = worksheet.Dimension.Rows;
+
+            var org = await _organizationRepository.GetByIdAsync(organizationId);
+            if (org == null)
+                return (0, new List<string> { "Organization không tồn tại." });
+
+            if (org.IsActive != true)
+                return (0, new List<string> { "Organization chưa được kích hoạt, vui lòng thanh toán." });
+
+            for (int row = 2; row <= rowCount; row++)
+            {
+                try
+                {
+                    var fullName = worksheet.Cells[row, 1].Text;
+                    var userName = worksheet.Cells[row, 2].Text;
+                    var email = worksheet.Cells[row, 3].Text;
+                    var password = worksheet.Cells[row, 4].Text;
+
+                    if (await _accountRepository.GetByEmailAsync(email) is not null)
+                    {
+                        errors.Add($"Row {row}: Email {email} đã tồn tại");
+                        continue;
+                    }
+
+                    var account = new Account
+                    {
+                        Id = Guid.NewGuid(),
+                        OrganizationId = organizationId,
+                        FullName = fullName,
+                        UserName = userName,
+                        Email = email,
+                        RoleId = roleId,
+                        IsActive = true,
+                        IsEmailVerify = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    var hasher = new PasswordHasher<Account>();
+                    account.Password = hasher.HashPassword(account, password);
+
+                    var result = await _accountRepository.CreateAsync(account);
+                    if (result > 0)
+                    {
+                        successCount++;
+                        var emailBody = $@"
+                        <p>Chào {account.FullName},</p>
+                        <p>Bạn đã được thêm vào tổ chức với vai trò <strong>{roleName}</strong> trên hệ thống LogiSimEdu.</p>
+                        <p><strong>Tên đăng nhập:</strong> {account.UserName}</p>
+                        <p><strong>Mật khẩu:</strong> {password}</p>
+                        <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu để đảm bảo an toàn.</p>";
+
+                        await _emailService.SendEmailAsync(account.Email, $"Tài khoản {roleName} - LogiSimEdu", emailBody);
+                    }
+                    else
+                    {
+                        errors.Add($"Row {row}: Lỗi khi lưu account");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Row {row}: {ex.Message}");
+                }
+            }
+
+            return (successCount, errors);
         }
 
 
