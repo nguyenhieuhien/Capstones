@@ -113,7 +113,7 @@ public partial class LogiSimEduContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07F71AC661");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07620559AE");
 
             entity.ToTable("Account");
 
@@ -152,7 +152,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<AccountOfCourse>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07613224B6");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC0780DCAF9D");
 
             entity.ToTable("AccountOfCourse");
 
@@ -186,7 +186,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<AccountOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC0779356749");
+            entity.HasKey(e => e.Id).HasName("PK__AccountO__3214EC07F5238297");
 
             entity.ToTable("AccountOfWorkSpace");
 
@@ -212,7 +212,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07C5672F69");
+            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07AC41EC4A");
 
             entity.ToTable("Answer");
 
@@ -235,7 +235,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC076598211E");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07A73212AA");
 
             entity.ToTable("Category");
 
@@ -254,7 +254,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC079896FF96");
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC07E8290A44");
 
             entity.ToTable("Certificate");
 
@@ -288,7 +288,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<CertificateTemplete>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC077403B738");
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC07263FCF17");
 
             entity.ToTable("CertificateTemplete");
 
@@ -318,7 +318,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<ChatHistory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ChatHist__3214EC07B20CFB79");
+            entity.HasKey(e => e.Id).HasName("PK__ChatHist__3214EC07E58A6B08");
 
             entity.Property(e => e.Role).HasMaxLength(10);
             entity.Property(e => e.Timestamp).HasColumnType("datetime");
@@ -327,7 +327,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Class>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07780D46F4");
+            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC0733C187D7");
 
             entity.ToTable("Class");
 
@@ -355,7 +355,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC07F60A00BB");
+            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC07C9B4439C");
 
             entity.ToTable("Course");
 
@@ -390,7 +390,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<CourseProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC072A4368A1");
+            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC07D69F6129");
 
             entity.ToTable("CourseProgress");
 
@@ -420,7 +420,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<CourseProgressStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC0758ACF70D");
+            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC077FC80C8B");
 
             entity.ToTable("CourseProgressStatus");
 
@@ -430,7 +430,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<EnrollmentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07D1F3BD7C");
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC079A195241");
 
             entity.ToTable("EnrollmentStatus");
 
@@ -442,7 +442,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<GenderType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__GenderTy__3214EC0718E533AD");
+            entity.HasKey(e => e.Id).HasName("PK__GenderTy__3214EC0741B703C3");
 
             entity.ToTable("GenderType");
 
@@ -454,7 +454,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lesson__3214EC07B5BFA951");
+            entity.HasKey(e => e.Id).HasName("PK__Lesson__3214EC073077399C");
 
             entity.ToTable("Lesson");
 
@@ -465,7 +465,6 @@ public partial class LogiSimEduContext : DbContext
             entity.Property(e => e.DeleteAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Delete_At");
-            entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.LessonName).HasMaxLength(100);
             entity.Property(e => e.Title).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt)
@@ -487,7 +486,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<LessonProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC07D371553E");
+            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC07BA2D7306");
 
             entity.ToTable("LessonProgress");
 
@@ -517,7 +516,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<LessonProgressStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC073A622DD6");
+            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC077FEBFF90");
 
             entity.ToTable("LessonProgressStatus");
 
@@ -527,7 +526,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<LessonStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonSt__3214EC07A7CCD73C");
+            entity.HasKey(e => e.Id).HasName("PK__LessonSt__3214EC07655119AB");
 
             entity.ToTable("LessonStatus");
 
@@ -539,7 +538,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<LessonSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonSu__3214EC071FC55D64");
+            entity.HasKey(e => e.Id).HasName("PK__LessonSu__3214EC07E313BBB4");
 
             entity.ToTable("LessonSubmission");
 
@@ -571,7 +570,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC079DF1A62C");
+            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC07ADA28728");
 
             entity.ToTable("Notification");
 
@@ -595,7 +594,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC0721451512");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC076CA36824");
 
             entity.ToTable("Order");
 
@@ -632,7 +631,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<OrderStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC0786DBE0C2");
+            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC07FF79D585");
 
             entity.ToTable("OrderStatus");
 
@@ -642,7 +641,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Organization>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC070B6B7339");
+            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC07BE2F2280");
 
             entity.ToTable("Organization");
 
@@ -665,7 +664,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC073D821E23");
+            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC07E54A13E4");
 
             entity.ToTable("Payment");
 
@@ -685,7 +684,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<PaymentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC07FA3621CC");
+            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC074C0586BB");
 
             entity.ToTable("PaymentStatus");
 
@@ -695,7 +694,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07FA8F4D51");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07A1FE3769");
 
             entity.ToTable("Question");
 
@@ -722,7 +721,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<QuestionSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC0712A005FF");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC072E755DF9");
 
             entity.ToTable("QuestionSubmission");
 
@@ -752,7 +751,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<QuestionType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC077B9EAA2B");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07CDFF8849");
 
             entity.ToTable("QuestionType");
 
@@ -762,7 +761,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC07A0AD59DF");
+            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC079755F3A1");
 
             entity.ToTable("Quiz");
 
@@ -789,7 +788,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<QuizStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizStat__3214EC070117E816");
+            entity.HasKey(e => e.Id).HasName("PK__QuizStat__3214EC073EA38CB2");
 
             entity.ToTable("QuizStatus");
 
@@ -799,7 +798,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<QuizSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07B3A2BF35");
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07E34E7B70");
 
             entity.ToTable("QuizSubmission");
 
@@ -826,7 +825,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC074CD1A705");
+            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC077F1779EA");
 
             entity.ToTable("Review");
 
@@ -853,7 +852,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07D0C5632B");
+            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07127D6E27");
 
             entity.ToTable("Role");
 
@@ -863,7 +862,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Scenario>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC076B584855");
+            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC07BB6E3506");
 
             entity.ToTable("Scenario");
 
@@ -890,7 +889,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Scene>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC078E691EAF");
+            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC074ABCEAA4");
 
             entity.ToTable("Scene");
 
@@ -910,7 +909,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<SceneOfWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC07A4F3D26E");
+            entity.HasKey(e => e.Id).HasName("PK__SceneOfW__3214EC070C76C3BC");
 
             entity.ToTable("SceneOfWorkSpace");
 
@@ -936,7 +935,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<SubscriptionPlan>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Subscrip__3214EC0723D4B145");
+            entity.HasKey(e => e.Id).HasName("PK__Subscrip__3214EC07AB74A81B");
 
             entity.ToTable("SubscriptionPlan");
 
@@ -955,7 +954,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Topic>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC07EE860AF0");
+            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC07DDB53643");
 
             entity.ToTable("Topic");
 
@@ -982,7 +981,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<WorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC0753161EDA");
+            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC071C1B7CBD");
 
             entity.ToTable("WorkSpace");
 

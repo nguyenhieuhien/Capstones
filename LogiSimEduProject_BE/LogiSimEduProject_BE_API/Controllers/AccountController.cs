@@ -85,7 +85,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
 
-        [Authorize(Roles = "Organization_Admin")]
+        //[Authorize(Roles = "Organization_Admin")]
         [HttpPost("register-student-account")]
         public async Task<IActionResult> RegisterStudent([FromBody] AccountDTOCreate request)
         {
@@ -93,6 +93,23 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(message) : BadRequest(message);
         }
 
+        [HttpPost("import-instructors/{organizationId}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ImportInstructors(Guid organizationId, IFormFile file)
+        {
+            if (file is null || file.Length == 0) return BadRequest("Vui lòng upload file Excel");
+            var (ok, errs) = await _accountService.ImportInstructorAccountsAsync(file, organizationId);
+            return Ok(new { SuccessCount = ok, Errors = errs });
+        }
+
+        [HttpPost("import-students/{organizationId}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ImportStudents(Guid organizationId, IFormFile file)
+        {
+            if (file is null || file.Length == 0) return BadRequest("Vui lòng upload file Excel");
+            var (ok, errs) = await _accountService.ImportStudentAccountsAsync(file, organizationId);
+            return Ok(new { SuccessCount = ok, Errors = errs });
+        }
 
         [HttpPost("verify_email")]
         public async Task<IActionResult> VerifyEmailOtp([FromBody] string otp)

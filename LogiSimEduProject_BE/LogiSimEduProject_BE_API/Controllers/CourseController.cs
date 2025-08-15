@@ -3,6 +3,7 @@ using CloudinaryDotNet.Actions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Repositories.Models;
 using Services;
 using Services.DTO.Course;
@@ -43,7 +44,19 @@ namespace LogiSimEduProject_BE_API.Controllers
             return course != null ? Ok(course) : NotFound("Course not found.");
         }
 
-
+        [HttpGet("{courseId}/instructor-name")]
+        public async Task<IActionResult> GetInstructorName(Guid courseId)
+        {
+            try
+            {
+                var name = await _courseService.GetInstructorFullNameAsync(courseId);
+                return Ok(name);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
 
 
         //[Authorize(Roles = "Student,Instructor")]
@@ -85,6 +98,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             {
                 CategoryId = dto.CategoryId,
                 WorkSpaceId = dto.WorkSpaceId,
+                InstructorId = dto.InstructorId,
                 CourseName = dto.CourseName,
                 Description = dto.Description,
                 RatingAverage = dto.RatingAverage,
@@ -95,7 +109,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { Message = message, CourseId = id }) : BadRequest(message);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update/{id}")]
         [SwaggerOperation(Summary = "Update course", Description = "Update an existing course.")]
         public async Task<IActionResult> Update(string id, [FromForm] CourseDTOUpdate dto)
@@ -127,6 +141,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             existing.CategoryId = dto.CategoryId;
             existing.WorkSpaceId = dto.WorkSpaceId;
+            existing.InstructorId = dto.InstructorId;
             existing.CourseName = dto.CourseName;
             existing.Description = dto.Description;
             existing.RatingAverage = dto.RatingAverage;
@@ -136,7 +151,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { Message = message }) : BadRequest(message);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete/{id}")]
         [SwaggerOperation(Summary = "Delete course", Description = "Delete a course by ID.")]
         public async Task<IActionResult> Delete(string id)
