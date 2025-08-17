@@ -26,6 +26,7 @@ namespace Services
         private readonly CourseProgressRepository _courseProgressRepo;
         private readonly CertificateRepository _certificateRepo;
         private readonly CertificateTemplateRepository _templateRepo;
+        private readonly QuizSubmissionRepository _submissionRepo;
         private readonly CloudinaryDotNet.Cloudinary _cloudinary;
         private readonly IPdfService _pdfService;
         private readonly LogiSimEduContext _dbContext;
@@ -36,6 +37,7 @@ namespace Services
                CourseProgressRepository courseProgressRepo,
                CertificateRepository certificateRepo,
                CertificateTemplateRepository templateRepo,
+               QuizSubmissionRepository quizSubmissionRepo,
                CloudinaryDotNet.Cloudinary cloudinary,
                IPdfService pdfService,
                LogiSimEduContext dbContext)
@@ -46,6 +48,7 @@ namespace Services
             _courseProgressRepo = courseProgressRepo;
             _certificateRepo = certificateRepo;
             _templateRepo = templateRepo;
+            _submissionRepo = quizSubmissionRepo;
             _cloudinary = cloudinary;
             _pdfService = pdfService;
             _dbContext = dbContext;
@@ -75,17 +78,38 @@ namespace Services
             }
         }
 
-        public async Task<(bool Success, string Message, CertificateDTO? Certificate)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId)
+        public async Task<(bool Success, string Message, CertificateDTO? Certificate, Lesson? NextLesson)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId)
         {
             try
             {
+                var lesson = await _lessonRepo.GetByIdAsync(lessonId);
+                if (lesson == null)
+                    return (false, "Lesson not found.", null, null);
+
+                var quiz = lesson.Quizzes.FirstOrDefault(q => q.IsActive == true);
+                if (quiz != null)
+                {
+                    var submission = await _submissionRepo.GetLatestByAccountAndQuiz(accountId, quiz.Id);
+                    if (submission == null)
+                        return (false, "You must complete the quiz before finishing this lesson.", null, null);
+
+                    if (submission.TotalScore < 5) // passing score = 5/10
+                        return (false, "You must pass the quiz to complete this lesson.", null, null);
+                }
+
                 var progress = await _repository.GetByAccountAndLesson(accountId, lessonId);
                 if (progress == null)
-                    return (false, "LessonProgress not found.", null);
+                    return (false, "LessonProgress not found.", null, null);
 
-                progress.Status = 2;
+                if (progress.Status == 2)
+                    return (false, "Lesson already completed.", null, null);
+
+                progress.Status = 2; // Completed
                 progress.UpdatedAt = DateTime.UtcNow;
                 var result = await _repository.UpdateAsync(progress);
+
+                if (result <= 0)
+                    return (false, "Failed to update lesson progress.", null, null);
 
                 CertificateDTO? certificate = null;
 
@@ -94,13 +118,13 @@ namespace Services
                     certificate = await UpdateCourseProgressAndCertificate(progress.AccountId.Value, progress.LessonId.Value);
                 }
 
-                return result > 0
-                    ? (true, "Lesson progress updated and course progress refreshed", certificate)
-                    : (false, "Failed to update lesson progress", null);
+                var nextLesson = await GetNextLessonAsync(lessonId);
+
+                return (true, "Lesson progress updated.", certificate, nextLesson);
             }
             catch (Exception ex)
             {
-                return (false, ex.Message, null);
+                return (false, ex.Message, null, null);
             }
         }
 
@@ -210,6 +234,26 @@ namespace Services
                 };
             }
             return null;
+        }
+
+        private async Task<Lesson?> GetNextLessonAsync(Guid currentLessonId)
+        {
+            var currentLesson = await _lessonRepo.GetByIdAsync(currentLessonId);
+            if (currentLesson == null || currentLesson.TopicId == null) return null;
+
+            var currentTopic = await _topicRepo.GetByIdAsync(currentLesson.TopicId.Value);
+            if (currentTopic == null || currentTopic.CourseId == null) return null;
+
+            // 1. next lesson in same topic
+            var nextLesson = await _lessonRepo.GetByTopicAndOrderIndexAsync(currentTopic.Id, currentLesson.OrderIndex + 1);
+            if (nextLesson != null) return nextLesson;
+
+            // 2. next topic
+            var nextTopic = await _topicRepo.GetByCourseAndOrderIndexAsync(currentTopic.CourseId.Value, currentTopic.OrderIndex + 1);
+            if (nextTopic == null) return null;
+
+            // 3. first lesson of next topic
+            return await _lessonRepo.GetByTopicAndOrderIndexAsync(nextTopic.Id, 1);
         }
 
         public async Task<(bool Success, string Message)> Delete(string id)

@@ -38,6 +38,13 @@ namespace Repositories
         }
 
 
+        public async Task<Course?> GetCourseByIdAsync(Guid Id)
+        {
+            return await _context.Courses
+        .Include(c => c.Instructor)   // load luôn Instructor
+        .FirstOrDefaultAsync(c => c.Id == Id && c.IsActive == true);
+        }
+
         public async Task<List<Course>> Search(string name, string description)
         {
             var courses = await _context.Courses.Include(t => t.CourseName).Include(t => t.Description).Where(tq =>

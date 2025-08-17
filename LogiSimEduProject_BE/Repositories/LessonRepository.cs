@@ -26,6 +26,13 @@ namespace Repositories
                 .ToListAsync();
         }
 
+        public async Task<Lesson?> GetByTopicAndOrderIndexAsync(Guid topicId, int orderIndex)
+        {
+            return await _context.Lessons
+                .Include(l => l.Topic)
+                .FirstOrDefaultAsync(l => l.TopicId == topicId && l.OrderIndex == orderIndex && l.IsActive == true);
+        }
+
         public async Task<List<Lesson>> GetLessonsByCourseId(Guid courseId)
         {
             return await _context.Lessons

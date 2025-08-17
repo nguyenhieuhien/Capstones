@@ -1,4 +1,5 @@
-﻿using Repositories.Base;
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories.Base;
 using Repositories.Models;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,15 @@ namespace Repositories
     public class QuizSubmissionRepository : GenericRepository<QuizSubmission>
     {
         public QuizSubmissionRepository() { }
+
+        public async Task<QuizSubmission?> GetLatestByAccountAndQuiz(Guid accountId, Guid quizId)
+        {
+            return await _context.QuizSubmissions
+                    .Where(s => s.AccountId == accountId
+                    && s.QuizId == quizId
+                    && s.IsActive == true)
+                    .OrderByDescending(s => s.CreatedAt)
+                    .FirstOrDefaultAsync();
+        }
     }
 }
