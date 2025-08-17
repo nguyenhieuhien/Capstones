@@ -26,5 +26,11 @@ namespace Repositories
                 .Where(t => t.CourseId == courseId && t.IsActive == true)
                 .ToListAsync();
         }
+
+        public async Task<Topic?> GetByCourseAndOrderIndexAsync(Guid courseId, int orderIndex)
+        {
+            return await _context.Topics
+                .FirstOrDefaultAsync(t => t.CourseId == courseId && t.OrderIndex == orderIndex && t.IsActive == true);
+        }
     }
 }

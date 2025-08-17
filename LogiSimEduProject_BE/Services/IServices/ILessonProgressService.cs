@@ -13,7 +13,7 @@ namespace Services.IServices
         Task<List<LessonProgress>> GetAll();
         Task<LessonProgress?> GetById(string id);
         Task<(bool Success, string Message, Guid? Id)> Create(LessonProgress lessonProgress);
-        Task<(bool Success, string Message, CertificateDTO? Certificate)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId);
+        Task<(bool Success, string Message, CertificateDTO? Certificate, Lesson? NextLesson)> UpdateLessonProgressAsync(Guid accountId, Guid lessonId);
         Task<(bool Success, string Message)> Update(LessonProgress lessonProgress);
         Task<(bool Success, string Message)> Delete(string id);
     }

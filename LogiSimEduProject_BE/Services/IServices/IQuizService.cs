@@ -14,6 +14,7 @@ namespace Services.IServices
         Task<List<Quiz>> GetAll();
         Task<Quiz?> GetById(string id);
         Task<List<QuestionWithAnswersDTO>> GetQuestionsWithAnswersByQuizId(Guid quizId);
+        Task<List<Quiz>> GetByLessonId(Guid lessonId);
         Task<(bool Success, string Message, Guid? Id)> Create(Quiz quiz);
         Task<(bool Success, string Message)> CreateFullQuiz(Quiz dto);
         Task<List<QuizReviewDTO>> GetQuizReview(Guid accountId, Guid quizId);

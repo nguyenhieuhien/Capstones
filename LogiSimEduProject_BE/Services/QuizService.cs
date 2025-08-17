@@ -55,6 +55,11 @@ namespace Services
             return result;
         }
 
+        public async Task<List<Quiz>> GetByLessonId(Guid lessonId)
+        {
+            return await _repository.GetQuizByLessonId(lessonId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(Quiz quiz)
         {
             try

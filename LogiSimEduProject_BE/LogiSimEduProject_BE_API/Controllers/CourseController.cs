@@ -38,7 +38,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_by_id/{id}")]
         [SwaggerOperation(Summary = "Get course by ID", Description = "Retrieve a course by ID.")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             var course = await _courseService.GetById(id);
             return course != null ? Ok(course) : NotFound("Course not found.");
@@ -112,7 +112,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         //[Authorize(Roles = "Instructor")]
         [HttpPut("update/{id}")]
         [SwaggerOperation(Summary = "Update course", Description = "Update an existing course.")]
-        public async Task<IActionResult> Update(string id, [FromForm] CourseDTOUpdate dto)
+        public async Task<IActionResult> Update(Guid id, [FromForm] CourseDTOUpdate dto)
         {
             var existing = await _courseService.GetById(id);
             if (existing == null)

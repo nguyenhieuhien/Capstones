@@ -36,5 +36,12 @@ namespace Repositories
                           && qs.IsActive == true)
                 .ToListAsync();
         }
+
+        public async Task<List<Quiz>> GetQuizByLessonId(Guid lessonId)
+        {
+            return await _context.Quizzes
+                .Where(q => q.LessonId == lessonId && q.IsActive == true)
+                .ToListAsync();
+        }
     }
 }

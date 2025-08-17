@@ -64,8 +64,28 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Update lesson progress", Description = "Update student's lesson progress and recalculate course progress.")]
         public async Task<IActionResult> UpdateLessonProgress([FromHeader] Guid accountId, [FromHeader] Guid lessonId)
         {
-            var (success, message, certificate) = await _service.UpdateLessonProgressAsync(accountId, lessonId);
-            return success ? Ok(new { Message = message, Certificate = certificate }) : BadRequest(new { Message = message });
+            var (success, message, certificate, nextLesson) = await _service.UpdateLessonProgressAsync(accountId, lessonId);
+
+            if (!success)
+                return BadRequest(new { Message = message });
+
+            return Ok(new
+            {
+                Message = message,
+                Certificate = certificate,
+                NextLesson = nextLesson == null ? null : new
+                {
+                    nextLesson.Id,
+                    nextLesson.LessonName,
+                    nextLesson.OrderIndex,
+                    Topic = new
+                    {
+                        nextLesson.Topic.Id,
+                        nextLesson.Topic.TopicName,
+                        nextLesson.Topic.OrderIndex
+                    }
+                }
+            });
         }
 
         [HttpPut("update_lesson/{id}")]
