@@ -23,6 +23,11 @@ namespace Services
             _questionRepo = new QuestionRepository();
         }
 
+        public async Task<List<QuizSubmission>> GetAllSubmissionByQuizId(Guid quizId)
+        {
+            return await _submissionRepo.GetByQuizIdAsync(quizId);
+        }
+
         public async Task<int> SubmitQuiz(Guid quizId, Guid accountId, List<(Guid questionId, Guid answerId)> answers)
         {
             var submission = new QuizSubmission
