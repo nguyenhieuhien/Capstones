@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Repositories.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Services.IServices
 {
     public interface IQuizSubmissionService
     {
+        Task<List<QuizSubmission>> GetAllSubmissionByQuizId(Guid quizId);
         Task<int> SubmitQuiz(Guid quizId, Guid accountId, List<(Guid questionId, Guid answerId)> answers);
     }
 }

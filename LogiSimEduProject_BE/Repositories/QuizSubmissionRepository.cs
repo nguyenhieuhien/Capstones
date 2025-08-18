@@ -22,5 +22,13 @@ namespace Repositories
                     .OrderByDescending(s => s.CreatedAt)
                     .FirstOrDefaultAsync();
         }
+
+        // Lấy tất cả QuizSubmission theo QuizId
+        public async Task<List<QuizSubmission>> GetByQuizIdAsync(Guid quizId)
+        {
+            return await _context.QuizSubmissions
+                .Where(qs => qs.QuizId == quizId && qs.IsActive == true)
+                .ToListAsync();
+        }
     }
 }
