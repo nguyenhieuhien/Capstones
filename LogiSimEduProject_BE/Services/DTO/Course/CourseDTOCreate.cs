@@ -9,6 +9,8 @@ namespace Services.DTO.Course
 
         public Guid WorkSpaceId { get; set; }
 
+        public Guid? InstructorId { get; set; }
+
         public string CourseName { get; set; }
 
         public string Description { get; set; }

@@ -79,7 +79,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message, Id = id });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_lesson/{id}")]
         [SwaggerOperation(Summary = "Update an existing lesson", Description = "Updates the title or description of a lesson.")]
         public async Task<IActionResult> Put(string id, [FromBody] LessonDTOUpdate request)
@@ -99,7 +99,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete_lesson/{id}")]
         [SwaggerOperation(Summary = "Delete a lesson", Description = "Deletes a lesson by its ID.")]
         public async Task<IActionResult> Delete(string id)

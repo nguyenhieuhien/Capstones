@@ -1,6 +1,7 @@
 ﻿// File: Services/ICourseService.cs
 using Repositories;
 using Repositories.Models;
+using Services.DTO.Course;
 using Services.IServices;
 
 namespace Services
@@ -21,15 +22,44 @@ namespace Services
             return await _repository.GetAll() ?? new List<Course>();
         }
 
-        public async Task<Course?> GetById(string id)
+        public async Task<CourseDTO?> GetById(Guid id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return null;
-            return await _repository.GetByIdAsync(id);
+            var course = await _repository.GetCourseByIdAsync(id);
+
+            if (course == null)
+                return null;
+
+            // Mapping sang DTO (có thể dùng AutoMapper hoặc thủ công)
+            return new CourseDTO
+            {
+                Id = course.Id,
+                CategoryId = course.CategoryId,
+                WorkSpaceId = course.WorkSpaceId,
+                InstructorId = course.InstructorId,
+                CourseName = course.CourseName,
+                Description = course.Description,
+                RatingAverage = course.RatingAverage,
+                ImgUrl = course.ImgUrl,
+                InstructorFullName = course.Instructor.FullName // <-- thay vì Id
+            };
         }
 
         public async Task<List<Course>> GetAllByOrgId(Guid orgId)
         {
             return await _repository.GetAllByOrgId(orgId);
+        }
+
+        public async Task<string?> GetInstructorFullNameAsync(Guid courseId)
+        {
+            var fullName = await _repository.GetInstructorFullNameByCourseIdAsync(courseId);
+
+            if (string.IsNullOrEmpty(fullName))
+            {
+                // Nếu muốn 404 thì throw, nếu không thì return null
+                throw new KeyNotFoundException("Instructor not found for the given CourseId");
+            }
+
+            return fullName;
         }
 
         public async Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId)
@@ -52,12 +82,21 @@ namespace Services
                 : (false, "Failed to create course", null);
         }
 
-        public async Task<(bool Success, string Message)> Update(Course course)
+        public async Task<(bool Success, string Message)> Update(CourseDTO dto)
         {
-            if (course == null || course.Id == Guid.Empty || string.IsNullOrWhiteSpace(course.CourseName))
-                return (false, "Invalid update data");
+            var course = await _repository.GetCourseByIdAsync(dto.Id);
+            if (course == null)
+                return (false, "Course not found");
 
+            course.CourseName = dto.CourseName;
+            course.Description = dto.Description;
+            course.RatingAverage = dto.RatingAverage;
+            course.CategoryId = dto.CategoryId;
+            course.WorkSpaceId = dto.WorkSpaceId;
+            course.InstructorId = dto.InstructorId;
+            course.ImgUrl = dto.ImgUrl;
             course.UpdatedAt = DateTime.UtcNow;
+
             var result = await _repository.UpdateAsync(course);
             return result > 0 ? (true, "Updated successfully") : (false, "Update failed");
         }

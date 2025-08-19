@@ -231,7 +231,7 @@ CREATE TABLE Lesson (
     LessonName NVARCHAR(100),
 	OrderIndex INT NOT NULL DEFAULT 0,
     Title NVARCHAR(255),
-    Description NVARCHAR(255),
+    Description NVARCHAR(MAX),
     Status INT,
     IsActive BIT,
     Created_At DATETIME,

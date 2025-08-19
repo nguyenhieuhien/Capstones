@@ -46,6 +46,16 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("by-lesson/{lessonId}")]
+        public async Task<IActionResult> GetQuizByLessonId(Guid lessonId)
+        {
+            var quizzes = await _service.GetByLessonId(lessonId);
+            if (quizzes == null || !quizzes.Any())
+                return NotFound("No quiz found for this lesson.");
+
+            return Ok(quizzes);
+        }
+
 
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_quiz")]

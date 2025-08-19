@@ -17,13 +17,14 @@ using System.Text.Json.Serialization;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using QuestPDF.Infrastructure;
-
+using OfficeOpenXml;
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
 QuestPDF.Settings.License = LicenseType.Community;
+
 // -----------------------
 // 🔐 Firebase Initialization
 // -----------------------
@@ -69,6 +70,8 @@ builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+
+ExcelPackage.License.SetNonCommercialPersonal("Phan Canh Tuan");
 
 // Course & Learning Modules
 builder.Services.AddScoped<ICourseService, CourseService>();

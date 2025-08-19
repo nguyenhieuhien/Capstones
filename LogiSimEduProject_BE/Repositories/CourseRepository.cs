@@ -29,6 +29,21 @@ namespace Repositories
             return courses;
         }
 
+        public async Task<string?> GetInstructorFullNameByCourseIdAsync(Guid courseId)
+        {
+            return await _context.Courses
+                .Where(c => c.Id == courseId)
+                .Select(c => c.Instructor.FullName) // trả về string
+                .FirstOrDefaultAsync();
+        }
+
+
+        public async Task<Course?> GetCourseByIdAsync(Guid Id)
+        {
+            return await _context.Courses
+        .Include(c => c.Instructor)   // load luôn Instructor
+        .FirstOrDefaultAsync(c => c.Id == Id && c.IsActive == true);
+        }
 
         public async Task<List<Course>> Search(string name, string description)
         {

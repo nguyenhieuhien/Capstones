@@ -36,7 +36,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound("Category not found");
             return Ok(category);
         }
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create new category", Description = "Create a new category and return its ID.")]
         public async Task<IActionResult> Create([FromBody] CategoryCreateDTO dto)
