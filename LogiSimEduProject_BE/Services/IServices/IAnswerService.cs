@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<Answer>> GetAll();
         Task<Answer> GetById(string id);
+        Task<List<Answer>> GetAllAnswersByQuestionId(Guid questionId);
         Task<(bool Success, string Message)> Create(Answer answer);
         Task<(bool Success, string Message)> Update(Answer answer);
         Task<(bool Success, string Message)> Delete(string id);
