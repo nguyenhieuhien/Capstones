@@ -32,6 +32,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(submissions);
         }
 
+        [HttpGet("lesson/{lessonId}/quiz-submissions")]
+        public async Task<IActionResult> GetLessonQuizSubmissions(Guid lessonId)
+        {
+            var result = await _service.GetLessonQuizSubmissionsGroupedByClass(lessonId);
+
+            if (result == null || !result.Any())
+                return NotFound("No quiz submissions found for this lesson");
+
+            return Ok(result);
+        }
+
         //[Authorize(Roles = "Student")]
         [HttpPost("submit_quiz")]
         [SwaggerOperation(Summary = "Submit quiz answers", Description = "Student submits their answers to a quiz and receives score.")]

@@ -111,6 +111,24 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { SuccessCount = ok, Errors = errs });
         }
 
+        [HttpGet("students/{organizationId}")]
+        public async Task<IActionResult> ExportStudents(Guid organizationId)
+        {
+            var fileBytes = await _accountService.ExportStudentsToExcelAsync(organizationId);
+            return File(fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "students.xlsx");
+        }
+
+        [HttpGet("instructors/{organizationId}")]
+        public async Task<IActionResult> ExportInstructors(Guid organizationId)
+        {
+            var fileBytes = await _accountService.ExportInstructorsToExcelAsync(organizationId);
+            return File(fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "instructors.xlsx");
+        }
+
         [HttpPost("verify_email")]
         public async Task<IActionResult> VerifyEmailOtp([FromBody] string otp)
         {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Services.IServices;
+using Services.DTO.QuizSubmission;
 
 namespace Services
 {
@@ -26,6 +27,35 @@ namespace Services
         public async Task<List<QuizSubmission>> GetAllSubmissionByQuizId(Guid quizId)
         {
             return await _submissionRepo.GetByQuizIdAsync(quizId);
+        }
+
+        public async Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid lessonId)
+        {
+            var submissions = await _submissionRepo.GetLessonQuizSubmissions(lessonId);
+
+            var grouped = submissions
+                .GroupBy(qs =>
+                    qs.Account.AccountOfCourses
+                        .Where(aoc => aoc.CourseId == qs.Quiz.Lesson.Topic.CourseId)
+                        .Select(aoc => aoc.Class.ClassName)
+                        .FirstOrDefault()
+                )
+                .Select(g => new QuizResultByClassDto
+                {
+                    ClassName = g.Key,
+                    Students = g.Select(qs => new StudentQuizDTO
+                    {
+                        AccountId = qs.Account.Id,
+                        FullName = qs.Account.FullName, // giả sử có field này
+                        QuizId = qs.Quiz.Id,
+                        QuizName = qs.Quiz.QuizName,
+                        SubmitTime = qs.SubmitTime,
+                        TotalScore = qs.TotalScore
+                    }).Distinct().ToList()
+                })
+                .ToList();
+
+            return grouped;
         }
 
         public async Task<int> SubmitQuiz(Guid quizId, Guid accountId, List<(Guid questionId, Guid answerId)> answers)
