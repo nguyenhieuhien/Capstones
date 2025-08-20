@@ -19,5 +19,12 @@ namespace Repositories
 
             return answers;
         }
+        
+        public async Task<List<Answer>> GetAllAnswersByQuestionId(Guid questionId)
+        {
+            return await _context.Answers
+                .Where(a => a.QuestionId == questionId && a.IsActive == true)
+                .ToListAsync();
+        }
     }
 }
