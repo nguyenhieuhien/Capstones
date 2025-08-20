@@ -19,5 +19,6 @@ namespace Services.IServices
         Task<(bool Success, string Message)> Delete(string id);
         Task<List<Course>> Search(string name, string description);
         Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId);
+        Task<List<Course>> GetAllByCategoryId(Guid categoryId);
     }
 }

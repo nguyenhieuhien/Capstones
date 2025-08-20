@@ -58,6 +58,21 @@ namespace LogiSimEduProject_BE_API.Controllers
             }
         }
 
+        [HttpGet("get_all_course_by_workspace/{workspaceId}")]
+        [SwaggerOperation(Summary = "Get all courses by workspace ID", Description = "Retrieve all courses that belong to a specific workspace.")]
+        public async Task<IActionResult> GetAllCourseByWorkspaceId(Guid workspaceId)
+        {
+            var courses = await _courseService.GetAllByWorkspaceId(workspaceId);
+            return Ok(courses);
+        }
+
+        [HttpGet("get_all_course_by_category/{categoryId}")]
+        public async Task<IActionResult> GetByCategoryId(Guid categoryId)
+        {
+            var courses = await _courseService.GetAllByCategoryId(categoryId);
+            return Ok(courses);
+        }
+
 
         //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_all_by_org/{orgId}")]
@@ -159,13 +174,8 @@ namespace LogiSimEduProject_BE_API.Controllers
             var (success, message) = await _courseService.Delete(id);
             return success ? Ok(new { Message = message }) : NotFound(message);
         }
-        [Authorize(Roles = "Student,Instructor")]
-        [HttpGet("get_all_course_by_workspace/{workspaceId}")]
-        [SwaggerOperation(Summary = "Get all courses by workspace ID", Description = "Retrieve all courses that belong to a specific workspace.")]
-        public async Task<IActionResult> GetAllCourseByWorkspaceId(Guid workspaceId)
-        {
-            var courses = await _courseService.GetAllByWorkspaceId(workspaceId);
-            return Ok(courses);
-        }
+
+       
+      
     }
 }
