@@ -1,4 +1,5 @@
 ﻿using Repositories.Models;
+using Services.DTO.QuizSubmission;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Services.IServices
     public interface IQuizSubmissionService
     {
         Task<List<QuizSubmission>> GetAllSubmissionByQuizId(Guid quizId);
+        Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid lessonId);
         Task<int> SubmitQuiz(Guid quizId, Guid accountId, List<(Guid questionId, Guid answerId)> answers);
     }
 }

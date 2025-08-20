@@ -11,9 +11,13 @@ using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Drawing;
+
 
 using OfficeOpenXml;
 using QuestPDF.Infrastructure;
+using OfficeOpenXml.Style;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
@@ -331,6 +335,56 @@ namespace Services
             return (successCount, errors);
         }
 
+        public async Task<byte[]> ExportStudentsToExcelAsync(Guid organizationId)
+        {
+            var students = await _accountRepository.GetAccountsByRoleAsync(organizationId, "Student");
+            return GenerateExcelFile(students, "Students");
+        }
+
+        public async Task<byte[]> ExportInstructorsToExcelAsync(Guid organizationId)
+        {
+            var instructors = await _accountRepository.GetAccountsByRoleAsync(organizationId, "Instructor");
+            return GenerateExcelFile(instructors, "Instructors");
+        }
+
+        private byte[] GenerateExcelFile(List<Account> accounts, string sheetName)
+        {
+            using var package = new ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add(sheetName);
+
+            // Header
+            worksheet.Cells[1, 1].Value = "Id";
+            worksheet.Cells[1, 2].Value = "Full Name";
+            worksheet.Cells[1, 3].Value = "Email";
+            worksheet.Cells[1, 4].Value = "Role";
+            worksheet.Cells[1, 5].Value = "Phone";
+            worksheet.Cells[1, 6].Value = "Gender";
+            worksheet.Cells[1, 7].Value = "Address";
+
+            using (var range = worksheet.Cells[1, 1, 1, 7])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            }
+
+            // Data
+            for (int i = 0; i < accounts.Count; i++)
+            {
+                var acc = accounts[i];
+                worksheet.Cells[i + 2, 1].Value = acc.Id.ToString();
+                worksheet.Cells[i + 2, 2].Value = acc.FullName;
+                worksheet.Cells[i + 2, 3].Value = acc.Email;
+                worksheet.Cells[i + 2, 4].Value = acc.Role?.Name;
+                worksheet.Cells[i + 2, 5].Value = acc.Phone;
+                worksheet.Cells[i + 2, 6].Value = acc.GenderNavigation?.Name ?? "";
+                worksheet.Cells[i + 2, 7].Value = acc.Address;
+            }
+
+            worksheet.Cells.AutoFitColumns();
+            return package.GetAsByteArray();
+        }
 
         public string GenerateToken(Account account, IConfiguration config)
         {

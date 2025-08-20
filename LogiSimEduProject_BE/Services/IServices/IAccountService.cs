@@ -36,6 +36,9 @@ namespace Services.IServices
         Task<(int SuccessCount, List<string> Errors)> ImportInstructorAccountsAsync(IFormFile excelFile, Guid organizationId);
         Task<(int SuccessCount, List<string> Errors)> ImportStudentAccountsAsync(IFormFile excelFile, Guid organizationId);
 
+        Task<byte[]> ExportStudentsToExcelAsync(Guid organizationId);
+        Task<byte[]> ExportInstructorsToExcelAsync(Guid organizationId);
+
         // Search
         Task<List<Account>> Search(string username, string fullname, string email, string phone);
 
