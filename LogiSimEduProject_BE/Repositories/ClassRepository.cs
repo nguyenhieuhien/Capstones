@@ -29,6 +29,15 @@ namespace Repositories
             return classes;
         }
 
+        public async Task<List<Class>> GetClassByAccountAsync(Guid accountId)
+        {
+            var classes = await _context.Classes
+                .Where(a => a.IsActive == true && a.InstructorId == accountId)
+                .ToListAsync();
+
+            return classes;
+        }
+
         public async Task<Class?> GetClassByAccountAndCourseAsync(Guid accountId, Guid courseId)
         {
             var classEntity = await _context.AccountOfCourses
@@ -41,5 +50,7 @@ namespace Repositories
 
             return classEntity;
         }
+
+       
     }
 }

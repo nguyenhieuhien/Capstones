@@ -16,10 +16,14 @@ namespace Services
             _repository = repository;
         }
 
-        public async Task<List<Answer>> GetAll() => await _repository.GetAll();
+        public async Task<List<Answer>> GetAll() 
+            => await _repository.GetAll();
 
-        public async Task<Answer> GetById(string id) => await _repository.GetByIdAsync(id);
-
+        public async Task<Answer> GetById(string id) 
+            => await _repository.GetByIdAsync(id);
+       
+        public async Task<List<Answer>> GetAllAnswersByQuestionId(Guid questionId)
+            => await _repository.GetAllAnswersByQuestionId(questionId);
         public async Task<(bool Success, string Message)> Create(Answer answer)
         {
             answer.Id = Guid.NewGuid();

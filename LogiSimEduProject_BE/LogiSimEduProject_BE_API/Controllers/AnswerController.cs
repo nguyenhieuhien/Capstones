@@ -37,6 +37,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             return answer != null ? Ok(answer) : NotFound($"Answer with ID {id} not found.");
         }
 
+
+        [HttpGet("get_all_answer_by_question/{questionId:guid}")]
+        public async Task<ActionResult<List<Answer>>> GetAllAnswersByQuestionId(Guid questionId)
+        {
+            var answers = await _service.GetAllAnswersByQuestionId(questionId);
+            return Ok(answers);
+        }
+
+
         [Authorize(Roles = "Instructor")]
         [HttpPost("create_answer")]
         [SwaggerOperation(Summary = "Create a new answer", Description = "Add a new answer for a specific question")]

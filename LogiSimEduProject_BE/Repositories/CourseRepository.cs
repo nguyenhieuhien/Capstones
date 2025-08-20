@@ -54,12 +54,20 @@ namespace Repositories
 
             return courses;
         }
+
         public async Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId)
         {
             var courses = await _context.Courses
                 .Where(c => c.WorkSpaceId == workspaceId && c.IsActive == true)
                 .ToListAsync();
 
+            return courses;
+        }
+        public async Task<List<Course>> GetAllByCategoryId(Guid categoryId)
+        {
+            var courses = await _context.Courses
+                .Where(c => c.CategoryId == categoryId && c.IsActive == true)
+                .ToListAsync();
             return courses;
         }
     }

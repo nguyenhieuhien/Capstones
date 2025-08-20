@@ -62,9 +62,14 @@ namespace Services
             return fullName;
         }
 
+
         public async Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId)
         {
             return await _repository.GetAllByWorkspaceId(workspaceId) ?? new List<Course>();
+        }
+        public async Task<List<Course>> GetAllByCategoryId(Guid categoryId)
+        {
+            return await _repository.GetAllByCategoryId(categoryId) ?? new List<Course>();
         }
 
         public async Task<(bool Success, string Message, Guid? Id)> Create(Course course)
