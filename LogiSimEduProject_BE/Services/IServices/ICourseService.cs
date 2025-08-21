@@ -11,6 +11,8 @@ namespace Services.IServices
     public interface ICourseService
     {
         Task<List<Course>> GetAll();
+        Task<List<Course>> GetCoursesByInstructorId(Guid instructorId);
+        Task<List<Course>> GetCoursesByCategoryId(Guid categoryId);
         Task<CourseDTO?> GetById(Guid id);
         Task<List<Course>> GetAllByOrgId(Guid orgId);
         Task<string?> GetInstructorFullNameAsync(Guid courseId);

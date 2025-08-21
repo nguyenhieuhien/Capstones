@@ -35,6 +35,22 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(courses);
         }
 
+        [HttpGet("my_course/{instructorId}")]
+        [SwaggerOperation(Summary = "Get all courses by instructor", Description = "Retrieve all courses.")]
+        public async Task<IActionResult> GetCoursesByInstructor(Guid instructorId)
+        {
+            var courses = await _courseService.GetCoursesByInstructorId(instructorId);
+            return Ok(courses);
+        }
+
+        [HttpGet("courses/{categoryId}")]
+        [SwaggerOperation(Summary = "Get all courses by category", Description = "Retrieve all courses.")]
+        public async Task<IActionResult> GetCoursesByCategory(Guid categoryId)
+        {
+            var courses = await _courseService.GetCoursesByCategoryId(categoryId);
+            return Ok(courses);
+        }
+
         //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("get_by_id/{id}")]
         [SwaggerOperation(Summary = "Get course by ID", Description = "Retrieve a course by ID.")]
