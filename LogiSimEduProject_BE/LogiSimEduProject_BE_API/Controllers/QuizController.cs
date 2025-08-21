@@ -37,6 +37,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("get_full_quiz/{id}")]
+        [SwaggerOperation(Summary = "Get full quiz by ID", Description = "Returns full quiz details by quiz ID.")]
+        public async Task<IActionResult> GetFullQuiz(Guid id)
+        {
+            var result = await _service.GetFullQuizAsync(id);
+            if (result == null) return NotFound(new { Message = "Quiz not found." });
+            return Ok(result);
+        }
+
         //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("{quizId}/questions")]
         [SwaggerOperation(Summary = "Get all questions and answers in a quiz")]
@@ -98,6 +107,20 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             if (!success) return BadRequest(new { Message = message });
             return Ok(new { Message = message });
+        }
+
+        [HttpPut("update-full_quiz/{id}")]
+        public async Task<IActionResult> UpdateFullQuiz(Guid id, [FromBody] UpdateFullQuizDTO request)
+        {
+            var quiz = await _service.GetFullQuizAsync(id);
+            if (quiz == null) return NotFound(new { Message = "Quiz not found." });
+
+            var result = await _service.UpdateFullQuizAsync(id, request);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
         }
 
         //[Authorize(Roles = "Instructor,Student")]

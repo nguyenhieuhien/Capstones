@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Repositories;
 using Repositories.Models;
 using Services.IServices;
@@ -22,6 +23,8 @@ namespace Services
         }
 
         public async Task<List<Certificate>> GetAll() => await _repository.GetAll();
+
+        public async Task<List<Certificate>> GetCertificatesByAccountId(Guid accountId) => await _repository.GetByAccountIdAsync(accountId);
 
         public async Task<Certificate> GetById(string id) => await _repository.GetByIdAsync(id);
 

@@ -24,6 +24,14 @@ public class CertificateController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("my_certificates/{accountId}")]
+    //[SwaggerOperation(Summary = "Get all categories", Description = "Returns a list of all active categories.")]
+    public async Task<IActionResult> GetCertificatesByAccountId(Guid accountId)
+    {
+        var result = await _service.GetCertificatesByAccountId(accountId);
+        return Ok(result);
+    }
+
     [HttpGet("get/{id}")]
     //[SwaggerOperation(Summary = "Get category by ID", Description = "Retrieve a single category by its unique ID.")]
     public async Task<IActionResult> GetById(string id)

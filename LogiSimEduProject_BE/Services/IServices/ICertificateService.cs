@@ -11,6 +11,7 @@ namespace Services.IServices
     public interface ICertificateService
     {
         Task<List<Certificate>> GetAll();
+        Task<List<Certificate>> GetCertificatesByAccountId(Guid accountId);
         Task<Certificate?> GetById(string id);
         Task<Certificate?> GetCertificateByCourseAndAccAsync(Guid courseId, Guid accountId);
         Task<Certificate?> GetCertificateAsync(string id);
