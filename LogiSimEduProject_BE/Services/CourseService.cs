@@ -22,6 +22,16 @@ namespace Services
             return await _repository.GetAll() ?? new List<Course>();
         }
 
+        public async Task<List<Course>> GetCoursesByInstructorId(Guid instructorId)
+        {
+            return await _repository.GetCoursesByInstructorIdAsync(instructorId);
+        }
+
+        public async Task<List<Course>> GetCoursesByCategoryId(Guid categoryId)
+        {
+            return await _repository.GetCoursesByCategoryIdAsync(categoryId);
+        }
+
         public async Task<CourseDTO?> GetById(Guid id)
         {
             var course = await _repository.GetCourseByIdAsync(id);

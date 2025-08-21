@@ -22,6 +22,8 @@ namespace Repositories
         public async Task<List<Lesson>> GetLessonsByTopicIdAsync(Guid topicId)
         {
             return await _context.Lessons
+                .Include(q => q.Quizzes)
+                .Include(lp => lp.LessonProgresses)
                 .Where(l => l.TopicId == topicId && l.IsActive == true)
                 .ToListAsync();
         }

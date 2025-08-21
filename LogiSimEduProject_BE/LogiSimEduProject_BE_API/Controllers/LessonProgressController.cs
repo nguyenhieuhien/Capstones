@@ -22,18 +22,18 @@ namespace LogiSimEduProject_BE_API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_all_lessonProgress")]
-        //[SwaggerOperation(Summary = "Get all lessons", Description = "Returns a list of all lessons.")]
+        [SwaggerOperation(Summary = "Get all lessons", Description = "Returns a list of all lessons.")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _service.GetAll();
             return Ok(result);
         }
 
-        [Authorize(Roles = "Instructor,Student")]
+        //[Authorize(Roles = "Instructor,Student")]
         [HttpGet("get_lessonProgress/{id}")]
-        //[SwaggerOperation(Summary = "Get lesson by ID", Description = "Returns a specific lesson based on the provided ID.")]
+        [SwaggerOperation(Summary = "Get lesson by ID", Description = "Returns a specific lesson based on the provided ID.")]
         public async Task<IActionResult> Get(string id)
         {
             var lesson = await _service.GetById(id);
@@ -41,7 +41,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(lesson);
         }
 
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         [HttpPost("create_lessonProgress")]
         //[SwaggerOperation(Summary = "Create a new lesson", Description = "Creates a new lesson and saves it to the database.")]
         public async Task<IActionResult> Post([FromBody] LessonProgressDTOCreate request)

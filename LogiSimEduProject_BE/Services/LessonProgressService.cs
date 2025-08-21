@@ -102,7 +102,7 @@ namespace Services
                     return (false, "LessonProgress not found.", null, null);
 
                 if (progress.Status == 2)
-                    return (false, "Lesson already completed.", null, null);
+                    return (true, "Lesson already completed.", null, null);
 
                 progress.Status = 2; // Completed
                 progress.UpdatedAt = DateTime.UtcNow;
