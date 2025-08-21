@@ -36,6 +36,12 @@ namespace Services
             return certificate;
         }
 
+        public async Task<Certificate?> GetCertificateByCourseAndAccAsync(Guid courseId, Guid accountId)
+        {
+            var certificate = await _repository.GetCertificateByCourseIdAndAccIdAsync(courseId,accountId);
+            return certificate;
+        }
+
         //public async Task<Stream?> DownloadCertificateAsync(string certificateId)
         //{
         //    var certificate = await _repository.GetByIdAsync(certificateId);

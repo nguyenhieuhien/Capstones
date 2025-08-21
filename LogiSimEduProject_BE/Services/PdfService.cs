@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using QuestPDF.Drawing;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -22,17 +23,7 @@ namespace Services
                 imageBytes = client.GetByteArrayAsync(backgroundUrl).Result; // sync để tránh async trong QuestPDF
             }
 
-            //            var htmlTemplate = $@"
-            //<div style='width: 100%; height: 100%; position: relative; text-align: center; font-family: Arial;'>
-            //    <img src='{backgroundUrl}' style='width: 100%; height: 100%; position: absolute; z-index: -1;' />
-            //    <div style='padding-top: 200px;'>
-            //        <h1 style='font-size: 48px; font-weight: bold;'>Certificate of Completion</h1>
-            //        <p style='font-size: 20px;'>This is proudly presented to</p>
-            //        <h2 style='font-size: 36px; margin: 10px 0;'>{fullName}</h2>
-            //        <p style='font-size: 18px;'>for successfully completing the course</p>
-            //        <h3 style='font-size: 28px; margin: 10px 0;'>{courseName}</h3>
-            //    </div>
-            //</div>";
+            FontManager.RegisterFont(File.OpenRead("Font/DancingScript-Regular.ttf"));
 
             // 2. Tạo PDF
             // Tạo PDF A4 ngang
@@ -41,27 +32,51 @@ namespace Services
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4.Landscape());
-                    page.Margin(0);
+                    page.Margin(40);
                     page.Background().Image(imageBytes).FitArea();
 
-                    page.Content().AlignMiddle().AlignCenter().Column(col =>
+                    page.Content().AlignMiddle().Column(col =>
                     {
-                        col.Spacing(10); // khoảng cách giữa các dòng
+                        col.Spacing(20);
 
-                        col.Item().Text("Certificate of Completion")
-                            .FontSize(40).Bold().AlignCenter();
+                        // Tiêu đề
+                        col.Item().AlignCenter().Text("Certificate of Completion")
+                            .FontFamily("Dancing Script")
+                            .FontSize(46).Bold().Italic().FontColor("#2C3E50");
 
-                        col.Item().Text("This is proudly presented to")
-                            .FontSize(20).AlignCenter();
+                        // Subtitle
+                        col.Item().AlignCenter().Text("This certificate is proudly presented to")
+                            .FontSize(22).Italic().FontColor("#34495E");
 
-                        col.Item().Text(fullName)
-                            .FontSize(32).Bold().AlignCenter();
+                        // Tên học viên
+                        col.Item().AlignCenter().Text(fullName)
+                        .FontFamily("Dancing Script")
+                            .FontSize(38).Bold().FontColor("#1ABC9C");
 
-                        col.Item().Text("for successfully completing the course")
-                            .FontSize(18).AlignCenter();
+                        col.Item().AlignCenter().Text("for successfully completing the course")
+                            .FontSize(20).FontColor("#34495E");
 
-                        col.Item().Text(courseName)
-                            .FontSize(26).Bold().AlignCenter();
+                        // Tên khóa học
+                        col.Item().AlignCenter().Text(courseName)
+                            .FontSize(30).Bold().FontColor("#E67E22");
+
+                        // Border dưới
+                        col.Item().PaddingTop(60).Row(row =>
+                        {
+                            // Date bên trái
+                            row.RelativeItem().AlignLeft().PaddingLeft(90).Text("Date: " + DateTime.UtcNow.ToString("dd/MM/yyyy"))
+                                .FontSize(18).Bold().FontColor("#2C3E50");
+
+                            // Signature bên phải
+                            row.RelativeItem().PaddingRight(90).Column(right =>
+                            {
+                                right.Item().AlignRight().Text("Authorized Signature")
+                                    .FontSize(16).Bold().Italic().FontColor("#2C3E50");
+
+                                right.Item().PaddingTop(10).AlignRight().Text("____________________")
+                                    .FontSize(20).Bold().FontColor("#2C3E50");
+                            });
+                        });
                     });
                 });
             }).GeneratePdf();

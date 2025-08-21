@@ -34,6 +34,16 @@ public class CertificateController : ControllerBase
         return Ok(certificate);
     }
 
+    [HttpGet("my_certificate/{accountId}/{courseId}")]
+    //[SwaggerOperation(Summary = "Get category by ID", Description = "Retrieve a single category by its unique ID.")]
+    public async Task<IActionResult> GetCertificateByCourseAndAcc(Guid accountId, Guid courseId)
+    {
+        var certificate = await _service.GetCertificateByCourseAndAccAsync(courseId,accountId);
+        if (certificate == null)
+            return NotFound("Your Certificate not found");
+        return Ok(certificate);
+    }
+
     [HttpGet("open-certificate/{id}")]
     public async Task<IActionResult> OpenCertificate(string id)
     {

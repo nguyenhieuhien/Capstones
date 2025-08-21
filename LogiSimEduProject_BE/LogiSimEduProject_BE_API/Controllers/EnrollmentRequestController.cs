@@ -130,6 +130,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(students);
         }
 
+        [HttpGet("enrolled_requests_pending/{courseId}")]
+        public async Task<IActionResult> GetPendingStudents(Guid courseId)
+        {
+            var students = await _service.GetPendingStudents(courseId);
+            return Ok(students);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPut("accepted_enrollmentRequest/{id}")]
         [SwaggerOperation(Summary = "Accepted request status", Description = "Approve an enrollment request (only for instructors).")]
