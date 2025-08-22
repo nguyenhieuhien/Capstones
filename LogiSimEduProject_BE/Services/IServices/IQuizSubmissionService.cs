@@ -11,7 +11,7 @@ namespace Services.IServices
     public interface IQuizSubmissionService
     {
         Task<List<QuizSubmission>> GetAllSubmissionByQuizId(Guid quizId);
-        Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid lessonId);
+        Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid quizId);
         Task<int> SubmitQuiz(Guid quizId, Guid accountId, List<(Guid questionId, Guid answerId)> answers);
     }
 }

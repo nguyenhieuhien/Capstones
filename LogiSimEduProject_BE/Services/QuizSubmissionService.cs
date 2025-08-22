@@ -29,9 +29,9 @@ namespace Services
             return await _submissionRepo.GetByQuizIdAsync(quizId);
         }
 
-        public async Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid lessonId)
+        public async Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid quizId)
         {
-            var submissions = await _submissionRepo.GetLessonQuizSubmissions(lessonId);
+            var submissions = await _submissionRepo.GetLessonQuizSubmissions(quizId);
 
             var grouped = submissions
                 .GroupBy(qs =>

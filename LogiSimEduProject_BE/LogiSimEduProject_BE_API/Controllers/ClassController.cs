@@ -62,7 +62,12 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-
+        [HttpGet("get_classes_by_student/{studentId}")]
+        public async Task<IActionResult> GetAllClassByStudentId(Guid studentId)
+        {
+            var result = await _service.GetClassesByStudentId(studentId);
+            return Ok(result);
+        }
 
 
         [HttpGet("accounts/{accountId}/courses/{courseId}/class")]

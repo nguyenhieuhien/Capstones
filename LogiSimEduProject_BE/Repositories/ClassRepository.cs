@@ -38,6 +38,16 @@ namespace Repositories
             return classes;
         }
 
+        public async Task<List<Class>> GetClassesByStudentIdAsync(Guid studentId)
+        {
+            return await _context.AccountOfCourses
+                .Include(a => a.Class)
+                .ThenInclude(c => c.Course)
+                .Where(a => a.AccountId == studentId && a.Class != null && a.IsActive == true)
+                .Select(a => a.Class)
+                .ToListAsync();
+        }
+
         public async Task<Class?> GetClassByAccountAndCourseAsync(Guid accountId, Guid courseId)
         {
             var classEntity = await _context.AccountOfCourses
