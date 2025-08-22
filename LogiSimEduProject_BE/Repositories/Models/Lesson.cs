@@ -31,6 +31,8 @@ public partial class Lesson
 
     public DateTime? DeleteAt { get; set; }
 
+    public string FileUrl { get; set; }
+
     public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 
     public virtual ICollection<LessonSubmission> LessonSubmissions { get; set; } = new List<LessonSubmission>();

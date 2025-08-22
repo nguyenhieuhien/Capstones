@@ -33,7 +33,8 @@ namespace Services
                     OrderIndex = request.OrderIndex,
                     Description = request.Description,
                     Title = request.Title,
-                    Status = request.Status,        
+                    Status = request.Status,  
+                    FileUrl = request.FileUrl,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
@@ -16,10 +18,12 @@ namespace LogiSimEduProject_BE_API.Controllers
     public class LessonController : ControllerBase
     {
         private readonly ILessonService _service;
+        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
 
-        public LessonController(ILessonService service)
+        public LessonController(ILessonService service, CloudinaryDotNet.Cloudinary cloudinary)
         {
             _service = service;
+            _cloudinary = cloudinary;
         }
 
         //[Authorize(Roles = "Student,Instructor")]
@@ -59,11 +63,37 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(quizzes);
         }
 
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_lesson")]
-        [SwaggerOperation(Summary = "Create a new lesson", Description = "Creates a new lesson and saves it to the database.")]
-        public async Task<IActionResult> Post([FromBody] LessonDTOCreate request)
+        [SwaggerOperation(Summary = "Create a new lesson", Description = "Creates a new lesson, uploads file to Cloudinary if provided, and saves it to the database.")]
+        public async Task<IActionResult> Post([FromForm] LessonDTOCreate request)
         {
+            string? fileUrl = null;
+
+            // Nếu có file thì upload
+            if (request.FileUrl != null)
+            {
+                await using var stream = request.FileUrl.OpenReadStream();
+                var uploadParams = new RawUploadParams // dùng Raw cho mọi loại file; nếu chỉ ảnh dùng ImageUploadParams
+                {
+                    File = new FileDescription(request.FileUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Lessons",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    fileUrl = uploadResult.SecureUrl?.ToString();
+                }
+                else
+                {
+                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
+                }
+            }
+
             var model = new Lesson
             {
                 TopicId = request.TopicId,
@@ -71,33 +101,92 @@ namespace LogiSimEduProject_BE_API.Controllers
                 Status = request.Status,
                 Title = request.Title,
                 Description = request.Description,
+                FileUrl = fileUrl,
+                CreatedAt = DateTime.UtcNow
             };
 
             var (success, message, id) = await _service.Create(model);
             if (!success) return BadRequest(message);
 
-            return Ok(new { Message = message, Id = id });
+            return Ok(new
+            {
+                Message = message,
+                Id = id,
+                Data = new
+                {
+                    model.TopicId,
+                    model.LessonName,
+                    model.Status,
+                    model.Title,
+                    model.Description,
+                    model.FileUrl
+                }
+            });
         }
 
         //[Authorize(Roles = "Instructor")]
         [HttpPut("update_lesson/{id}")]
-        [SwaggerOperation(Summary = "Update an existing lesson", Description = "Updates the title or description of a lesson.")]
-        public async Task<IActionResult> Put(string id, [FromBody] LessonDTOUpdate request)
+        [SwaggerOperation(Summary = "Update an existing lesson", Description = "Updates fields of a lesson and uploads a new file to Cloudinary if provided.")]
+        public async Task<IActionResult> Put(string id, [FromForm] LessonDTOUpdate request)
         {
             var lesson = await _service.GetById(id);
             if (lesson == null) return NotFound("Lesson not found");
 
+            string? fileUrl = lesson.FileUrl;
+
+            // Nếu client upload file mới -> upload & thay thế
+            if (request.FileUrl != null)
+            {
+                await using var stream = request.FileUrl.OpenReadStream();
+
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(request.FileUrl.FileName, stream),
+                    Folder = "LogiSimEdu_Lessons",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    fileUrl = uploadResult.SecureUrl?.ToString();
+                }
+                else
+                {
+                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
+                }
+            }
+
+            // Cập nhật các trường
             lesson.TopicId = request.TopicId;
-            lesson.LessonName = request.LessonName; 
+            lesson.LessonName = request.LessonName;
             lesson.Status = request.Status;
             lesson.Title = request.Title;
             lesson.Description = request.Description;
+            lesson.FileUrl = fileUrl; // giữ nguyên nếu không upload mới
+            lesson.UpdatedAt = DateTime.UtcNow;
 
             var (success, message) = await _service.Update(lesson);
             if (!success) return BadRequest(message);
 
-            return Ok(new { Message = message });
+            return Ok(new
+            {
+                Message = message,
+                Data = new
+                {
+                    lesson.Id,
+                    lesson.TopicId,
+                    lesson.LessonName,
+                    lesson.Status,
+                    lesson.Title,
+                    lesson.Description,
+                    lesson.FileUrl
+                }
+            });
         }
+
 
         //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete_lesson/{id}")]
