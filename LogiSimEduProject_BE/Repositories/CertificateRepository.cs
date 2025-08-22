@@ -25,6 +25,14 @@ namespace Repositories
                 .ToListAsync();
         }
 
+        public async Task<Certificate?> GetByCourseIdAsync(Guid courseId)
+        {
+            return await _context.Certificates
+                .Where(c => c.CourseId == courseId && c.IsActive == true)
+                .FirstOrDefaultAsync();
+        }
+
+
         public async Task<List<Certificate>> GetByAccountAndCourse(Guid accountId, Guid courseId)
         {
             return await _context.Certificates

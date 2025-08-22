@@ -1,6 +1,7 @@
 ﻿using LogiSimEduProject_BE_API.Controllers.Cloudinary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Services;
 using Services.IServices;
 using System.Net.Http.Headers;
 using System.Text;
@@ -24,6 +25,7 @@ public class CertificateController : ControllerBase
         return Ok(result);
     }
 
+
     [HttpGet("get/{id}")]
     //[SwaggerOperation(Summary = "Get category by ID", Description = "Retrieve a single category by its unique ID.")]
     public async Task<IActionResult> GetById(string id)
@@ -33,6 +35,27 @@ public class CertificateController : ControllerBase
             return NotFound("Certificate not found");
         return Ok(certificate);
     }
+
+
+    [HttpGet("get_all_certificates_by/{accountId}")]
+    public async Task<IActionResult> GetCertificatesByAccountId(Guid accountId)
+    {
+        var certificates = await _service.GetAllCertificatesAsync(accountId);
+        if (certificates == null || certificates.Count == 0)
+            return NotFound();
+        return Ok(certificates);
+    }
+
+    [HttpGet("get_certificate_by/{courseId}")]
+    public async Task<IActionResult> GetCertificateByCourseId(Guid courseId)
+    {
+        var certificate = await _service.GetCertificateByCourseAsync(courseId);
+        if (certificate == null)
+            return NotFound();
+
+        return Ok(certificate);
+    }
+
 
     [HttpGet("open-certificate/{id}")]
     public async Task<IActionResult> OpenCertificate(string id)

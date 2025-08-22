@@ -25,6 +25,12 @@ namespace Services
 
         public async Task<Certificate> GetById(string id) => await _repository.GetByIdAsync(id);
 
+        public async Task<List<Certificate>> GetAllCertificatesAsync(Guid accountId) => await _repository.GetByAccountIdAsync(accountId);
+
+        public async Task<Certificate?> GetCertificateByCourseAsync(Guid courseId)
+        => await _repository.GetByCourseIdAsync(courseId);
+
+
         public async Task<Certificate?> GetCertificateAsync(string id)
         {
             var certificate = await _repository.GetByIdAsync(id);
