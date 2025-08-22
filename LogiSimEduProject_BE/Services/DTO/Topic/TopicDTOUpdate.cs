@@ -8,8 +8,8 @@ namespace Services.DTO.Topic
         public Guid CourseId { get; set; }
         public string TopicName { get; set; }
         public int OrderIndex { get; set; }
-        [JsonIgnore]
-        public IFormFile ImgUrl { get; set; }
+        //[JsonIgnore]
+        //public IFormFile ImgUrl { get; set; }
         public string Description { get; set; }
     }
 }
