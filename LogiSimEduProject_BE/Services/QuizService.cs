@@ -123,7 +123,7 @@ namespace Services
             }
         }
 
-        public async Task<(bool Success, string Message)> UpdateFullQuizAsync(Guid quizId, UpdateFullQuizDTO request)
+        public async Task<(bool Success, string Message)> UpdateFullQuizAsync(Guid quizId, Quiz request)
         {
             var quiz = await _repository.GetFullQuizAsync(quizId);
             if (quiz == null) return (false, "Quiz not found");
@@ -132,49 +132,58 @@ namespace Services
             quiz.UpdatedAt = DateTime.UtcNow;
 
             // Update Questions
-            foreach (var qDto in request.Questions)
+            foreach (var updatedQuestion in request.Questions)
             {
-                var question = qDto.Id.HasValue && qDto.Id.Value != Guid.Empty
-                    ? quiz.Questions.FirstOrDefault(x => x.Id == qDto.Id.Value)
-                    : null;
+                var existingQuestion = quiz.Questions
+                    .FirstOrDefault(q => q.Id == updatedQuestion.Id);
 
-                if (question == null) // thêm mới
+                if (existingQuestion != null) // update question
                 {
-                    question = new Question
+                    existingQuestion.Description = updatedQuestion.Description;
+                    existingQuestion.UpdatedAt = DateTime.UtcNow;
+
+                    // Handle answers
+                    foreach (var updatedAnswer in updatedQuestion.Answers)
+                    {
+                        var existingAnswer = existingQuestion.Answers
+                            .FirstOrDefault(a => a.Id == updatedAnswer.Id);
+
+                        if (existingAnswer != null) // update answer
+                        {
+                            existingAnswer.Description = updatedAnswer.Description;
+                            existingAnswer.IsCorrect = updatedAnswer.IsCorrect;
+                            existingAnswer.UpdatedAt = DateTime.UtcNow;
+                        }
+                        else // add new answer
+                        {
+                            existingQuestion.Answers.Add(new Answer
+                            {
+                                Id = Guid.NewGuid(),
+                                QuestionId = existingQuestion.Id,
+                                Description = updatedAnswer.Description,
+                                IsCorrect = updatedAnswer.IsCorrect,
+                                CreatedAt = DateTime.UtcNow
+                            });
+                        }
+                    }
+                }
+                else // add new question
+                {
+                    var newQuestion = new Question
                     {
                         Id = Guid.NewGuid(),
-                        Description = qDto.Description,
+                        Description = updatedQuestion.Description,
                         QuizId = quiz.Id,
-                        Answers = new List<Answer>()
-                    };
-                    quiz.Questions.Add(question);
-                }
-                else // update
-                {
-                    question.Description = qDto.Description;
-                }
-
-                foreach (var aDto in qDto.Answers)
-                {
-                    var answer = aDto.Id.HasValue && aDto.Id.Value != Guid.Empty
-                        ? question.Answers.FirstOrDefault(x => x.Id == aDto.Id.Value)
-                        : null;
-
-                    if (answer == null) // thêm mới
-                    {
-                        question.Answers.Add(new Answer
+                        CreatedAt = DateTime.UtcNow,
+                        Answers = updatedQuestion.Answers.Select(a => new Answer
                         {
                             Id = Guid.NewGuid(),
-                            QuestionId = question.Id,
-                            Description = aDto.Description,
-                            IsCorrect = aDto.IsCorrect
-                        });
-                    }
-                    else // update
-                    {
-                        answer.Description = aDto.Description;
-                        answer.IsCorrect = aDto.IsCorrect;
-                    }
+                            Description = a.Description,
+                            IsCorrect = a.IsCorrect,
+                            CreatedAt = DateTime.UtcNow
+                        }).ToList()
+                    };
+                    quiz.Questions.Add(newQuestion);
                 }
             }
 

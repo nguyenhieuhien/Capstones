@@ -50,40 +50,21 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(topics);
         }
 
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_topic")]
-        [SwaggerOperation(Summary = "Create new topic", Description = "Creates a new topic and uploads image if provided.")]
-        public async Task<IActionResult> Post([FromForm] TopicDTOCreate request)
+        [SwaggerOperation(
+            Summary = "Create new topic",
+            Description = "Creates a new topic (no image upload).")]
+        public async Task<IActionResult> Post([FromBody] TopicDTOCreate request)
         {
-            string imgUrl = null;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (request.ImgUrl != null)
-            {
-                await using var stream = request.ImgUrl.OpenReadStream();
-                var uploadParams = new ImageUploadParams
-                {
-                    File = new FileDescription(request.ImgUrl.FileName, stream),
-                    Folder = "LogiSimEdu_Topics",
-                    UseFilename = true,
-                    UniqueFilename = false,
-                    Overwrite = true
-                };
-
-                var result = await _cloudinary.UploadAsync(uploadParams);
-                if (result.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    imgUrl = result.SecureUrl.ToString();
-                }
-                else
-                {
-                    return StatusCode((int)result.StatusCode, result.Error?.Message);
-                }
-            }
             var topic = new Topic
             {
                 CourseId = request.CourseId,
                 TopicName = request.TopicName,
-                ImgUrl = imgUrl,
                 Description = request.Description,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -93,61 +74,58 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (resultCreate <= 0)
                 return BadRequest("Fail Create");
 
-            return Ok(new { Data = request });
+            // Có thể trả về entity đã tạo hoặc id; tuỳ convention bạn đang dùng
+            return Ok(new
+            {
+                Message = "Topic created successfully.",
+                Data = new
+                {
+                    topic.Id,
+                    topic.CourseId,
+                    topic.TopicName,
+                    topic.Description,
+                    topic.IsActive,
+                    topic.CreatedAt
+                }
+            });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_topic/{id}")]
-        [SwaggerOperation(Summary = "Update topic", Description = "Updates an existing topic, including uploading a new image if provided.")]
-        public async Task<IActionResult> Put(string id, TopicDTOUpdate request)
+        [SwaggerOperation(
+            Summary = "Update topic",
+            Description = "Updates an existing topic (no image upload).")]
+        public async Task<IActionResult> Put(string id, [FromBody] TopicDTOUpdate request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var existingTopic = await _service.GetById(id);
             if (existingTopic == null)
-            {
                 return NotFound(new { Message = $"Topic with ID {id} was not found." });
-            }
-            string imgUrl = existingTopic.ImgUrl;
 
-            if (request.ImgUrl != null)
-            {
-                await using var stream = request.ImgUrl.OpenReadStream();
-                var uploadParams = new ImageUploadParams
-                {
-                    File = new FileDescription(request.ImgUrl.FileName, stream),
-                    Folder = "LogiSimEdu_Topics",
-                    UseFilename = true,
-                    UniqueFilename = false,
-                    Overwrite = true
-                };
-
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    imgUrl = uploadResult.SecureUrl.ToString();
-                }
-                else
-                {
-                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
-                }
-            }
-
+            // Cập nhật các trường cho phép
             existingTopic.CourseId = request.CourseId;
             existingTopic.TopicName = request.TopicName;
-            existingTopic.ImgUrl = imgUrl;
             existingTopic.Description = request.Description;
+            //existingTopic.IsActive = request.IsActive; // nếu DTOUpdate có cờ này
             existingTopic.UpdatedAt = DateTime.UtcNow;
 
-            await _service.Update(existingTopic);
+            var updated = await _service.Update(existingTopic);
+            if (updated <= 0)
+                return BadRequest("Fail Update");
 
             return Ok(new
             {
                 Message = "Topic updated successfully.",
                 Data = new
                 {
-                    CourseId = existingTopic.CourseId,
-                    TopicName = existingTopic.TopicName,
-                    ImgUrl = existingTopic.ImgUrl,
-                    Description = existingTopic.Description,
+                    existingTopic.Id,
+                    existingTopic.CourseId,
+                    existingTopic.TopicName,
+                    existingTopic.Description,
+                    existingTopic.IsActive,
+                    existingTopic.UpdatedAt
                 }
             });
         }

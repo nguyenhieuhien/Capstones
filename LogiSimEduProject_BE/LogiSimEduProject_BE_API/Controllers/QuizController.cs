@@ -115,7 +115,26 @@ namespace LogiSimEduProject_BE_API.Controllers
             var quiz = await _service.GetFullQuizAsync(id);
             if (quiz == null) return NotFound(new { Message = "Quiz not found." });
 
-            var result = await _service.UpdateFullQuizAsync(id, request);
+            var quizzes = new Quiz
+            {
+                Id = Guid.NewGuid(),
+                QuizName = request.QuizName,
+                Questions = request.Questions.Select(q => new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Description = q.Description,
+                    Answers = q.Answers.Select(a => new Answer
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = a.Description,
+                        IsCorrect = a.IsCorrect
+                    }).ToList()
+                }).ToList()
+            };
+
+
+
+            var result = await _service.UpdateFullQuizAsync(id, quizzes);
 
             if (!result.Success)
                 return BadRequest(result.Message);
