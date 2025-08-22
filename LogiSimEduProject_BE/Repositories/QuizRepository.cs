@@ -37,6 +37,14 @@ namespace Repositories
                 .ToListAsync();
         }
 
+        public async Task<Quiz?> GetFullQuizAsync(Guid quizId)
+        {
+            return await _context.Quizzes
+                .Include(q => q.Questions)
+                    .ThenInclude(qs => qs.Answers)
+                .FirstOrDefaultAsync(q => q.Id == quizId && q.IsActive == true);
+        }
+
         public async Task<List<Quiz>> GetQuizByLessonId(Guid lessonId)
         {
             return await _context.Quizzes

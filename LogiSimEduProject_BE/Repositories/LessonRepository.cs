@@ -23,6 +23,7 @@ namespace Repositories
         {
             return await _context.Lessons
                 .Include(q => q.Quizzes)
+                .ThenInclude(qs => qs.QuizSubmissions)
                 .Include(lp => lp.LessonProgresses)
                 .Where(l => l.TopicId == topicId && l.IsActive == true)
                 .ToListAsync();

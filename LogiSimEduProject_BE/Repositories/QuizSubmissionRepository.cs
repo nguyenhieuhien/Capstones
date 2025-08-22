@@ -31,7 +31,7 @@ namespace Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<QuizSubmission>> GetLessonQuizSubmissions(Guid lessonId)
+        public async Task<List<QuizSubmission>> GetLessonQuizSubmissions(Guid quizId)
         {
             return await _context.QuizSubmissions
                 .Include(qs => qs.Account)
@@ -40,7 +40,7 @@ namespace Repositories
                 .Include(qs => qs.Quiz)
                     .ThenInclude(q => q.Lesson)
                         .ThenInclude(l => l.Topic)
-                .Where(qs => qs.Quiz.LessonId == lessonId && qs.IsActive == true)
+                .Where(qs => qs.Quiz.Id == quizId && qs.IsActive == true)
                 .ToListAsync();
         }
     }

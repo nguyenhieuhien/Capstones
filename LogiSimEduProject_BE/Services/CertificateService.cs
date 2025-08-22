@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Repositories;
 using Repositories.Models;
 using Services.IServices;
@@ -23,9 +24,9 @@ namespace Services
 
         public async Task<List<Certificate>> GetAll() => await _repository.GetAll();
 
-        public async Task<Certificate> GetById(string id) => await _repository.GetByIdAsync(id);
+        public async Task<List<Certificate>> GetCertificatesByAccountId(Guid accountId) => await _repository.GetByAccountIdAsync(accountId);
 
-        public async Task<List<Certificate>> GetAllCertificatesAsync(Guid accountId) => await _repository.GetByAccountIdAsync(accountId);
+        public async Task<Certificate> GetById(string id) => await _repository.GetByIdAsync(id);
 
         public async Task<Certificate?> GetCertificateByCourseAsync(Guid courseId)
         => await _repository.GetByCourseIdAsync(courseId);
@@ -39,6 +40,12 @@ namespace Services
             if (certificate == null || string.IsNullOrWhiteSpace(certificate.FileUrl))
                 return null;
 
+            return certificate;
+        }
+
+        public async Task<Certificate?> GetCertificateByCourseAndAccAsync(Guid courseId, Guid accountId)
+        {
+            var certificate = await _repository.GetCertificateByCourseIdAndAccIdAsync(courseId,accountId);
             return certificate;
         }
 

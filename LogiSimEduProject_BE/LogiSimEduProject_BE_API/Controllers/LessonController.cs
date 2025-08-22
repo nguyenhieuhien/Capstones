@@ -75,10 +75,10 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (request.FileUrl != null)
             {
                 await using var stream = request.FileUrl.OpenReadStream();
-                var uploadParams = new RawUploadParams // dùng Raw cho mọi loại file; nếu chỉ ảnh dùng ImageUploadParams
+                var uploadParams = new VideoUploadParams
                 {
                     File = new FileDescription(request.FileUrl.FileName, stream),
-                    Folder = "LogiSimEdu_Lessons",
+                    Folder = "LogiSimEdu_Lessons/Videos",
                     UseFilename = true,
                     UniqueFilename = false,
                     Overwrite = true

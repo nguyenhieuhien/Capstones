@@ -5,6 +5,7 @@ using Repositories.DBContext;
 using Repositories.Models;
 using Services.DTO.Answer;
 using Services.DTO.Question;
+using Services.DTO.Quiz;
 using Services.DTO.QuizSubmission;
 using Services.IServices;
 
@@ -35,6 +36,11 @@ namespace Services
         public async Task<Quiz?> GetById(string id)
         {
             return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<Quiz?> GetFullQuizAsync(Guid quizId)
+        {
+            return await _repository.GetFullQuizAsync(quizId);
         }
 
         public async Task<List<QuestionWithAnswersDTO>> GetQuestionsWithAnswersByQuizId(Guid quizId)
@@ -116,6 +122,139 @@ namespace Services
                 return (false, ex.Message);
             }
         }
+
+        public async Task<(bool Success, string Message)> UpdateFullQuizAsync(Guid quizId, Quiz request)
+        {
+            var quiz = await _repository.GetFullQuizAsync(quizId);
+            if (quiz == null) return (false, "Quiz not found");
+
+            quiz.QuizName = request.QuizName;
+            quiz.UpdatedAt = DateTime.UtcNow;
+
+            // Update Questions
+            foreach (var updatedQuestion in request.Questions)
+            {
+                var existingQuestion = quiz.Questions
+                    .FirstOrDefault(q => q.Id == updatedQuestion.Id);
+
+                if (existingQuestion != null) // update question
+                {
+                    existingQuestion.Description = updatedQuestion.Description;
+                    existingQuestion.UpdatedAt = DateTime.UtcNow;
+
+                    // Handle answers
+                    foreach (var updatedAnswer in updatedQuestion.Answers)
+                    {
+                        var existingAnswer = existingQuestion.Answers
+                            .FirstOrDefault(a => a.Id == updatedAnswer.Id);
+
+                        if (existingAnswer != null) // update answer
+                        {
+                            existingAnswer.Description = updatedAnswer.Description;
+                            existingAnswer.IsCorrect = updatedAnswer.IsCorrect;
+                            existingAnswer.UpdatedAt = DateTime.UtcNow;
+                        }
+                        else // add new answer
+                        {
+                            existingQuestion.Answers.Add(new Answer
+                            {
+                                Id = Guid.NewGuid(),
+                                QuestionId = existingQuestion.Id,
+                                Description = updatedAnswer.Description,
+                                IsCorrect = updatedAnswer.IsCorrect,
+                                CreatedAt = DateTime.UtcNow
+                            });
+                        }
+                    }
+                }
+                else // add new question
+                {
+                    var newQuestion = new Question
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = updatedQuestion.Description,
+                        QuizId = quiz.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        Answers = updatedQuestion.Answers.Select(a => new Answer
+                        {
+                            Id = Guid.NewGuid(),
+                            Description = a.Description,
+                            IsCorrect = a.IsCorrect,
+                            CreatedAt = DateTime.UtcNow
+                        }).ToList()
+                    };
+                    quiz.Questions.Add(newQuestion);
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return (true, "Quiz updated successfully");
+        }
+
+        //public async Task<bool> UpdateFullQuizAsync(Quiz quiz)
+        //{
+        //    var existingQuiz = await _dbContext.Quizzes
+        //        .Include(q => q.Questions)
+        //            .ThenInclude(q => q.Answers)
+        //        .FirstOrDefaultAsync(q => q.Id == quiz.Id);
+
+        //    if (existingQuiz == null) return false;
+
+        //    // Update quiz info
+        //    existingQuiz.QuizName = quiz.QuizName;
+        //    existingQuiz.UpdatedAt = DateTime.Now;
+
+        //    // Handle questions
+        //    foreach (var question in quiz.Questions)
+        //    {
+        //        var existingQuestion = existingQuiz.Questions.FirstOrDefault(q => q.Id == question.Id);
+
+        //        if (existingQuestion != null) // update question
+        //        {
+        //            existingQuestion.Description  = question.Description;
+
+        //            // Handle answers
+        //            foreach (var answer in question.Answers)
+        //            {
+        //                var existingAnswer = existingQuestion.Answers.FirstOrDefault(a => a.Id == answer.Id);
+        //                if (existingAnswer != null) // update answer
+        //                {
+        //                    existingAnswer.Description = answer.Description;
+        //                    existingAnswer.IsCorrect = answer.IsCorrect;
+        //                }
+        //                else // add new answer
+        //                {
+        //                    existingQuestion.Answers.Add(new Answer
+        //                    {
+        //                        Id = Guid.NewGuid(),
+        //                        Description = answer.Description,
+        //                        IsCorrect = answer.IsCorrect,
+        //                        QuestionId = existingQuestion.Id
+        //                    });
+        //                }
+        //            }
+        //        }
+        //        else // add new question
+        //        {
+        //            var newQuestion = new Question
+        //            {
+        //                Id = Guid.NewGuid(),
+        //                Description = question.Description,
+        //                QuizId = existingQuiz.Id,
+        //                Answers = question.Answers.Select(a => new Answer
+        //                {
+        //                    Id = Guid.NewGuid(),
+        //                    Description = a.Description,
+        //                    IsCorrect = a.IsCorrect
+        //                }).ToList()
+        //            };
+        //            existingQuiz.Questions.Add(newQuestion);
+        //        }
+        //    }
+
+        //    await _dbContext.SaveChangesAsync();
+        //    return true;
+        //}
 
         public async Task<List<QuizReviewDTO>> GetQuizReview(Guid accountId, Guid quizId)
         {
