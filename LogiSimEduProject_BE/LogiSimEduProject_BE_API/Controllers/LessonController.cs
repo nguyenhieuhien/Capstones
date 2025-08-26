@@ -97,6 +97,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var model = new Lesson
             {
                 TopicId = request.TopicId,
+                ScenarioId = request.ScenarioId,
                 LessonName = request.LessonName,
                 Status = request.Status,
                 Title = request.Title,
@@ -161,6 +162,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             // Cập nhật các trường
             lesson.TopicId = request.TopicId;
+            lesson.ScenarioId = request.ScenarioId;
             lesson.LessonName = request.LessonName;
             lesson.Status = request.Status;
             lesson.Title = request.Title;
@@ -178,6 +180,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     lesson.Id,
                     lesson.TopicId,
+                    lesson.ScenarioId,
                     lesson.LessonName,
                     lesson.Status,
                     lesson.Title,

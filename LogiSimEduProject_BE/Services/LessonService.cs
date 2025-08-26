@@ -29,6 +29,7 @@ namespace Services
                 {
                     Id = Guid.NewGuid(),
                     TopicId = request.TopicId,
+                    ScenarioId=request.ScenarioId,
                     LessonName = request.LessonName,
                     OrderIndex = request.OrderIndex,
                     Description = request.Description,
