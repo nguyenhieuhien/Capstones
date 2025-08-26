@@ -27,6 +27,7 @@ namespace Services
                     Id = Guid.NewGuid(),
                     AccountId = lessonSubmission.AccountId,
                     LessonId = lessonSubmission.LessonId,
+                    Note = lessonSubmission.Note,
                     SubmitTime = DateTime.UtcNow,
                     FileUrl = lessonSubmission.FileUrl,
                     IsActive = true,

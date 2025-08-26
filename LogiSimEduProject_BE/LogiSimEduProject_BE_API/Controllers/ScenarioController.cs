@@ -100,7 +100,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         //[Authorize(Roles = "Instructor")]
         [HttpPut("update_scenario/{id}")]
         [SwaggerOperation(Summary = "Update scenario", Description = "Update existing scenario by ID.")]
-        public async Task<IActionResult> Update(string id, [FromBody] ScenarioDTOUpdate dto)
+        public async Task<IActionResult> Update(string id, [FromForm] ScenarioDTOUpdate dto)
         {
             var existing = await _service.GetById(id);
             if (existing == null)

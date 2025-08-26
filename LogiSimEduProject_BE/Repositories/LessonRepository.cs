@@ -25,6 +25,8 @@ namespace Repositories
                 .Include(q => q.Quizzes)
                 .ThenInclude(qs => qs.QuizSubmissions)
                 .Include(lp => lp.LessonProgresses)
+                .Include(ls => ls.LessonSubmissions)
+                .Include(s => s.Scenario)
                 .Where(l => l.TopicId == topicId && l.IsActive == true)
                 .ToListAsync();
         }

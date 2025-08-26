@@ -11,6 +11,7 @@ namespace Services.DTO.Lesson
     public class LessonDTOUpdate
     {
         public Guid? TopicId { get; set; }
+        public Guid? ScenarioId { get; set; }
 
         public string LessonName { get; set; }
 
