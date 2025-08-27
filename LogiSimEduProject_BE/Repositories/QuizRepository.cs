@@ -51,5 +51,33 @@ namespace Repositories
                 .Where(q => q.LessonId == lessonId && q.IsActive == true)
                 .ToListAsync();
         }
+
+        public async Task UpdateFullQuestionsAsync(Quiz quiz, List<Question> updatedQuestions)
+        {
+            foreach (var updatedQ in updatedQuestions)
+            {
+                var existingQ = quiz.Questions.FirstOrDefault(q => q.Id == updatedQ.Id);
+                if (existingQ != null)
+                {
+                    // Update Question info
+                    existingQ.Description = updatedQ.Description;
+                    existingQ.UpdatedAt = DateTime.UtcNow;
+
+                    // Update Answers
+                    foreach (var updatedA in updatedQ.Answers)
+                    {
+                        var existingA = existingQ.Answers.FirstOrDefault(a => a.Id == updatedA.Id);
+                        if (existingA != null)
+                        {
+                            existingA.Description = updatedA.Description;
+                            existingA.IsCorrect = updatedA.IsCorrect;
+                            existingA.UpdatedAt = DateTime.UtcNow;
+                        }
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -13,6 +13,11 @@ namespace Services.DTO.Quiz
         public List<UpdateQuestionDto> Questions { get; set; } = new();
     }
 
+    public class UpdateFullQuestionsDto
+    {
+        public List<UpdateQuestionDto> Questions { get; set; }
+    }
+
     public class UpdateQuestionDto
     {
         public Guid? Id { get; set; } // Nếu Guid.Empty thì hiểu là thêm mới
