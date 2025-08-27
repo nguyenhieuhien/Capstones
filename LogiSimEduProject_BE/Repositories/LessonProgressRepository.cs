@@ -32,5 +32,17 @@ namespace Repositories
             return await _context.LessonProgresses
                 .FirstOrDefaultAsync(lp => lp.AccountId == accountId && lp.LessonId == lessonId && lp.IsActive == true);
         }
+
+        public async Task<bool> ExistsAsync(Guid accountId, Guid lessonId)
+        {
+            return await _context.LessonProgresses
+                .AnyAsync(lp => lp.AccountId == accountId && lp.LessonId == lessonId && lp.IsActive == true);
+        }
+
+        public async Task<int> Created(LessonProgress lessonProgress)
+        {
+            await _context.LessonProgresses.AddAsync(lessonProgress);
+            return await _context.SaveChangesAsync();
+        }
     }
 }

@@ -16,10 +16,16 @@ namespace Services
     public class LessonService : ILessonService
     {
         private readonly LessonRepository _repository;
+        private readonly TopicRepository _topicRepo;
+        private readonly LessonProgressRepository _lessonProgressRepo;
+        private readonly EnrollmentRequestRepository _enrollRepo;
 
         public LessonService()
         {
             _repository = new LessonRepository();
+            _topicRepo = new TopicRepository();
+            _enrollRepo = new EnrollmentRequestRepository();
+            _lessonProgressRepo = new LessonProgressRepository();
         }
         public async Task<(bool Success, string Message, Guid? Id)> Create(Lesson request)
         {
@@ -41,6 +47,35 @@ namespace Services
                 };
 
                 var result = await _repository.CreateAsync(lesson);
+
+                var topic = await _topicRepo.GetByIdAsync(lesson.TopicId.Value);
+                if (topic?.CourseId != null)
+                {
+                    var courseId = topic.CourseId.Value;
+
+                    // Lấy danh sách học viên trong course
+                    var students = await _enrollRepo.GetStudentsByCourseId(courseId);
+
+                    foreach (var student in students)
+                    {
+                        bool exists = await _lessonProgressRepo.ExistsAsync(student.AccountId.Value, lesson.Id);
+                        if (!exists)
+                        {
+                            var lessonProgress = new LessonProgress
+                            {
+                                Id = Guid.NewGuid(),
+                                AccountId = student.AccountId,
+                                LessonId = lesson.Id,
+                                Status = 1, // not started
+                                IsActive = true,
+                                CreatedAt = DateTime.UtcNow
+                            };
+
+                            await _lessonProgressRepo.Created(lessonProgress);
+                        }
+                    }
+                }
+
                 if (result > 0)
                     return (true, "Lesson created successfully", lesson.Id);
                 return (false, "Failed to create lesson", null);

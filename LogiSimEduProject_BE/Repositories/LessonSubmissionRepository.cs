@@ -19,5 +19,15 @@ namespace Repositories
 
             return lessonSubmissions;
         }
+
+        public async Task<List<LessonSubmission>> GetByLessonIdAsync(Guid lessonId)
+        {
+            return await _context.LessonSubmissions
+                .Include(s => s.Account)
+                    .ThenInclude(a => a.AccountOfCourses)
+                        .ThenInclude(ac => ac.Class)
+                .Where(s => s.LessonId == lessonId && s.IsActive)
+                .ToListAsync();
+        }
     }
 }

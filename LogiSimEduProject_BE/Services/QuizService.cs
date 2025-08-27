@@ -123,6 +123,93 @@ namespace Services
             }
         }
 
+        public async Task<(bool Success, string Message)> CreateFullQuestions(Guid quizId, List<QuestionDTO> dtos)
+        {
+            try
+            {
+                // 🔍 Kiểm tra quiz có tồn tại không
+                var quiz = await _dbContext.Quizzes.FindAsync(quizId);
+                if (quiz == null || quiz.IsActive == false)
+                    return (false, "Quiz not found or inactive.");
+
+                if (dtos == null || !dtos.Any())
+                    return (false, "No questions provided.");
+
+                var questions = new List<Question>();
+
+                foreach (var dto in dtos)
+                {
+                    var question = new Question
+                    {
+                        Id = Guid.NewGuid(),
+                        QuizId = quizId,
+                        Description = dto.Description,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    // 🔍 Check phải có đúng 1 đáp án đúng
+                    int correctCount = dto.Answers.Count(a => a.IsAnswerCorrect);
+                    if (correctCount != 1)
+                        return (false, $"Question '{dto.Description}' must have exactly one correct answer.");
+
+                    foreach (var ans in dto.Answers)
+                    {
+                        var answer = new Answer
+                        {
+                            Id = Guid.NewGuid(),
+                            QuestionId = question.Id,
+                            Description = ans.Description,
+                            IsCorrect = ans.IsAnswerCorrect,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        question.Answers.Add(answer);
+                    }
+
+                    questions.Add(question);
+                }
+
+                // ⚡ Thêm tất cả questions + answers trong 1 lần
+                await _dbContext.Questions.AddRangeAsync(questions);
+                await _dbContext.SaveChangesAsync();
+
+                return (true, "Questions with answers added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
+        public async Task<(bool Success, string Message)> UpdateFullQuestionsAsync(Guid quizId, UpdateFullQuestionsDto request)
+        {
+            var quiz = await _repository.GetFullQuizAsync(quizId);
+            if (quiz == null) return (false, "Quiz not found");
+
+            foreach (var questionDto in request.Questions)
+            {
+                var question = quiz.Questions.FirstOrDefault(q => q.Id == questionDto.Id);
+                if (question == null) continue;
+
+                question.Description = questionDto.Description;
+                question.UpdatedAt = DateTime.UtcNow;
+
+                foreach (var answerDto in questionDto.Answers)
+                {
+                    var answer = question.Answers.FirstOrDefault(a => a.Id == answerDto.Id);
+                    if (answer == null) continue;
+
+                    answer.Description = answerDto.Description;
+                    answer.IsCorrect = answerDto.IsCorrect;
+                    answer.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            await _repository.UpdateAsync(quiz);
+            return (true, "Questions updated successfully");
+        }
+
         public async Task<(bool Success, string Message)> UpdateFullQuizAsync(Guid quizId, Quiz request)
         {
             var quiz = await _repository.GetFullQuizAsync(quizId);

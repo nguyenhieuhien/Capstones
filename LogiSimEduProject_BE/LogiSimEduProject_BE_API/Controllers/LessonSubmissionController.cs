@@ -39,6 +39,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(submission);
         }
 
+        [HttpGet("lesson/{lessonId}")]
+        public async Task<IActionResult> GetSubmissionsGroupedByClass(Guid lessonId)
+        {
+            var result = await _service.GetGroupedByClassAsync(lessonId);
+            return Ok(result);
+        }
+
         [HttpPost("submit-lesson")]
         [SwaggerOperation(Summary = "Submit a lesson", Description = "Student submits a lesson with an optional file.")]
         public async Task<IActionResult> SubmitLesson([FromForm] LessonSubmissionDTOCreate dto)
