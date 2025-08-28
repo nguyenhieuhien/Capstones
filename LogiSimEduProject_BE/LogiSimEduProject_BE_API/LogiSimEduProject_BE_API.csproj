@@ -27,4 +27,10 @@
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Include="Font\DancingScript-Regular.ttf">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 </Project>

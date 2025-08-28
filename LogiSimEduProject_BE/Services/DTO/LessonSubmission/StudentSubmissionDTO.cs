@@ -11,6 +11,7 @@ namespace Services.DTO.LessonSubmission
         public Guid SubmissionId { get; set; }
         public Guid StudentId { get; set; }
         public string StudentName { get; set; }
+        public string FileUrl { get; set; }
         public double? TotalScore { get; set; }
         public DateTime SubmitTime { get; set; }
     }
