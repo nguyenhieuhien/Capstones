@@ -20,12 +20,20 @@ namespace Repositories
                 .Where(p => p.DeleteAt == null) // loại bỏ các bản ghi đã soft delete
                 .ToListAsync();
         }
+        public async Task<List<SubscriptionPlan>> GetAllActiveAsync()
+        {
+            return await _context.SubscriptionPlans
+                .Where(p => p.DeleteAt == null && p.IsActive == true) // loại bỏ các bản ghi đã soft delete
+                .ToListAsync();
+        }
+
 
         public async Task<SubscriptionPlan> GetByIdAsync(Guid id)
         {
             return await _context.SubscriptionPlans
                 .FirstOrDefaultAsync(p => p.Id == id && p.DeleteAt == null);
         }
+
 
         public async Task<int> CreateAsync(SubscriptionPlan plan)
         {

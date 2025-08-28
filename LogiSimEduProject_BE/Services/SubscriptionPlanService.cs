@@ -15,7 +15,12 @@ namespace Services
 
         public async Task<List<SubscriptionPlan>> GetAll()
         {
+         
             return await _repository.GetAll();
+        }
+        public async Task<List<SubscriptionPlan>> GetAllActive()
+        {
+            return await _repository.GetAllActiveAsync();
         }
 
         public async Task<SubscriptionPlan> GetById(Guid id)
