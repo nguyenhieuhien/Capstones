@@ -19,5 +19,7 @@ namespace Services.DTO.SubscriptionPlan
         [StringLength(1000, ErrorMessage = "Description tối đa 1000 ký tự.")]
         public string? Description { get; set; }
 
+        public bool? IsActive { get; set; }
+
     }
 }
