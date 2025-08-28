@@ -60,6 +60,7 @@ namespace Services
                     SubmissionId = s.Id,
                     StudentId = s.AccountId,
                     StudentName = s.Account.FullName,
+                    FileUrl = s.FileUrl,
                     SubmitTime = s.SubmitTime,
                     TotalScore = s.TotalScore
                 }).ToList()
