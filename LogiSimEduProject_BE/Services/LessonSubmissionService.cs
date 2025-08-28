@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Repositories;
 using Repositories.Models;
+using Services.DTO.LessonSubmission;
 using Services.IServices;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,29 @@ namespace Services
             {
                 return (false, ex.Message, null);
             }
+        }
+
+        public async Task<Dictionary<string, List<StudentSubmissionDTO>>> GetGroupedByClassAsync(Guid lessonId)
+        {
+            var submissions = await _repository.GetByLessonIdAsync(lessonId);
+
+            return submissions
+            .GroupBy(s =>
+                s.Account.AccountOfCourses
+                    .FirstOrDefault(ac => ac.ClassId != null)?.Class?.ClassName ?? "Chưa có lớp"
+            )
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(s => new StudentSubmissionDTO
+                {
+                    SubmissionId = s.Id,
+                    StudentId = s.AccountId,
+                    StudentName = s.Account.FullName,
+                    FileUrl = s.FileUrl,
+                    SubmitTime = s.SubmitTime,
+                    TotalScore = s.TotalScore
+                }).ToList()
+            );
         }
 
         public async Task<(bool Success, string Message)> Delete(string id)

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Repositories.Models;
 using Services;
 using Services.DTO.Account;
+using Services.DTO.Question;
 using Services.DTO.Quiz;
 using Services.IServices;
 using Swashbuckle.AspNetCore.Annotations;
@@ -109,6 +110,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(new { Message = message });
         }
 
+        [HttpPost("questions/{quizId}/bulk")]
+        public async Task<IActionResult> CreateQuestions(Guid quizId, [FromBody] List<QuestionDTO> dtos)
+        {
+            var result = await _service.CreateFullQuestions(quizId, dtos);
+
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+
+            return Ok(new { message = result.Message });
+        }
+
         [HttpPut("update-full_quiz/{id}")]
         public async Task<IActionResult> UpdateFullQuiz(Guid id, [FromBody] UpdateFullQuizDTO request)
         {
@@ -153,7 +165,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_quiz/{id}")]
         [SwaggerOperation(Summary = "Update quiz", Description = "Update topic, name or score of the quiz.")]
         public async Task<IActionResult> Update(string id, [FromBody] QuizDTOUpdate request)
@@ -169,6 +181,17 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (!success) return BadRequest(new { Message = message });
 
             return Ok(new { Message = message });
+        }
+
+        [HttpPut("update-full-questions/{quizId}")]
+        public async Task<IActionResult> UpdateFullQuestions(Guid quizId, [FromBody] UpdateFullQuestionsDto questions)
+        {
+            var (Success, Message) = await _service.UpdateFullQuestionsAsync(quizId, questions);
+
+            if (!Success)
+                return BadRequest(new { Message });
+
+            return Ok(new { Message });
         }
 
         [Authorize(Roles = "Instructor")]

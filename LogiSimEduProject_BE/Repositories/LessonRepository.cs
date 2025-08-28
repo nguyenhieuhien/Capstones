@@ -31,11 +31,10 @@ namespace Repositories
                 .ToListAsync();
         }
 
-        public async Task<Lesson?> GetByTopicAndOrderIndexAsync(Guid topicId, int orderIndex)
+        public async Task<Lesson?> GetById(Guid lessonId)
         {
             return await _context.Lessons
-                .Include(l => l.Topic)
-                .FirstOrDefaultAsync(l => l.TopicId == topicId && l.OrderIndex == orderIndex && l.IsActive == true);
+                .FirstOrDefaultAsync(l => l.Id == lessonId && l.IsActive == true);
         }
 
         public async Task<List<Lesson>> GetLessonsByCourseId(Guid courseId)
@@ -44,6 +43,13 @@ namespace Repositories
                 .Include(l => l.Topic)
                 .Where(l => l.Topic.CourseId == courseId && l.IsActive == true)
                 .ToListAsync();
+        }
+
+        public async Task<Lesson?> GetByTopicAndOrderIndexAsync(Guid topicId, int orderIndex)
+        {
+            return await _context.Lessons
+                .Include(l => l.Topic)
+                .FirstOrDefaultAsync(l => l.TopicId == topicId && l.OrderIndex == orderIndex && l.IsActive == true);
         }
 
         public async Task<List<Quiz>> GetQuizzesByLessonId(Guid lessonId)

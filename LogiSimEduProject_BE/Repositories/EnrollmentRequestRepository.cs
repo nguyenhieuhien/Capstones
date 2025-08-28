@@ -35,6 +35,12 @@ namespace Repositories
                 .FirstOrDefaultAsync(e => e.Id == Guid.Parse(id));
         }
 
+        public async Task<List<AccountOfCourse>> GetStudentsByCourseId(Guid courseId)
+        {
+            return await _context.AccountOfCourses
+                .Where(aoc => aoc.CourseId == courseId && aoc.IsActive == true)
+                .ToListAsync();
+        }
 
         public async Task<AccountOfCourse?> GetByAccountAndCourse(Guid accountOfCourseId)
         {

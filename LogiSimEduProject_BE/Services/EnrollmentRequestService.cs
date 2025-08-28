@@ -103,6 +103,22 @@ namespace Services
             if (record == null)
                 return (false, "Không tìm thấy học viên đủ điều kiện");
 
+            var classEntity = await _dbContext.Classes
+                .Include(c => c.AccountOfCourses) // load danh sách học viên trong lớp
+                .FirstOrDefaultAsync(c => c.Id == classId);
+
+            if (classEntity == null)
+                return (false, "Không tìm thấy lớp học");
+
+            // 🔍 Đếm số học viên hiện tại trong lớp
+            int currentStudents = classEntity.AccountOfCourses.Count(a => a.IsActive == true);
+
+            // 🔍 Kiểm tra số lượng tối đa
+            if (classEntity.NumberOfStudent.HasValue && currentStudents >= classEntity.NumberOfStudent.Value)
+            {
+                return (false, "Lớp đã đủ số lượng học viên, không thể thêm mới.");
+            }
+
             record.ClassId = classId;
             record.UpdatedAt = DateTime.UtcNow;
 
@@ -148,15 +164,6 @@ namespace Services
                     await _dbContext.LessonProgresses.AddAsync(lessonProgress);
                 }
             }
-
-            //// 🔹 Tăng số lượng học viên trong Class
-            //var classEntity = await _dbContext.Classes.FindAsync(classId);
-            //if (classEntity != null)
-            //{
-            //    classEntity.NumberOfStudent = (classEntity.NumberOfStudent ?? 0) + 1;
-            //    classEntity.UpdatedAt = DateTime.UtcNow;
-            //    _dbContext.Classes.Update(classEntity);
-            //}
 
 
             _dbContext.AccountOfCourses.Update(record);
