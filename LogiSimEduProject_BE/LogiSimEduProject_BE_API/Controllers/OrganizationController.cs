@@ -89,6 +89,9 @@ namespace Controllers
             if (!string.IsNullOrWhiteSpace(dto.ImgUrl))
                 existingOrg.ImgUrl = dto.ImgUrl.Trim();
 
+            if (dto.IsActive.HasValue)
+                existingOrg.IsActive = dto.IsActive.Value;
+
             existingOrg.UpdatedAt = DateTime.UtcNow;
 
             var (success, message) = await _organizationService.Update(existingOrg);

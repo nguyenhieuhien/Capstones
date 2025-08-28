@@ -81,6 +81,10 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (request.MaxWorkSpaces.HasValue)
                 existing.MaxWorkSpaces = request.MaxWorkSpaces.Value;
 
+            // ✅ IsActive
+            if (request.IsActive.HasValue)
+                existing.IsActive = request.IsActive.Value;
+
             // UpdatedAt
             existing.UpdatedAt = DateTime.UtcNow;
 
