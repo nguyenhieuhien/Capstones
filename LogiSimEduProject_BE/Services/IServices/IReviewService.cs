@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<Review>> GetAll();
         Task<Review?> GetById(string id);
+        Task<Review?> GetReviewByStudent(Guid courseId, Guid accountId);
         Task<List<Review>> GetReviewsByCourseIdAsync(Guid courseId);
         Task<(bool Success, string Message)> AddOrUpdateReview(Guid courseId, Guid accountId, string description, int rating);
         Task<(bool Success, string Message)> UpdateReview(Guid courseId, Guid accountId, string description, int rating);

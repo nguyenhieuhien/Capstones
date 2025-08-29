@@ -29,5 +29,15 @@ namespace Repositories
                 .Where(s => s.LessonId == lessonId && s.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<LessonSubmission?> GetLessonSubmissionAsync(Guid lessonId, Guid accountId)
+        {
+            return await _context.LessonSubmissions
+                .Include(ls => ls.Account)   // include Account
+                .Where(ls => ls.LessonId == lessonId
+                          && ls.AccountId == accountId
+                          && ls.IsActive)
+                .FirstOrDefaultAsync();
+        }
     }
 }

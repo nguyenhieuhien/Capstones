@@ -39,6 +39,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(submission);
         }
 
+        [HttpGet("my_lesson_submission/{accountId}")]
+        //[SwaggerOperation(Summary = "Get lesson submission by ID", Description = "Returns a specific lesson submission based on the provided ID.")]
+        public async Task<IActionResult> GetMySubmission(Guid lessonId, Guid accountId)
+        {
+            var submission = await _service.GetLessonSubmission(lessonId, accountId);
+            if (submission == null) return NotFound("Lesson submission not found");
+            return Ok(submission);
+        }
+
         [HttpGet("lesson/{lessonId}")]
         public async Task<IActionResult> GetSubmissionsGroupedByClass(Guid lessonId)
         {
