@@ -19,5 +19,7 @@ namespace Services.DTO.Organization
         public string? Address { get; set; }
 
         public string? ImgUrl { get; set; }
+
+        public bool? IsActive { get; set; }
     }
 }
