@@ -32,6 +32,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<Review?> GetReviewByStudent(Guid courseId, Guid accountId)
+        {
+            return await _repository.GetReviewByStudentAsync(courseId, accountId);
+        }
+
         public async Task<List<Review>> GetReviewsByCourseIdAsync(Guid courseId)
         {
             return await _repository.GetReviewsByCourseIdAsync(courseId);
