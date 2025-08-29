@@ -42,6 +42,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(review);
         }
 
+        [HttpGet("my_review/{accountId}/course/{courseId}")]
+        public async Task<IActionResult> GetReviewByStudent(Guid courseId, Guid accountId)
+        {
+            var review = await _reviewService.GetReviewByStudent(courseId, accountId);
+            if (review == null)
+                return NotFound(new { Message = "Review not found." });
+            return Ok(review);
+        }
+
         [HttpGet("course/{courseId}")]
         public async Task<IActionResult> GetByCourseId(Guid courseId)
         {

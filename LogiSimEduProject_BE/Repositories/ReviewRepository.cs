@@ -33,11 +33,11 @@ namespace Repositories
                 .ToListAsync();
         }
 
-        
-
         public async Task<Review?> GetReviewByStudentAsync(Guid courseId, Guid accountId)
         {
             return await _context.Reviews
+                .Include(r => r.Account)
+                .Include(r => r.Course)
                 .FirstOrDefaultAsync(r => r.CourseId == courseId && r.AccountId == accountId && r.IsActive == true);
         }
 

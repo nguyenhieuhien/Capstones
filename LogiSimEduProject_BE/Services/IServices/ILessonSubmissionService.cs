@@ -12,6 +12,7 @@ namespace Services.IServices
     {
         Task<List<LessonSubmission>> GetAll();
         Task<LessonSubmission?> GetById(string id);
+        Task<LessonSubmission?> GetLessonSubmission(Guid lessonId, Guid accountId);
         Task<Dictionary<string, List<StudentSubmissionDTO>>> GetGroupedByClassAsync(Guid lessonId);
         Task<(bool Success, string Message, Guid? Id)> SubmitLesson(LessonSubmission lessonSubmission);
         Task<(bool Success, string Message)> Update(LessonSubmission lessonSubmission);

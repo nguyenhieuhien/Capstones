@@ -19,9 +19,21 @@ namespace Services
         {
             _repository = new LessonSubmissionRepository();
         }
+
+        public async Task<LessonSubmission?> GetLessonSubmission(Guid lessonId, Guid accountId)
+        {
+            return await _repository.GetLessonSubmissionAsync(lessonId, accountId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> SubmitLesson(LessonSubmission lessonSubmission)
         {
-            try { 
+            try {
+                var existing = await _repository.GetLessonSubmissionAsync(lessonSubmission.LessonId,lessonSubmission.AccountId);
+
+                if (existing != null)
+                {
+                    return (false, "You have already submitted this lesson.", existing.Id);
+                }
 
                 var submission = new LessonSubmission
                 {
@@ -101,17 +113,19 @@ namespace Services
         {
             try
             {
-                var submission = new LessonSubmission
-                {
-                    AccountId = lessonSubmission.AccountId,
-                    LessonId = lessonSubmission.LessonId,
-                    SubmitTime = DateTime.UtcNow,
-                    FileUrl = lessonSubmission.FileUrl,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                var result = await _repository.UpdateAsync(submission);
+                var existing = await _repository.GetByIdAsync(lessonSubmission.Id);
+                if (existing == null)
+                    return (false, $"Lesson Submission with ID {lessonSubmission.Id} not found");
+
+                existing.TotalScore = lessonSubmission.TotalScore;
+                existing.FileUrl = lessonSubmission.FileUrl;
+                existing.Note = lessonSubmission.Note;
+                existing.UpdatedAt = DateTime.UtcNow;
+
+                var result = await _repository.UpdateAsync(existing);
                 if (result > 0)
                     return (true, "Lesson Submission updated successfully");
+
                 return (false, "Failed to update lesson Submission");
             }
             catch (Exception ex)
