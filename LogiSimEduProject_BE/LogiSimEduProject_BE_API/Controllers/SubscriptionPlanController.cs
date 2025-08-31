@@ -27,6 +27,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(plans);
         }
 
+        [HttpGet("get_all_active")]
+        public async Task<IActionResult> GetAllActive()
+        {
+            var plans = await _service.GetAllActive();
+            return Ok(plans);
+        }
+
         [HttpGet("get/{id}")]
         [SwaggerOperation(Summary = "Get a subscription plan by ID", Description = "Retrieve a subscription plan by its ID")]
         public async Task<IActionResult> GetById(Guid id)

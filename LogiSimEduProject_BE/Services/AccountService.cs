@@ -436,7 +436,7 @@ namespace Services
 
         public async Task<(bool Success, string Message)> ChangePasswordAsync(string email, string currentPassword, string newPassword)
         {
-            var account = await _accountRepository.GetAccountByUserName(email);
+            var account = await _accountRepository.GetByEmailAsync(email);
             if (account == null) return (false, "Account not found.");
 
             var hasher = new PasswordHasher<Account>();
