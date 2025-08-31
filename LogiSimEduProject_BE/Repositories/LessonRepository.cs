@@ -45,6 +45,14 @@ namespace Repositories
                 .ToListAsync();
         }
 
+        public async Task<Lesson> GetByIdWithTopicCourseAsync(Guid lessonId)
+        {
+            return await _context.Lessons
+                .Include(l => l.Topic)
+                .ThenInclude(t => t.Course)   // cần có Topic.Course
+                .FirstOrDefaultAsync(l => l.Id == lessonId);
+        }
+
         public async Task<Lesson?> GetByTopicAndOrderIndexAsync(Guid topicId, int orderIndex)
         {
             return await _context.Lessons

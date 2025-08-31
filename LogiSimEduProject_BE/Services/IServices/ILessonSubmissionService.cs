@@ -16,6 +16,7 @@ namespace Services.IServices
         Task<Dictionary<string, List<StudentSubmissionDTO>>> GetGroupedByClassAsync(Guid lessonId);
         Task<(bool Success, string Message, Guid? Id)> SubmitLesson(LessonSubmission lessonSubmission);
         Task<(bool Success, string Message)> Update(LessonSubmission lessonSubmission);
+        Task<(bool Success, string Message)> GradeSubmit(LessonSubmission lessonSubmission);
         Task<(bool Success, string Message)> Delete(string id);
     }
 }

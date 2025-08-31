@@ -11,13 +11,13 @@ namespace Services.DTO.Course
 
         public Guid? InstructorId { get; set; }
 
-        public string CourseName { get; set; }
+        public string? CourseName { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public double? RatingAverage { get; set; }
 
         [JsonIgnore]
-        public IFormFile ImgUrl { get; set; }
+        public IFormFile? ImgUrl { get; set; }
     }
 }
