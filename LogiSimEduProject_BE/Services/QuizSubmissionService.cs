@@ -32,27 +32,48 @@ namespace Services
         public async Task<List<QuizResultByClassDto>> GetLessonQuizSubmissionsGroupedByClass(Guid quizId)
         {
             var submissions = await _submissionRepo.GetLessonQuizSubmissions(quizId);
+            if (submissions == null || submissions.Count == 0)
+                return new List<QuizResultByClassDto>();
 
-            var grouped = submissions
-                .GroupBy(qs =>
-                    qs.Account.AccountOfCourses
-                        .Where(aoc => aoc.CourseId == qs.Quiz.Lesson.Topic.CourseId)
-                        .Select(aoc => aoc.Class.ClassName)
-                        .FirstOrDefault()
-                )
+            // 1) Mỗi học viên (AccountId) chỉ giữ 1 bản nộp mới nhất cho quiz này
+            var latestByStudent = submissions
+                .GroupBy(s => s.AccountId)
+                .Select(g => g
+                    .OrderByDescending(x => x.SubmitTime)      // mới nhất theo thời gian nộp
+                    .ThenByDescending(x => x.Id)               // tie-breaker nếu cùng SubmitTime
+                    .First())
+                .ToList();
+
+            // Lấy courseId của quiz (tất cả bản ghi cùng quiz -> cùng course)
+            var courseId = latestByStudent.FirstOrDefault()?.Quiz?.Lesson?.Topic?.CourseId;
+
+            // 2) Group theo tên lớp trong course đó
+            var grouped = latestByStudent
+                .Select(s => new
+                {
+                    ClassName = s.Account?.AccountOfCourses?
+                        .Where(aoc => courseId != null && aoc.CourseId == courseId)
+                        .Select(aoc => aoc.Class?.ClassName)
+                        .FirstOrDefault() ?? "Unassigned",
+                    Row = new StudentQuizDTO
+                    {
+                        AccountId = s.AccountId,
+                        FullName = s.Account?.FullName,
+                        QuizId = s.QuizId,
+                        QuizName = s.Quiz?.QuizName,
+                        SubmitTime = s.SubmitTime,
+                        TotalScore = s.TotalScore
+                    }
+                })
+                .GroupBy(x => x.ClassName)
                 .Select(g => new QuizResultByClassDto
                 {
                     ClassName = g.Key,
-                    Students = g.Select(qs => new StudentQuizDTO
-                    {
-                        AccountId = qs.Account.Id,
-                        FullName = qs.Account.FullName, // giả sử có field này
-                        QuizId = qs.Quiz.Id,
-                        QuizName = qs.Quiz.QuizName,
-                        SubmitTime = qs.SubmitTime,
-                        TotalScore = qs.TotalScore
-                    }).Distinct().ToList()
+                    Students = g.Select(x => x.Row)
+                                 .OrderByDescending(r => r.SubmitTime) // tuỳ thích
+                                 .ToList()
                 })
+                .OrderBy(g => g.ClassName)
                 .ToList();
 
             return grouped;

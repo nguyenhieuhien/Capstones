@@ -13,16 +13,16 @@ namespace Services.DTO.Lesson
         public Guid? TopicId { get; set; }
         public Guid? ScenarioId { get; set; }
 
-        public string LessonName { get; set; }
+        public string? LessonName { get; set; }
 
         public int OrderIndex { get; set; }
 
         [JsonIgnore]
         public IFormFile? FileUrl { get; set; }
 
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public int? Status { get; set; }
     }
