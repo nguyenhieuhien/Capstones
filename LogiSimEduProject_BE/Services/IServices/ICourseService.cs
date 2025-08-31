@@ -17,7 +17,7 @@ namespace Services.IServices
         Task<List<Course>> GetAllByOrgId(Guid orgId);
         Task<string?> GetInstructorFullNameAsync(Guid courseId);
         Task<(bool Success, string Message, Guid? Id)> Create(Course course);
-        Task<(bool Success, string Message)> Update(CourseDTO course);
+        Task<(bool Success, string Message)> Update(CourseDTO dto);
         Task<(bool Success, string Message)> Delete(string id);
         Task<List<Course>> Search(string name, string description);
         Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId);

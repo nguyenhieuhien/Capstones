@@ -5,9 +5,9 @@ namespace Services.DTO.Course
 {
     public class CourseDTOUpdate
     {
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
 
-        public Guid WorkSpaceId { get; set; }
+        public Guid? WorkSpaceId { get; set; }
 
         public Guid? InstructorId { get; set; }
 

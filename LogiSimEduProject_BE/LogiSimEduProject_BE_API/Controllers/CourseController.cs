@@ -182,6 +182,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             return success ? Ok(new { Message = message }) : BadRequest(message);
         }
 
+
         //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete/{id}")]
         [SwaggerOperation(Summary = "Delete course", Description = "Delete a course by ID.")]
