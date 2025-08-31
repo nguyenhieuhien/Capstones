@@ -43,7 +43,15 @@ namespace Services
 
             var hasher = new PasswordHasher<Account>();
             var result = hasher.VerifyHashedPassword(account, account.Password, password);
-            return result == PasswordVerificationResult.Success ? account : null;
+            if (result != PasswordVerificationResult.Success) return null;
+
+            // Nếu login thành công nhưng email chưa verify
+            if (account.IsEmailVerify == false)
+            {
+                await SendEmailVerificationOTPAsync(account.Email);
+            }
+
+            return account;
         }
 
         private async Task SendEmailVerificationOTPAsync(string email)
@@ -116,7 +124,7 @@ namespace Services
                 //Address = dto.Address,
                 //Gender = dto.Gender,
                 IsActive = true,
-                IsEmailVerify = true,
+                IsEmailVerify = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -168,7 +176,7 @@ namespace Services
                 //Gender = dto.Gender,
                 RoleId = 3, // Instructor
                 IsActive = true,
-                IsEmailVerify = true,
+                IsEmailVerify = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -223,7 +231,7 @@ namespace Services
                 //Gender = dto.Gender,
                 RoleId = 4, // Student
                 IsActive = true,
-                IsEmailVerify = true,
+                IsEmailVerify = false,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -301,7 +309,7 @@ namespace Services
                         Email = email,
                         RoleId = roleId,
                         IsActive = true,
-                        IsEmailVerify = true,
+                        IsEmailVerify = false,
                         CreatedAt = DateTime.UtcNow
                     };
 
