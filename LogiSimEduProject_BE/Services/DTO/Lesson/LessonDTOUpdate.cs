@@ -15,7 +15,7 @@ namespace Services.DTO.Lesson
 
         public string? LessonName { get; set; }
 
-        public int OrderIndex { get; set; }
+        public int? OrderIndex { get; set; }
 
         [JsonIgnore]
         public IFormFile? FileUrl { get; set; }

@@ -126,20 +126,32 @@ namespace LogiSimEduProject_BE_API.Controllers
         }
 
         //[Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpPut("update_lesson/{id}")]
-        [SwaggerOperation(Summary = "Update an existing lesson", Description = "Updates fields of a lesson and uploads a new file to Cloudinary if provided.")]
+        [SwaggerOperation(Summary = "Update an existing lesson",
+            Description = "Partially updates fields of a lesson and uploads a new file to Cloudinary if provided.")]
         public async Task<IActionResult> Put(string id, [FromForm] LessonDTOUpdate request)
         {
-            var lesson = await _service.GetById(id);
+            var lesson = await _service.GetById(id); // ĐẢM BẢO hàm này trả về entity `Lesson`
             if (lesson == null) return NotFound("Lesson not found");
 
-            string? fileUrl = lesson.FileUrl;
+            var touched = false;
 
-            // Nếu client upload file mới -> upload & thay thế
+            if (request.TopicId.HasValue) { lesson.TopicId = request.TopicId.Value; touched = true; }
+            if (request.ScenarioId.HasValue) { lesson.ScenarioId = request.ScenarioId.Value; touched = true; }
+            if (request.LessonName != null) { lesson.LessonName = request.LessonName; touched = true; }
+            if (request.Status.HasValue) { lesson.Status = request.Status.Value; touched = true; }
+            if (request.Title != null) { lesson.Title = request.Title; touched = true; }
+            if (request.Description != null) { lesson.Description = request.Description; touched = true; }
+
+            // Upload file video mới (nếu có)
             if (request.FileUrl != null)
             {
-                await using var stream = request.FileUrl.OpenReadStream();
+                // khuyến nghị: kiểm tra mimetype cơ bản
+                if (!request.FileUrl.ContentType.StartsWith("video/"))
+                    return BadRequest(new { success = false, message = "File video không hợp lệ." });
 
+                await using var stream = request.FileUrl.OpenReadStream();
                 var uploadParams = new VideoUploadParams
                 {
                     File = new FileDescription(request.FileUrl.FileName, stream),
@@ -150,44 +162,38 @@ namespace LogiSimEduProject_BE_API.Controllers
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    fileUrl = uploadResult.SecureUrl?.ToString();
-                }
-                else
-                {
-                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
-                }
+                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                    return StatusCode((int)uploadResult.StatusCode,
+                        new { success = false, message = uploadResult.Error?.Message });
+
+                lesson.FileUrl = uploadResult.SecureUrl?.ToString();
+                touched = true;
             }
 
-            // Cập nhật các trường
-            lesson.TopicId = request.TopicId;
-            lesson.ScenarioId = request.ScenarioId;
-            lesson.LessonName = request.LessonName;
-            lesson.Status = request.Status;
-            lesson.Title = request.Title;
-            lesson.Description = request.Description;
-            lesson.FileUrl = fileUrl; // giữ nguyên nếu không upload mới
-            lesson.UpdatedAt = DateTime.UtcNow;
+            if (!touched)
+                return BadRequest(new { success = false, message = "Không có dữ liệu nào để cập nhật." });
 
-            var (success, message) = await _service.Update(lesson);
-            if (!success) return BadRequest(message);
+            // KHÔNG set UpdatedAt ở controller (service sẽ lo)
+            (bool success, string message) = await _service.Update(lesson);
 
-            return Ok(new
-            {
-                Message = message,
-                Data = new
+            return success
+                ? Ok(new
                 {
-                    lesson.Id,
-                    lesson.TopicId,
-                    lesson.ScenarioId,
-                    lesson.LessonName,
-                    lesson.Status,
-                    lesson.Title,
-                    lesson.Description,
-                    lesson.FileUrl
-                }
-            });
+                    success = true,
+                    message,
+                    data = new
+                    {
+                        lesson.Id,
+                        lesson.TopicId,
+                        lesson.ScenarioId,
+                        lesson.LessonName,
+                        lesson.Status,
+                        lesson.Title,
+                        lesson.Description,
+                        lesson.FileUrl
+                    }
+                })
+                : BadRequest(new { success = false, message });
         }
 
 
