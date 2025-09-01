@@ -13,11 +13,11 @@ namespace Services.IServices
         Task<List<Course>> GetAll();
         Task<List<Course>> GetCoursesByInstructorId(Guid instructorId);
         Task<List<Course>> GetCoursesByCategoryId(Guid categoryId);
-        Task<CourseDTO?> GetById(Guid id);
+        Task<Course?> GetById(Guid id);
         Task<List<Course>> GetAllByOrgId(Guid orgId);
         Task<string?> GetInstructorFullNameAsync(Guid courseId);
         Task<(bool Success, string Message, Guid? Id)> Create(Course course);
-        Task<(bool Success, string Message)> Update(CourseDTO dto);
+        Task<(bool Success, string Message)> Update(Course course);
         Task<(bool Success, string Message)> Delete(string id);
         Task<List<Course>> Search(string name, string description);
         Task<List<Course>> GetAllByWorkspaceId(Guid workspaceId);
