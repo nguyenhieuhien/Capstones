@@ -54,6 +54,11 @@ namespace Services
             return await _repository.GetTopicsByCourseIdAsync(courseId);
         }
 
+        public async Task<List<Topic>> GetProcessTopicsByCourseId(Guid courseId, Guid? accountId = null, int? progressStatus = null)
+        {
+            return await _repository.GetProcessTopicsByCourseIdAsync(courseId, accountId, progressStatus);
+        }
+
         public async Task<int> Update(Topic topic)
         {
             return await _repository.UpdateAsync(topic);

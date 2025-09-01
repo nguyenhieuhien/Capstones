@@ -8,6 +8,7 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Services.DTO.Topic;
+using Microsoft.Identity.Client;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -50,6 +51,14 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(topics);
         }
 
+        [HttpGet("by-course-process/{courseId}")]
+        //[SwaggerOperation(Summary = "Get topics by Course ID", Description = "Returns all topics associated with a specific Course ID.")]
+        public async Task<IActionResult> GetProcessTopicsByCourseId(Guid courseId, Guid? accountId = null, int? progressStatus = null)
+        {
+            var topics = await _service.GetProcessTopicsByCourseId(courseId, accountId, progressStatus);
+            return Ok(topics);
+        }
+
 
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_topic")]
@@ -66,6 +75,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 CourseId = request.CourseId,
                 TopicName = request.TopicName,
                 Description = request.Description,
+                OrderIndex = request.OrderIndex,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -84,6 +94,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                     topic.CourseId,
                     topic.TopicName,
                     topic.Description,
+                    topic.OrderIndex,
                     topic.IsActive,
                     topic.CreatedAt
                 }
@@ -108,6 +119,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             existingTopic.CourseId = request.CourseId;
             existingTopic.TopicName = request.TopicName;
             existingTopic.Description = request.Description;
+            existingTopic.OrderIndex = request.OrderIndex;
             //existingTopic.IsActive = request.IsActive; // nếu DTOUpdate có cờ này
             existingTopic.UpdatedAt = DateTime.UtcNow;
 
@@ -124,13 +136,14 @@ namespace LogiSimEduProject_BE_API.Controllers
                     existingTopic.CourseId,
                     existingTopic.TopicName,
                     existingTopic.Description,
+                    existingTopic.OrderIndex,
                     existingTopic.IsActive,
                     existingTopic.UpdatedAt
                 }
             });
         }
 
-        [Authorize(Roles = "Instructor")]
+        //[Authorize(Roles = "Instructor")]
         [HttpDelete("delete_topic/{id}")]
         [SwaggerOperation(Summary = "Delete topic", Description = "Deletes a topic by ID.")]
         public async Task<IActionResult> Delete(string id)
