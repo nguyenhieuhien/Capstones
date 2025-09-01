@@ -1,4 +1,6 @@
 ﻿using CloudinaryDotNet;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using LogiSimEduProject_BE_API.Controllers.Cloudinary;
@@ -7,17 +9,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OfficeOpenXml;
+using QuestPDF.Infrastructure;
 using Repositories;
 using Repositories.DBContext;
 using Services;
 using Services.IServices;
+using Services.Jobs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
-using DinkToPdf;
-using DinkToPdf.Contracts;
-using QuestPDF.Infrastructure;
-using OfficeOpenXml;
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
@@ -212,6 +213,7 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+builder.Services.AddHostedService<DailyExpireOrganizationsJob>();
 
 // -----------------------
 // 🚀 Build & Run App
