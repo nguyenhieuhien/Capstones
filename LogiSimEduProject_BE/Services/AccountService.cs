@@ -478,7 +478,7 @@ namespace Services
 
             var token = Guid.NewGuid().ToString();
             _cache.Set(token, email, TimeSpan.FromMinutes(30));
-            var link = $"https://www.facebook.com/NguyenHieuHien.Profile?token={token}";
+            var link = $"https://capstone-flexsim-fe.vercel.app/reset-password?token={token}";
 
             await _emailService.SendEmailAsync(email, "Yêu cầu đặt lại mật khẩu - LogiSimEdu",
                 $"<p>Nhấn vào liên kết sau để đặt lại mật khẩu:</p><a href='{link}'>{link}</a>");

@@ -134,12 +134,18 @@ namespace Services
 
         public async Task<(bool Success, string Message)> Update(Lesson request)
         {
-            if (request == null || request.Id == Guid.Empty || string.IsNullOrWhiteSpace(request.LessonName))
+            // Partial update: không bắt buộc LessonName phải được gửi lại
+            if (request == null || request.Id == Guid.Empty)
                 return (false, "Invalid update data");
 
-            request.UpdatedAt = DateTime.UtcNow;
-            var result = await _repository.UpdateAsync(request);
-            return result > 0 ? (true, "Updated successfully") : (false, "Update failed");
+            request.UpdatedAt = DateTime.UtcNow; // nếu muốn bỏ hẳn UpdatedAt, xóa dòng này
+            var affected = await _repository.UpdateAsync(request);
+
+            if (affected == 0)
+                return (true, "Không có thay đổi nào để cập nhật."); // không coi là lỗi
+
+            return (true, "Updated successfully");
         }
+
     }
 }
