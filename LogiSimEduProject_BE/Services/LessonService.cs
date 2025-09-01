@@ -18,14 +18,22 @@ namespace Services
         private readonly LessonRepository _repository;
         private readonly TopicRepository _topicRepo;
         private readonly LessonProgressRepository _lessonProgressRepo;
+        private readonly QuizSubmissionRepository _quizSubRepo;
         private readonly EnrollmentRequestRepository _enrollRepo;
 
-        public LessonService()
+        public LessonService(
+            LessonRepository repository,
+            QuizSubmissionRepository quizSubRepo,
+            TopicRepository topicRepo,
+            LessonProgressRepository lessonProgressRepo,
+            EnrollmentRequestRepository enrollRepo
+            )
         {
-            _repository = new LessonRepository();
-            _topicRepo = new TopicRepository();
-            _enrollRepo = new EnrollmentRequestRepository();
-            _lessonProgressRepo = new LessonProgressRepository();
+            _repository = repository;
+            _topicRepo = topicRepo;
+            _enrollRepo = enrollRepo;
+            _quizSubRepo = quizSubRepo;
+            _lessonProgressRepo = lessonProgressRepo;
         }
         public async Task<(bool Success, string Message, Guid? Id)> Create(Lesson request)
         {
@@ -40,7 +48,7 @@ namespace Services
                     OrderIndex = request.OrderIndex,
                     Description = request.Description,
                     Title = request.Title,
-                    Status = request.Status,  
+                    Status = 1,  
                     FileUrl = request.FileUrl,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
@@ -119,6 +127,80 @@ namespace Services
         public async Task<List<Lesson>> GetLessonsByTopicId(Guid topicId)
         {
             return await _repository.GetLessonsByTopicIdAsync(topicId);
+        }
+
+        public async Task<List<LessonWithQuizzesDTO>> GetLessonsWithLatestScoresAsync(Guid topicId, Guid? accountId = null)
+        {
+            var lessons = await _repository.GetLessonsByTopicId(topicId);
+
+            Dictionary<Guid, double?> latestScores = new();
+            if (accountId.HasValue)
+            {
+                latestScores = await _quizSubRepo.GetLatestScoresByQuizForTopicAsync(topicId, accountId.Value);
+            }
+
+            var result = lessons.Select(l => new LessonWithQuizzesDTO
+            {
+                Id = l.Id,
+                TopicId = l.TopicId,
+                LessonName = l.LessonName,     // đổi tên field cho khớp entity
+                Title = l.Title,
+                Description = l.Description,
+
+                Scenario = (l.Scenario != null && (l.Scenario.IsActive ?? true))
+                ? new ScenarioDto
+                {
+                    Id = l.Scenario.Id,
+                    ScenarioName = l.Scenario.ScenarioName,
+                    FileUrl = l.Scenario.FileUrl,
+                    Description = l.Scenario.Description
+                }
+                : null,
+
+                LessonProgresses = (l.LessonProgresses ?? [])
+                .Where(lp => (lp.IsActive ?? false)
+                             && (!accountId.HasValue || lp.AccountId == accountId))
+                .Select(lp => new LessonProgressDto
+                {
+                    Id = lp.Id,
+                    AccountId = lp.AccountId,
+                    Status = lp.Status,
+                    UpdatedAt = lp.UpdatedAt
+                })
+                .ToList(),
+
+                LessonSubmissions = (l.LessonSubmissions ?? [])
+                .Where(ls => ls.IsActive
+                             && (!accountId.HasValue || ls.AccountId == accountId))
+                .OrderByDescending(ls => ls.SubmitTime)
+                .Select(ls => new LessonSubmissionDto
+                {
+                    Id = ls.Id,
+                    AccountId = ls.AccountId,
+                    SubmitTime = ls.SubmitTime,
+                    FileUrl = ls.FileUrl,
+                    Note = ls.Note,
+                    TotalScore = ls.TotalScore
+                })
+                .ToList(),
+
+                Quizzes = l.Quizzes
+                    .Where(q => q.IsActive == true)
+                    .Select(q => new QuizWithLatestScoreDto
+                    {
+                        Id = q.Id,
+                        QuizName = q.QuizName,
+                        TotalScore = q.TotalScore,
+                        LatestScore = accountId.HasValue
+                            ? latestScores.GetValueOrDefault(q.Id)
+                            : null
+                    })
+                    .ToList()
+            }).ToList();
+
+
+
+            return result;
         }
 
         public async Task<List<QuizDTOByLesson>> GetQuizzesByLessonId(Guid lessonId)
