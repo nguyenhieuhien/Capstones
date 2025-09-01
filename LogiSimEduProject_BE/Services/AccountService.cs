@@ -394,6 +394,8 @@ namespace Services
             return package.GetAsByteArray();
         }
 
+
+
         public string GenerateToken(Account account, IConfiguration config)
         {
             var key = config["Jwt:Key"];
@@ -425,7 +427,7 @@ namespace Services
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddMonths(1),
                 signingCredentials: credentials
             );
 
