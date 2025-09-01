@@ -51,12 +51,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(topics);
         }
 
-        [HttpGet("by-course-process/{courseId}")]
-        //[SwaggerOperation(Summary = "Get topics by Course ID", Description = "Returns all topics associated with a specific Course ID.")]
-        public async Task<IActionResult> GetProcessTopicsByCourseId(Guid courseId, Guid? accountId = null, int? progressStatus = null)
+        [HttpGet("course/{courseId:guid}/with-student-finish")]
+        public async Task<ActionResult<List<TopicWithFinishDTO>>> GetTopicsWithStudentFinish(
+        Guid courseId,
+        [FromQuery] int completedStatus = 2)
         {
-            var topics = await _service.GetProcessTopicsByCourseId(courseId, accountId, progressStatus);
-            return Ok(topics);
+            var result = await _service.GetTopicsByCourseIdAsync(courseId, completedStatus);
+            return Ok(result);
         }
 
 

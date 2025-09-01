@@ -1,4 +1,5 @@
 ﻿using Repositories.Models;
+using Services.DTO.Topic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Services.IServices
         Task<List<Topic>> GetAll();
         Task<Topic> GetById(string id);
         Task<List<Topic>> GetTopicsByCourseId(Guid courseId);
-        Task<List<Topic>> GetProcessTopicsByCourseId(Guid courseId, Guid? accountId = null, int? progressStatus = null);
+        Task<List<TopicWithFinishDTO>> GetTopicsByCourseIdAsync(Guid courseId, int completedStatus = 2);
         Task<int> Create(Topic topic);
         Task<int> Update(Topic topic);
         Task<(bool Success, string Message)> Delete(string id);

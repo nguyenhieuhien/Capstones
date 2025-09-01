@@ -31,6 +31,20 @@ namespace Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Lesson>> GetLessonsByTopicId(Guid topicId)
+        {
+            return await _context.Lessons
+                .AsNoTracking()
+                .Where(l => l.TopicId == topicId && l.IsActive == true)
+                // chỉ include Quizzes vì điểm sẽ lấy từ repo khác
+                .Include(l => l.Quizzes.Where(q => q.IsActive == true))
+                .Include(lp => lp.LessonProgresses)
+                .Include(ls => ls.LessonSubmissions)
+                .Include(s => s.Scenario)
+                .AsSplitQuery()
+                .ToListAsync();
+        }
+
         public async Task<Lesson?> GetById(Guid lessonId)
         {
             return await _context.Lessons

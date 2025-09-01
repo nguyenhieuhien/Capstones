@@ -43,5 +43,23 @@ namespace Repositories
                 .Where(qs => qs.Quiz.Id == quizId && qs.IsActive == true)
                 .ToListAsync();
         }
+
+        public async Task<Dictionary<Guid, double?>> GetLatestScoresByQuizForTopicAsync(Guid topicId, Guid accountId)
+        {
+            // Lấy mỗi quiz 1 record: submission mới nhất của account trong topic
+            var latestPerQuiz = await _context.QuizSubmissions
+                .AsNoTracking()
+                .Where(qs => (qs.IsActive ?? false)
+                             && qs.AccountId == accountId
+                             && qs.QuizId != null
+                             && qs.Quiz!.Lesson.TopicId == topicId)
+                .GroupBy(qs => qs.QuizId!.Value)
+                .Select(g => g.OrderByDescending(x => (x.SubmitTime ?? x.CreatedAt))
+                              .Select(x => new { x.QuizId, x.TotalScore })
+                              .FirstOrDefault()!)
+                .ToDictionaryAsync(x => x.QuizId!.Value, x => x.TotalScore);
+
+            return latestPerQuiz;
+        }
     }
 }
