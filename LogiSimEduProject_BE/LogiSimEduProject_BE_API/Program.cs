@@ -138,6 +138,8 @@ builder.Services.AddScoped<OrderRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<PaymentRepository>();
 
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 // -----------------------
 // 🧠 EF DbContext
 // -----------------------
