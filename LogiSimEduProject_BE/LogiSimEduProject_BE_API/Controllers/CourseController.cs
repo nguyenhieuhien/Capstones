@@ -142,45 +142,47 @@ namespace LogiSimEduProject_BE_API.Controllers
 
         //[Authorize(Roles = "Instructor")]
         [HttpPut("update/{id}")]
-        [SwaggerOperation(Summary = "Update course", Description = "Update an existing course.")]
-        public async Task<IActionResult> Update(Guid id, [FromForm] CourseDTOUpdate dto)
+        public async Task<IActionResult> UpdateCourse(Guid id, [FromForm] CourseDTOUpdate request)
         {
-            var existing = await _courseService.GetById(id);
-            if (existing == null)
-                return NotFound("Course not found");
+            Course? existing = await _courseService.GetById(id);
+            if (existing == null) return NotFound("Không tìm thấy khóa học.");
 
-            string? imgUrl = existing.ImgUrl;
+            if (request.CourseName != null) existing.CourseName = request.CourseName;
+            if (request.Description != null) existing.Description = request.Description;
+            if (request.RatingAverage.HasValue) existing.RatingAverage = request.RatingAverage.Value;
+            if (request.CategoryId.HasValue) existing.CategoryId = request.CategoryId.Value;
+            if (request.WorkSpaceId.HasValue) existing.WorkSpaceId = request.WorkSpaceId.Value;
+            if (request.InstructorId.HasValue) existing.InstructorId = request.InstructorId.Value;
 
-            if (dto.ImgUrl != null)
+            // Chỉ upload file ảnh
+            if (request.ImgUrl != null)
             {
-                using var stream = dto.ImgUrl.OpenReadStream();
+                if (!request.ImgUrl.ContentType.StartsWith("image/"))
+                    return BadRequest(new { success = false, message = "File ảnh không hợp lệ." });
+
+                using var stream = request.ImgUrl.OpenReadStream();
                 var uploadParams = new ImageUploadParams
                 {
-                    File = new FileDescription(dto.ImgUrl.FileName, stream),
+                    File = new FileDescription(request.ImgUrl.FileName, stream),
                     Folder = "LogiSimEdu_Courses",
                     UseFilename = true,
                     UniqueFilename = false,
                     Overwrite = true
                 };
-
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
                 if (uploadResult.StatusCode != HttpStatusCode.OK)
-                    return StatusCode((int)uploadResult.StatusCode, uploadResult.Error?.Message);
+                    return StatusCode((int)uploadResult.StatusCode, new { success = false, message = uploadResult.Error?.Message });
 
-                imgUrl = uploadResult.SecureUrl.ToString();
+                existing.ImgUrl = uploadResult.SecureUrl.ToString();
             }
 
-            existing.CategoryId = dto.CategoryId;
-            existing.WorkSpaceId = dto.WorkSpaceId;
-            existing.InstructorId = dto.InstructorId;
-            existing.CourseName = dto.CourseName;
-            existing.Description = dto.Description;
-            existing.RatingAverage = dto.RatingAverage;
-            existing.ImgUrl = imgUrl;
-
             var (success, message) = await _courseService.Update(existing);
-            return success ? Ok(new { Message = message }) : BadRequest(message);
+            return success
+                ? Ok(new { success = true, message })
+                : BadRequest(new { success = false, message });
         }
+
+
 
 
         //[Authorize(Roles = "Instructor")]
