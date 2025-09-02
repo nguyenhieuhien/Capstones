@@ -28,6 +28,7 @@ namespace Repositories
                 .Include(ls => ls.LessonSubmissions)
                 .Include(s => s.Scenario)
                 .Where(l => l.TopicId == topicId && l.IsActive == true)
+                .OrderBy(l => l.OrderIndex)
                 .ToListAsync();
         }
 
@@ -36,6 +37,7 @@ namespace Repositories
             return await _context.Lessons
                 .AsNoTracking()
                 .Where(l => l.TopicId == topicId && l.IsActive == true)
+                .OrderBy(l => l.OrderIndex)
                 // chỉ include Quizzes vì điểm sẽ lấy từ repo khác
                 .Include(l => l.Quizzes.Where(q => q.IsActive == true))
                 .Include(lp => lp.LessonProgresses)
