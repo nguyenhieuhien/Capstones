@@ -24,6 +24,7 @@ namespace Repositories
         {
             return await _context.Topics
                 .Where(t => t.CourseId == courseId && t.IsActive == true)
+                .OrderBy(t => t.OrderIndex)
                 .ToListAsync();
         }
 
