@@ -18,42 +18,49 @@ namespace LogiSimEduProject_BE_API.Controllers
         /// Số student theo từng course (chart-ready)
         /// GET /api/dashboard/courses/students?statuses=1&statuses=2
         /// </summary>
-        [HttpGet("courses/students")]
-        public async Task<ActionResult<ChartSeriesDto>> GetStudentsPerCourse([FromQuery] int[]? statuses)
+        [HttpGet("instructors/{instructorId:guid}/courses/students")]
+        public async Task<ActionResult<ChartSeriesDto>> GetStudentsPerCourseByInstructor(
+        Guid instructorId, [FromQuery] int[]? statuses)
         {
-            var rows = await _svc.GetStudentCountsPerCourseAsync(statuses);
-            var chart = new ChartSeriesDto
+            var rows = await _svc.GetStudentCountsPerCourseByInstructorAsync(instructorId, statuses);
+            return Ok(new ChartSeriesDto
             {
                 Labels = rows.Select(r => r.CourseName).ToList(),
                 Data = rows.Select(r => r.StudentCount).ToList()
-            };
-            return Ok(chart);
+            });
         }
 
         /// <summary>
         /// Số student theo từng class trong 1 course (chart-ready)
         /// GET /api/dashboard/courses/{courseId}/classes/students?statuses=1&statuses=2
         /// </summary>
-        [HttpGet("courses/{courseId:guid}/classes/students")]
-        public async Task<ActionResult<ChartSeriesDto>> GetStudentsPerClass(Guid courseId, [FromQuery] int[]? statuses)
+        [HttpGet("instructors/{instructorId:guid}/classes/students")]
+        public async Task<ActionResult<ChartSeriesDto>> GetStudentsPerClassByInstructor(
+        Guid instructorId, [FromQuery] Guid? courseId, [FromQuery] int[]? statuses,
+        [FromQuery] bool classScopeByClassInstructor = true, bool includeEmptyClasses = true)
         {
-            var rows = await _svc.GetStudentCountsPerClassAsync(courseId, statuses);
-            var chart = new ChartSeriesDto
+            var rows = await _svc.GetStudentCountsPerClassByInstructorAsync(
+                instructorId, courseId, statuses, classScopeByClassInstructor, includeEmptyClasses);
+
+            return Ok(new ChartSeriesDto
             {
                 Labels = rows.Select(r => r.ClassName).ToList(),
                 Data = rows.Select(r => r.StudentCount).ToList()
-            };
-            return Ok(chart);
+            });
         }
 
         /// <summary>
         /// Tổng hợp dashboard (tổng quan + per-course + per-class + chart data)
         /// GET /api/dashboard?courseId={optional}&topN=10&statuses=1&statuses=2
         /// </summary>
-        [HttpGet]
-        public async Task<ActionResult<DashboardCourseAndClassSummaryDTO>> GetDashboard([FromQuery] Guid? courseId, [FromQuery] int[]? statuses, [FromQuery] int? topN)
+        [HttpGet("instructors/{instructorId:guid}")]
+        public async Task<ActionResult<DashboardCourseAndClassSummaryDTO>> GetDashboardByInstructor(
+        Guid instructorId, [FromQuery] Guid? courseId, [FromQuery] int[]? statuses,
+        [FromQuery] int? topN, [FromQuery] bool classScopeByClassInstructor = false)
         {
-            var summary = await _svc.GetDashboardAsync(courseId, statuses, topN);
+            var summary = await _svc.GetDashboardByInstructorAsync(
+                instructorId, courseId, statuses, topN, classScopeByClassInstructor);
+
             return Ok(summary);
         }
     }
