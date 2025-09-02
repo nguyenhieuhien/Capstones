@@ -15,16 +15,17 @@ namespace Services
         private readonly LogiSimEduContext _ctx;
         public DashboardService(LogiSimEduContext ctx) => _ctx = ctx;
 
-        public async Task<List<CourseStudentCountDto>> GetStudentCountsPerCourseAsync(int[]? statuses = null)
+        public async Task<List<CourseStudentCountDto>> GetStudentCountsPerCourseByInstructorAsync(
+        Guid instructorId, int[]? statuses = null)
         {
             var q = _ctx.AccountOfCourses
-                .AsNoTracking()
-                .Where(aoc =>
-                    (aoc.IsActive ?? false) &&
-                    aoc.CourseId != null &&
-                    aoc.AccountId != null &&
-                    aoc.Course != null &&
-                    (aoc.Course.IsActive ?? false));
+            .AsNoTracking()
+            .Where(aoc =>
+                (aoc.IsActive ?? false) &&
+                aoc.AccountId != null &&
+                aoc.CourseId != null &&
+                aoc.Course != null && (aoc.Course.IsActive ?? false) &&
+                aoc.Course.InstructorId == instructorId);
 
             if (statuses != null && statuses.Length > 0)
                 q = q.Where(aoc => aoc.Status != null && statuses.Contains(aoc.Status.Value));
@@ -43,67 +44,82 @@ namespace Services
             return data;
         }
 
-        public async Task<List<ClassStudentCountDto>> GetStudentCountsPerClassAsync(Guid courseId, int[]? statuses = null)
+        public async Task<List<ClassStudentCountDto>> GetStudentCountsPerClassByInstructorAsync(Guid instructorId, Guid? courseId = null, int[]? statuses = null, bool classScopeByClassInstructor = true, bool includeEmptyClasses = true)
         {
-            var q = _ctx.AccountOfCourses
-                .AsNoTracking()
-                .Where(aoc =>
-                    (aoc.IsActive ?? false) &&
-                    aoc.CourseId == courseId &&
-                    aoc.ClassId != null &&
-                    aoc.AccountId != null &&
-                    aoc.Class != null &&
-                    (aoc.Class.IsActive ?? false));
-
-            if (statuses != null && statuses.Length > 0)
-                q = q.Where(aoc => aoc.Status != null && statuses.Contains(aoc.Status.Value));
-
-            var data = await q
-                .GroupBy(aoc => new { aoc.ClassId, aoc.Class.ClassName, aoc.CourseId, CourseName = aoc.Course.CourseName })
-                .Select(g => new ClassStudentCountDto
-                {
-                    ClassId = g.Key.ClassId!.Value,
-                    ClassName = g.Key.ClassName,
-                    CourseId = g.Key.CourseId!.Value,
-                    CourseName = g.Key.CourseName,
-                    StudentCount = g.Select(x => x.AccountId!.Value).Distinct().Count()
-                })
-                .OrderByDescending(x => x.StudentCount)
-                .ToListAsync();
-
-            return data;
-        }
-
-        public async Task<DashboardCourseAndClassSummaryDTO> GetDashboardAsync(Guid? courseId = null, int[]? statuses = null, int? topN = null)
-        {
-            // Per-course
-            var perCourse = await GetStudentCountsPerCourseAsync(statuses);
-            if (courseId.HasValue)
-                perCourse = perCourse.Where(x => x.CourseId == courseId.Value).ToList();
-
-            // Per-class (nếu chỉ định courseId thì trả theo course đó; nếu không chỉ định, trả top theo tất cả)
-            List<ClassStudentCountDto> perClass;
-            if (courseId.HasValue)
+            if (includeEmptyClasses)
             {
-                perClass = await GetStudentCountsPerClassAsync(courseId.Value, statuses);
+                // Xuất phát từ Classes để không bỏ sót lớp chưa có enroll
+                var classes = _ctx.Classes
+                    .AsNoTracking()
+                    .Where(cls => (cls.IsActive ?? false));
+
+                classes = classScopeByClassInstructor
+                    ? classes.Where(cls => cls.InstructorId == instructorId)                    // class do chính instructor dạy
+                    : classes.Where(cls => cls.Course != null && cls.Course.InstructorId == instructorId); // lớp thuộc course của instructor
+
+                if (courseId.HasValue)
+                    classes = classes.Where(cls => cls.CourseId == courseId.Value);
+
+                var data = await classes
+                    .Select(cls => new ClassStudentCountDto
+                    {
+                        ClassId = cls.Id,
+                        ClassName = cls.ClassName,
+                        // Nếu chắc chắn không null thì dùng cls.CourseId!.Value
+                        CourseId = cls.CourseId ?? Guid.Empty,
+                        CourseName = cls.Course != null ? cls.Course.CourseName : string.Empty,
+                        StudentCount = _ctx.AccountOfCourses
+                            .Where(aoc =>
+                                (aoc.IsActive ?? false) &&
+                                aoc.ClassId == cls.Id &&
+                                aoc.AccountId != null &&
+                                (statuses == null || statuses.Length == 0 || (aoc.Status != null && statuses.Contains(aoc.Status.Value))))
+                            .Select(aoc => aoc.AccountId!.Value)
+                            .Distinct()
+                            .Count()
+                    })
+                    .OrderByDescending(x => x.StudentCount)
+                    .ToListAsync();
+
+                return data;
             }
             else
             {
-                // lấy tất cả class
+                // Giữ nguyên logic cũ (bắt đầu từ AccountOfCourses) — chỉ trả lớp có ít nhất 1 enroll
                 var q = _ctx.AccountOfCourses
                     .AsNoTracking()
                     .Where(aoc =>
                         (aoc.IsActive ?? false) &&
-                        aoc.ClassId != null &&
                         aoc.AccountId != null &&
+                        aoc.ClassId != null &&
                         aoc.Class != null && (aoc.Class.IsActive ?? false) &&
                         aoc.Course != null && (aoc.Course.IsActive ?? false));
+
+                if (classScopeByClassInstructor)
+                {
+                    q = q.Where(aoc => aoc.Class!.InstructorId == instructorId);
+                }
+                else
+                {
+                    // Nếu muốn loại các class chưa gán instructor ở nhánh course-owner:
+                    q = q.Where(aoc => aoc.Course!.InstructorId == instructorId &&
+                                       aoc.Class!.InstructorId != null);
+                }
+
+                if (courseId.HasValue)
+                    q = q.Where(aoc => aoc.CourseId == courseId.Value);
 
                 if (statuses != null && statuses.Length > 0)
                     q = q.Where(aoc => aoc.Status != null && statuses.Contains(aoc.Status.Value));
 
-                perClass = await q
-                    .GroupBy(aoc => new { aoc.ClassId, aoc.Class.ClassName, aoc.CourseId, CourseName = aoc.Course.CourseName })
+                var data = await q
+                    .GroupBy(aoc => new
+                    {
+                        aoc.ClassId,
+                        aoc.Class!.ClassName,
+                        aoc.CourseId,
+                        CourseName = aoc.Course!.CourseName
+                    })
                     .Select(g => new ClassStudentCountDto
                     {
                         ClassId = g.Key.ClassId!.Value,
@@ -114,7 +130,22 @@ namespace Services
                     })
                     .OrderByDescending(x => x.StudentCount)
                     .ToListAsync();
+
+                return data;
             }
+        }
+
+        public async Task<DashboardCourseAndClassSummaryDTO> GetDashboardByInstructorAsync(Guid instructorId, Guid? courseId = null, int[]? statuses = null, int? topN = null,
+        bool classScopeByClassInstructor = false)
+        {
+            // Per-course
+            var perCourse = await GetStudentCountsPerCourseByInstructorAsync(instructorId, statuses);
+            if (courseId.HasValue)
+                perCourse = perCourse.Where(x => x.CourseId == courseId.Value).ToList();
+
+            // Per-class
+            var perClass = await GetStudentCountsPerClassByInstructorAsync(
+                instructorId, courseId, statuses, classScopeByClassInstructor);
 
             if (topN.HasValue && topN.Value > 0)
             {
@@ -122,20 +153,37 @@ namespace Services
                 perClass = perClass.Take(topN.Value).ToList();
             }
 
-            // Tổng DISTINCT student toàn hệ thống (theo filter)
-            var qDistinctStudents = _ctx.AccountOfCourses
+            // Tổng distinct students trong phạm vi instructor
+            var qDistinct = _ctx.AccountOfCourses
                 .AsNoTracking()
-                .Where(aoc => (aoc.IsActive ?? false) && aoc.AccountId != null);
+                .Where(aoc =>
+                    (aoc.IsActive ?? false) &&
+                    aoc.AccountId != null &&
+                    aoc.Course != null && (aoc.Course.IsActive ?? false) &&
+                    aoc.Course.InstructorId == instructorId);
 
             if (statuses != null && statuses.Length > 0)
-                qDistinctStudents = qDistinctStudents.Where(aoc => aoc.Status != null && statuses.Contains(aoc.Status.Value));
+                qDistinct = qDistinct.Where(aoc => aoc.Status != null && statuses.Contains(aoc.Status.Value));
 
-            var totalStudentsDistinct = await qDistinctStudents
+            var totalStudentsDistinct = await qDistinct
                 .Select(aoc => aoc.AccountId!.Value)
                 .Distinct()
                 .CountAsync();
 
-            // Build chart series
+            // Tổng courses/classes của instructor
+            var totalCourses = await _ctx.Courses
+                .CountAsync(c => (c.IsActive ?? false) && c.InstructorId == instructorId);
+
+            var totalClassesQuery = _ctx.Classes
+                .Where(cls => (cls.IsActive ?? false));
+
+            totalClassesQuery = classScopeByClassInstructor
+                ? totalClassesQuery.Where(cls => cls.InstructorId == instructorId)
+                : totalClassesQuery.Where(cls => cls.Course != null && cls.Course.InstructorId == instructorId);
+
+            var totalClasses = await totalClassesQuery.CountAsync();
+
+            // Chart series
             var courseChart = new ChartSeriesDto
             {
                 Labels = perCourse.Select(x => x.CourseName).ToList(),
@@ -149,8 +197,8 @@ namespace Services
 
             return new DashboardCourseAndClassSummaryDTO
             {
-                TotalCourses = await _ctx.Courses.CountAsync(c => (c.IsActive ?? false)),
-                TotalClasses = await _ctx.Classes.CountAsync(c => (c.IsActive ?? false)),
+                TotalCourses = totalCourses,
+                TotalClasses = totalClasses,
                 TotalStudentsDistinct = totalStudentsDistinct,
                 PerCourse = perCourse,
                 PerClass = perClass,
