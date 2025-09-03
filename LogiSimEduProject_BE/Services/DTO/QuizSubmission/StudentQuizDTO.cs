@@ -8,9 +8,9 @@ namespace Services.DTO.QuizSubmission
 {
     public class StudentQuizDTO
     {
-        public Guid AccountId { get; set; }
+        public Guid? AccountId { get; set; }
         public string FullName { get; set; }
-        public Guid QuizId { get; set; }
+        public Guid? QuizId { get; set; }
         public string QuizName { get; set; }
         public DateTime? SubmitTime { get; set; }
         public double? TotalScore { get; set; }

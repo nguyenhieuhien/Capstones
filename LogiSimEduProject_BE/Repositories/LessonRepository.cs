@@ -28,6 +28,22 @@ namespace Repositories
                 .Include(ls => ls.LessonSubmissions)
                 .Include(s => s.Scenario)
                 .Where(l => l.TopicId == topicId && l.IsActive == true)
+                .OrderBy(l => l.OrderIndex)
+                .ToListAsync();
+        }
+
+        public async Task<List<Lesson>> GetLessonsByTopicId(Guid topicId)
+        {
+            return await _context.Lessons
+                .AsNoTracking()
+                .Where(l => l.TopicId == topicId && l.IsActive == true)
+                .OrderBy(l => l.OrderIndex)
+                // chỉ include Quizzes vì điểm sẽ lấy từ repo khác
+                .Include(l => l.Quizzes.Where(q => q.IsActive == true))
+                .Include(lp => lp.LessonProgresses)
+                .Include(ls => ls.LessonSubmissions)
+                .Include(s => s.Scenario)
+                .AsSplitQuery()
                 .ToListAsync();
         }
 
@@ -43,6 +59,14 @@ namespace Repositories
                 .Include(l => l.Topic)
                 .Where(l => l.Topic.CourseId == courseId && l.IsActive == true)
                 .ToListAsync();
+        }
+
+        public async Task<Lesson> GetByIdWithTopicCourseAsync(Guid lessonId)
+        {
+            return await _context.Lessons
+                .Include(l => l.Topic)
+                .ThenInclude(t => t.Course)   // cần có Topic.Course
+                .FirstOrDefaultAsync(l => l.Id == lessonId);
         }
 
         public async Task<Lesson?> GetByTopicAndOrderIndexAsync(Guid topicId, int orderIndex)

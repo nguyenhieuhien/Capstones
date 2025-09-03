@@ -54,6 +54,15 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(lessons);
         }
 
+        [HttpGet("by-topic-quiz/{topicId}")]
+        public async Task<ActionResult<List<LessonWithQuizzesDTO>>> GetByTopic(
+        Guid topicId,
+        [FromQuery] Guid? accountId = null)
+        {
+            var data = await _service.GetLessonsWithLatestScoresAsync(topicId, accountId);
+            return Ok(data);
+        }
+
         //[Authorize(Roles = "Student,Instructor")]
         [HttpGet("{lessonId}/quizzes")]
         public async Task<IActionResult> GetQuizzesForLesson(Guid lessonId)
@@ -99,7 +108,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 TopicId = request.TopicId,
                 ScenarioId = request.ScenarioId,
                 LessonName = request.LessonName,
-                Status = request.Status,
+                OrderIndex = request.OrderIndex,
                 Title = request.Title,
                 Description = request.Description,
                 FileUrl = fileUrl,
@@ -117,7 +126,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                 {
                     model.TopicId,
                     model.LessonName,
-                    model.Status,
+                    model.OrderIndex,
                     model.Title,
                     model.Description,
                     model.FileUrl
@@ -140,7 +149,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (request.TopicId.HasValue) { lesson.TopicId = request.TopicId.Value; touched = true; }
             if (request.ScenarioId.HasValue) { lesson.ScenarioId = request.ScenarioId.Value; touched = true; }
             if (request.LessonName != null) { lesson.LessonName = request.LessonName; touched = true; }
-            if (request.Status.HasValue) { lesson.Status = request.Status.Value; touched = true; }
+            if (request.OrderIndex.HasValue) { lesson.OrderIndex = request.OrderIndex.Value; touched = true; }
             if (request.Title != null) { lesson.Title = request.Title; touched = true; }
             if (request.Description != null) { lesson.Description = request.Description; touched = true; }
 
@@ -187,7 +196,7 @@ namespace LogiSimEduProject_BE_API.Controllers
                         lesson.TopicId,
                         lesson.ScenarioId,
                         lesson.LessonName,
-                        lesson.Status,
+                        lesson.OrderIndex,
                         lesson.Title,
                         lesson.Description,
                         lesson.FileUrl

@@ -153,7 +153,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             existing.TotalScore = dto.TotalScore;
             existing.UpdatedAt = DateTime.UtcNow;
 
-            var (success, message) = await _service.Update(existing);
+            var (success, message) = await _service.GradeSubmit(existing);
             if (!success) return BadRequest(message);
 
             return Ok(new { Message = message });
