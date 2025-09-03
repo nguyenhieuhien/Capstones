@@ -182,6 +182,55 @@ namespace Services
             return result > 0 ? (true, "Request updated successfully") : (false, "Failed to update request");
         }
 
+        public async Task<(bool Success, string Message)> UpdateAccept(AccountOfCourse request)
+        {
+            if (request == null || request.Id == Guid.Empty)
+                return (false, "Invalid update data");
+
+            request.UpdatedAt = DateTime.UtcNow;
+            var result = await _repository.UpdateAsync(request);
+
+            if (request.AccountId.HasValue && request.CourseId.HasValue)
+            {
+                // Lấy WorkSpaceId của course
+                var wsId = await _dbContext.Courses
+                    .Where(c => c.Id == request.CourseId.Value)
+                    .Select(c => c.WorkSpaceId)
+                    .FirstOrDefaultAsync();
+
+                if (wsId != null)
+                {
+                    var existing = await _dbContext.AccountOfWorkSpaces
+                        .FirstOrDefaultAsync(x =>
+                            x.AccountId == request.AccountId.Value &&
+                            x.WorkSpaceId == wsId.Value);
+
+                    if (existing == null)
+                    {
+                        _dbContext.AccountOfWorkSpaces.Add(new AccountOfWorkSpace
+                        {
+                            Id = Guid.NewGuid(),
+                            AccountId = request.AccountId,
+                            WorkSpaceId = wsId,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                        });
+                        await _dbContext.SaveChangesAsync();
+                    }
+                    else if (existing.IsActive != true || existing.DeleteAt != null)
+                    {
+                        existing.IsActive = true;
+                        existing.DeleteAt = null;
+                        existing.UpdatedAt = DateTime.UtcNow;
+                        _dbContext.AccountOfWorkSpaces.Update(existing);
+                        await _dbContext.SaveChangesAsync();
+                    }
+                    // Nếu đã active đúng rồi thì không cần làm gì
+                }
+            }
+        return result > 0 ? (true, "Request updated successfully") : (false, "Failed to update request");
+        }
+
         public async Task<(bool Success, string Message)> Delete(string id)
         {
             if (string.IsNullOrWhiteSpace(id))

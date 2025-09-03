@@ -146,7 +146,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (request == null) return NotFound("Request not found");
 
             request.Status = 1;
-            var (success, message) = await _service.Update(request);
+            var (success, message) = await _service.UpdateAccept(request);
             if (!success) return BadRequest(message);
 
             return Ok(new { Message = message });

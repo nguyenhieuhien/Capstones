@@ -21,6 +21,7 @@ namespace Services.IServices
         Task<(bool Success, string Message)> AssignStudentToClass(Guid AccountOfCourseId, Guid classId);
         Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request);
         Task<(bool Success, string Message)> Update(AccountOfCourse request);
+        Task<(bool Success, string Message)> UpdateAccept(AccountOfCourse request);
         Task<(bool Success, string Message)> Delete(string id);
     }
 
