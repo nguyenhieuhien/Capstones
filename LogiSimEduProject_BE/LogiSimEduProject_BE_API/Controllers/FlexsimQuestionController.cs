@@ -1,5 +1,5 @@
 ﻿using ClosedXML.Excel;
-using LogiSimEduProject_BE_API.Controllers.DTOs; // FlexsimQuestionsResponse, FlexsimMeta, McqQuestion
+using LogiSimEduProject_BE_API.Controllers.DTOs; // FlexsimMeta, McqQuestion
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -20,6 +20,13 @@ namespace LogiSimEduProject_BE_API.Controllers
         public string? Lang { get; set; } = "vi";        // "vi" | "en"
     }
 
+    // ✅ Public response KHÔNG có RawModelText
+    public class FlexsimQuestionsPublicResponse
+    {
+        public List<McqQuestion> Questions { get; set; } = new();
+        public FlexsimMeta Meta { get; set; } = new();
+    }
+
     [ApiController]
     [Route("flexsim")]
     public class FlexsimQuestionController : ControllerBase
@@ -27,8 +34,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
 
-        private const int MAX_ROWS_FOR_PROMPT = 30;
-        private const int MAX_COLS_FOR_PROMPT = 20;
+        private const int MAX_ROWS_FOR_PROMPT = 10;
+        private const int MAX_COLS_FOR_PROMPT = 8;
 
         public FlexsimQuestionController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
@@ -39,12 +46,12 @@ namespace LogiSimEduProject_BE_API.Controllers
         [HttpPost("upload")]
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(FlexsimQuestionsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FlexsimQuestionsPublicResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [RequestSizeLimit(50_000_000)]
-        public async Task<ActionResult<FlexsimQuestionsResponse>> Upload([FromForm] FlexsimUploadForm form)
+        public async Task<ActionResult<FlexsimQuestionsPublicResponse>> Upload([FromForm] FlexsimUploadForm form)
         {
             if (string.IsNullOrWhiteSpace(_apiKey))
                 return StatusCode(500, "Missing GoogleGemini:ApiKey in configuration.");
@@ -77,27 +84,25 @@ namespace LogiSimEduProject_BE_API.Controllers
             var mcqs = TryParseMcqsFromJson(modelText);
             if (mcqs == null || mcqs.Count == 0)
             {
-                // Trả 502 kèm raw để bạn dễ debug nếu cần
-                return StatusCode(StatusCodes.Status502BadGateway, new FlexsimQuestionsResponse
+                // ❌ Không trả RawModelText nữa
+                return StatusCode(StatusCodes.Status502BadGateway, new
                 {
-                    Questions = new List<McqQuestion>(),
-                    RawModelText = modelText,
-                    Meta = new FlexsimMeta
+                    message = "Model trả về định dạng không hợp lệ (không có MCQ).",
+                    meta = new
                     {
-                        SourceFile = file.FileName,
-                        RowsInFile = table.Rows.Count,
-                        ColsInFile = table.Columns.Count,
-                        RowsUsed = sample.Rows.Count,
-                        ColsUsed = sample.Columns.Count,
-                        Language = lang
+                        sourceFile = file.FileName,
+                        rowsInFile = table.Rows.Count,
+                        colsInFile = table.Columns.Count,
+                        rowsUsed = sample.Rows.Count,
+                        colsUsed = sample.Columns.Count,
+                        language = lang
                     }
                 });
             }
 
-            var resp = new FlexsimQuestionsResponse
+            var resp = new FlexsimQuestionsPublicResponse
             {
                 Questions = mcqs.Take(Math.Max(1, maxQuestions)).ToList(),
-                RawModelText = modelText,
                 Meta = new FlexsimMeta
                 {
                     SourceFile = file.FileName,

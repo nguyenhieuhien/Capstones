@@ -12,10 +12,6 @@
             public string? Topic { get; set; }
             public string? Difficulty { get; set; } // "easy" | "medium" | "hard"
         }
-
-        public List<McqQuestion> Questions { get; set; } = new();
-        public FlexsimMeta Meta { get; set; } = new();
-        public string RawModelText { get; set; } = "";
     }
 
     public class FlexsimMeta
