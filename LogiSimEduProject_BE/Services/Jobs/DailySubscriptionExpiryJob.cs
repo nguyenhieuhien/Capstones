@@ -104,7 +104,7 @@ namespace Services.Jobs
             var tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh";
             var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
             var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
-            var targetToday = nowLocal.Date.AddHours(23).AddMinutes(59);
+            var targetToday = nowLocal.Date.AddHours(14).AddMinutes(00);
             var next = nowLocal <= targetToday ? targetToday : targetToday.AddDays(1);
             return next - nowLocal;
         }
