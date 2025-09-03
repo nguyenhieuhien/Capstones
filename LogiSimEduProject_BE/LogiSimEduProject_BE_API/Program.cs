@@ -191,6 +191,10 @@ builder.Services.AddSwaggerGen(option =>
     option.EnableAnnotations();
     option.DescribeAllParametersInCamelCase();
     option.ResolveConflictingActions(conf => conf.First());
+
+    option.CustomSchemaIds(t => t.FullName);
+
+
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
