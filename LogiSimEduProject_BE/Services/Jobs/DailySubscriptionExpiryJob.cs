@@ -58,26 +58,37 @@ namespace Services.Jobs
             // Hết hạn = KHÔNG còn Order hợp lệ: Status=1 (CONFIRMED), IsActive=1, EndDate > now
             // Nếu DB của bạn có cột Organization.SubscriptionEndDate thì có thể dùng điều kiện đó thay cho NOT EXISTS (xem khối comment bên dưới).
             var sql = @"
-                -- Tránh chạy trùng khi nhiều instance
-                EXEC sp_getapplock @Resource='job:expire_organizations', @LockMode='Exclusive', @LockTimeout=10000;
+    -- Tránh chạy trùng khi nhiều instance
+    EXEC sp_getapplock @Resource='job:expire_organizations', @LockMode='Exclusive', @LockTimeout=10000;
 
-                UPDATE org
-                   SET org.IsActive = 0
-                FROM Organization AS org WITH (ROWLOCK, UPDLOCK)
-                WHERE org.Delete_At IS NULL
-                  AND ISNULL(org.IsActive, 0) = 1
-                  AND NOT EXISTS (
-                        SELECT 1
-                        FROM [Order] AS o
-                        WHERE o.Delete_At IS NULL
-                          AND o.OrganizationId = org.Id
-                          AND o.Status = 1          -- CONFIRMED (điều chỉnh nếu mapping khác)
-                          AND o.IsActive = 1
-                          AND o.EndDate > SYSUTCDATETIME()
-                  );
+    -- 1. Cập nhật Order hết hạn -> Status = 2
+    UPDATE o
+       SET o.Status = 2
+    FROM [Order] AS o WITH (ROWLOCK, UPDLOCK)
+    WHERE o.Delete_At IS NULL
+      AND o.Status = 1          -- CONFIRMED
+      AND o.IsActive = 1
+      AND o.EndDate <= SYSUTCDATETIME();
 
-                EXEC sp_releaseapplock @Resource='job:expire_organizations';
-            ";
+    -- 2. Cập nhật Organization hết hạn -> IsActive = 0
+    UPDATE org
+       SET org.IsActive = 0
+    FROM Organization AS org WITH (ROWLOCK, UPDLOCK)
+    WHERE org.Delete_At IS NULL
+      AND ISNULL(org.IsActive, 0) = 1
+      AND NOT EXISTS (
+            SELECT 1
+            FROM [Order] AS o
+            WHERE o.Delete_At IS NULL
+              AND o.OrganizationId = org.Id
+              AND o.Status = 1      -- CONFIRMED
+              AND o.IsActive = 1
+              AND o.EndDate > SYSUTCDATETIME()
+      );
+
+    EXEC sp_releaseapplock @Resource='job:expire_organizations';
+";
+
 
             /*  👉 Nếu bạn có cột ngày hết hạn trực tiếp trên Organization (ví dụ SubscriptionEndDate - kiểu datetime):
                 Thì bạn có thể dùng phiên bản cực gọn (KHÔNG cần đụng tới Order):
@@ -104,7 +115,7 @@ namespace Services.Jobs
             var tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh";
             var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
             var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
-            var targetToday = nowLocal.Date.AddHours(14).AddMinutes(00);
+            var targetToday = nowLocal.Date.AddHours(23).AddMinutes(59);
             var next = nowLocal <= targetToday ? targetToday : targetToday.AddDays(1);
             return next - nowLocal;
         }
