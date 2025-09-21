@@ -143,7 +143,7 @@ namespace Services
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản quản trị tổ chức - LogiSimEdu", emailBody);
 
-            return (true, "Tài khoản Organization_Admin đã được tạo và gửi email thành công.");
+            return (true, "Organization_Admin account has been created and email sent successfully.");
         }
 
 
@@ -280,10 +280,10 @@ namespace Services
 
             var org = await _organizationRepository.GetByIdAsync(organizationId);
             if (org == null)
-                return (0, new List<string> { "Organization không tồn tại." });
+                return (0, new List<string> { "Organization does not exist." });
 
             if (org.IsActive != true)
-                return (0, new List<string> { "Organization chưa được kích hoạt, vui lòng thanh toán." });
+                return (0, new List<string> { "Organization is not activated yet, please checkout." });
 
             for (int row = 2; row <= rowCount; row++)
             {
@@ -296,7 +296,7 @@ namespace Services
 
                     if (await _accountRepository.GetByEmailAsync(email) is not null)
                     {
-                        errors.Add($"Row {row}: Email {email} đã tồn tại");
+                        errors.Add($"Row {row}: Email {email} has existed");
                         continue;
                     }
 

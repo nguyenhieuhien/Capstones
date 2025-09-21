@@ -96,7 +96,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (account.RoleId != 4)
                 return Unauthorized("Chỉ tài khoản Student mới được gửi yêu cầu.");
 
-            var model = new AccountOfCourse
+            var model = new EnrollmentRequest
             {
                 AccountId = request.StudentId,
                 CourseId = request.CourseId,

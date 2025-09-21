@@ -10,12 +10,11 @@ namespace Services
     public class SceneService : ISceneService
     {
         private readonly SceneRepository _repository;
-        private readonly SceneOfWorkSpaceRepository _sceneWpRepo;
+        
 
         public SceneService()
         {
             _repository = new SceneRepository();
-            _sceneWpRepo = new SceneOfWorkSpaceRepository();
         }
 
         public async Task<List<Scene>> GetAll()
@@ -27,11 +26,6 @@ namespace Services
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
             return await _repository.GetByIdAsync(id);
-        }
-
-        public async Task<List<Scene>> GetAllByOrgId(Guid orgId)
-        {
-            return await _repository.GetAllByOrgId(orgId);
         }
 
         public async Task<int> Create(Scene scene)
@@ -64,15 +58,10 @@ namespace Services
             var scene = await _repository.GetByIdAsync(id);
             if (scene == null) return (false, "Scenario not found");
 
-            var sceneList = await _sceneWpRepo.GetBySceneIdAsync(Guid.Parse(id));
-            foreach (var item in sceneList)
-            {
-                scene.IsActive = false;
-                scene.DeleteAt = DateTime.UtcNow;
+            scene.IsActive = false;
+            scene.DeleteAt = DateTime.UtcNow;
 
-                await _repository.UpdateAsync(scene);
-            }
-
+            await _repository.UpdateAsync(scene);
             return (true, "Deleted successfully");
         }
     }

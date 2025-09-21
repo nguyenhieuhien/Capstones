@@ -5,15 +5,13 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Notification
+public partial class EnrollmentWorkSpace
 {
     public Guid Id { get; set; }
 
     public Guid? AccountId { get; set; }
 
-    public string Title { get; set; }
-
-    public string Description { get; set; }
+    public Guid? WorkSpaceId { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -24,4 +22,6 @@ public partial class Notification
     public DateTime? DeleteAt { get; set; }
 
     public virtual Account Account { get; set; }
+
+    public virtual WorkSpace WorkSpace { get; set; }
 }

@@ -5,13 +5,17 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class AccountOfWorkSpace
+public partial class EnrollmentRequest
 {
     public Guid Id { get; set; }
 
     public Guid? AccountId { get; set; }
 
-    public Guid? WorkSpaceId { get; set; }
+    public Guid? CourseId { get; set; }
+
+    public Guid? ClassId { get; set; }
+
+    public int? Status { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -23,5 +27,9 @@ public partial class AccountOfWorkSpace
 
     public virtual Account Account { get; set; }
 
-    public virtual WorkSpace WorkSpace { get; set; }
+    public virtual Class Class { get; set; }
+
+    public virtual Course Course { get; set; }
+
+    public virtual EnrollmentStatus StatusNavigation { get; set; }
 }

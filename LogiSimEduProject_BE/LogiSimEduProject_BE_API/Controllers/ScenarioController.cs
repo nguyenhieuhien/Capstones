@@ -45,13 +45,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenario);
         }
 
-        [HttpGet("get_all_by_org/{orgId}")]
-        [SwaggerOperation(Summary = "Get all scenarios by organization ID", Description = "Retrieve all scenarios that belong to a specific organization.")]
-        public async Task<IActionResult> GetAllByOrgId(Guid orgId)
-        {
-            var scenarios = await _service.GetAllByOrgId(orgId);
-            return Ok(scenarios);
-        }
+        //[HttpGet("get_all_by_org/{orgId}")]
+        //[SwaggerOperation(Summary = "Get all scenarios by organization ID", Description = "Retrieve all scenarios that belong to a specific organization.")]
+        //public async Task<IActionResult> GetAllByOrgId(Guid orgId)
+        //{
+        //    var scenarios = await _service.GetAllByOrgId(orgId);
+        //    return Ok(scenarios);
+        //}
 
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]

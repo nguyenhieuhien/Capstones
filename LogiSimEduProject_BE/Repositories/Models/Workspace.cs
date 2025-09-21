@@ -27,11 +27,9 @@ public partial class WorkSpace
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
-
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
-    public virtual Organization Organization { get; set; }
+    public virtual ICollection<EnrollmentWorkSpace> EnrollmentWorkSpaces { get; set; } = new List<EnrollmentWorkSpace>();
 
-    public virtual ICollection<SceneOfWorkSpace> SceneOfWorkSpaces { get; set; } = new List<SceneOfWorkSpace>();
+    public virtual Organization Organization { get; set; }
 }

@@ -27,11 +27,6 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<List<Scenario>> GetAllByOrgId(Guid orgId)
-        {
-            return await _repository.GetAllByOrgId(orgId);
-        }
-
         public async Task<int> Create(Scenario scenario)
         {
             if (scenario == null || string.IsNullOrWhiteSpace(scenario.ScenarioName))

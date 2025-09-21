@@ -79,7 +79,7 @@ namespace Services
 
             return submissions
             .GroupBy(s =>
-                s.Account.AccountOfCourses
+                s.Account.EnrollmentRequests
                     .FirstOrDefault(ac => ac.ClassId != null)?.Class?.ClassName ?? "Chưa có lớp"
             )
             .ToDictionary(

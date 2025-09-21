@@ -24,7 +24,7 @@ namespace Repositories
         {
             return await _context.LessonSubmissions
                 .Include(s => s.Account)
-                    .ThenInclude(a => a.AccountOfCourses)
+                    .ThenInclude(a => a.EnrollmentRequests)
                         .ThenInclude(ac => ac.Class)
                 .Where(s => s.LessonId == lessonId && s.IsActive)
                 .ToListAsync();

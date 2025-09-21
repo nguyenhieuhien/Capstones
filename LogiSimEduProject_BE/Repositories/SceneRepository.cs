@@ -20,13 +20,13 @@ namespace Repositories
             return scenes;
         }
 
-        public async Task<List<Scene>> GetAllByOrgId(Guid orgId)
-        {
-            var scenes = await _context.Scenes
-                .Where(s => s.SceneOfWorkSpaces.Any(sw => sw.WorkSpace.OrganizationId == orgId) && s.IsActive == true)
-                .ToListAsync();
+        //public async Task<List<Scene>> GetAllByOrgId(Guid orgId)
+        //{
+        //    var scenes = await _context.Scenes
+        //        .Where(s => s.SceneOfWorkSpaces.Any(sw => sw.WorkSpace.OrganizationId == orgId) && s.IsActive == true)
+        //        .ToListAsync();
 
-            return scenes;
-        }
+        //    return scenes;
+        //}
     }
 }

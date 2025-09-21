@@ -15,6 +15,8 @@ public partial class Topic
 
     public int OrderIndex { get; set; }
 
+    public string ImgUrl { get; set; }
+
     public string Description { get; set; }
 
     public bool? IsActive { get; set; }
