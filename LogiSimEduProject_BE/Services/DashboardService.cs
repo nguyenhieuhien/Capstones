@@ -18,7 +18,7 @@ namespace Services
         public async Task<List<CourseStudentCountDto>> GetStudentCountsPerCourseByInstructorAsync(
         Guid instructorId, int[]? statuses = null)
         {
-            var q = _ctx.AccountOfCourses
+            var q = _ctx.EnrollmentRequests
             .AsNoTracking()
             .Where(aoc =>
                 (aoc.IsActive ?? false) &&
@@ -68,7 +68,7 @@ namespace Services
                         // Nếu chắc chắn không null thì dùng cls.CourseId!.Value
                         CourseId = cls.CourseId ?? Guid.Empty,
                         CourseName = cls.Course != null ? cls.Course.CourseName : string.Empty,
-                        StudentCount = _ctx.AccountOfCourses
+                        StudentCount = _ctx.EnrollmentRequests
                             .Where(aoc =>
                                 (aoc.IsActive ?? false) &&
                                 aoc.ClassId == cls.Id &&
@@ -86,7 +86,7 @@ namespace Services
             else
             {
                 // Giữ nguyên logic cũ (bắt đầu từ AccountOfCourses) — chỉ trả lớp có ít nhất 1 enroll
-                var q = _ctx.AccountOfCourses
+                var q = _ctx.EnrollmentRequests
                     .AsNoTracking()
                     .Where(aoc =>
                         (aoc.IsActive ?? false) &&
@@ -154,7 +154,7 @@ namespace Services
             }
 
             // Tổng distinct students trong phạm vi instructor
-            var qDistinct = _ctx.AccountOfCourses
+            var qDistinct = _ctx.EnrollmentRequests
                 .AsNoTracking()
                 .Where(aoc =>
                     (aoc.IsActive ?? false) &&

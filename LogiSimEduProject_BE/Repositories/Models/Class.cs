@@ -27,9 +27,9 @@ public partial class Class
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<AccountOfCourse> AccountOfCourses { get; set; } = new List<AccountOfCourse>();
-
     public virtual Course Course { get; set; }
+
+    public virtual ICollection<EnrollmentRequest> EnrollmentRequests { get; set; } = new List<EnrollmentRequest>();
 
     public virtual Account Instructor { get; set; }
 }

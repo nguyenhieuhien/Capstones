@@ -13,11 +13,11 @@ namespace Services
     public class WorkspaceService : IWorkspaceService
     {
         private WorkspaceRepository _repository;
-        private AccountOfWorkSpaceRepository _accountWp;
+        private EnrollmentWorkSpaceRepository _accountWp;
         public WorkspaceService()
         {
             _repository = new WorkspaceRepository();
-            _accountWp = new AccountOfWorkSpaceRepository();
+            _accountWp = new EnrollmentWorkSpaceRepository();
         }
         public async Task<int> Create(WorkSpace workspace)
         {

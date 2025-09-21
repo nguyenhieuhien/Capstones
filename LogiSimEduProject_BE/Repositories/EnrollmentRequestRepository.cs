@@ -9,48 +9,48 @@ using System.Threading.Tasks;
 
 namespace Repositories
 {
-    public class EnrollmentRequestRepository : GenericRepository<AccountOfCourse>
+    public class EnrollmentRequestRepository : GenericRepository<EnrollmentRequest>
     {
         public EnrollmentRequestRepository() { }
 
-        public async Task<List<AccountOfCourse>> GetAll()
+        public async Task<List<EnrollmentRequest>> GetAll()
         {
-            return await _context.AccountOfCourses.Where(a => a.IsActive == true)
+            return await _context.EnrollmentRequests.Where(a => a.IsActive == true)
                 .Include(e => e.Account)
                 .Include(e => e.Course)
                 .ToListAsync();
         }
-        public async Task<List<AccountOfCourse>> GetByCourseId(string courseId)
+        public async Task<List<EnrollmentRequest>> GetByCourseId(string courseId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Include(e => e.Account)
                 .Where(e => e.CourseId == Guid.Parse(courseId))
                 .ToListAsync();
         }
-        public async Task<AccountOfCourse> GetById(string id)
+        public async Task<EnrollmentRequest> GetById(string id)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Include(e => e.Account)
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.Id == Guid.Parse(id));
         }
 
-        public async Task<List<AccountOfCourse>> GetStudentsByCourseId(Guid courseId)
+        public async Task<List<EnrollmentRequest>> GetStudentsByCourseId(Guid courseId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Where(aoc => aoc.CourseId == courseId && aoc.IsActive == true)
                 .ToListAsync();
         }
 
-        public async Task<AccountOfCourse?> GetByAccountAndCourse(Guid accountOfCourseId)
+        public async Task<EnrollmentRequest?> GetByAccountAndCourse(Guid accountOfCourseId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .FirstOrDefaultAsync(x => x.Id == accountOfCourseId && x.Status == 1 && x.IsActive == true);
         }
 
-        public async Task<AccountOfCourse?> GetActiveByAccountAndCourseAsync(Guid accountId, Guid courseId)
+        public async Task<EnrollmentRequest?> GetActiveByAccountAndCourseAsync(Guid accountId, Guid courseId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .FirstOrDefaultAsync(x =>
                     x.AccountId == accountId &&
                     x.CourseId == courseId &&
@@ -59,7 +59,7 @@ namespace Repositories
 
         public async Task<List<Course>> GetEnrolledCoursesByAccountId(Guid accountId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Where(aoc => aoc.AccountId == accountId && aoc.Status == 1) // 2 = Enrolled accepted
                 .Include(aoc => aoc.Course)
                 .Select(aoc => aoc.Course)
@@ -68,7 +68,7 @@ namespace Repositories
 
         public async Task<List<Course>> GetPendingCoursesByAccountId(Guid accountId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Where(aoc => aoc.AccountId == accountId && aoc.Status == 0) // 2 = Enrolled accepted
                 .Include(aoc => aoc.Course)
                 .Select(aoc => aoc.Course)
@@ -77,7 +77,7 @@ namespace Repositories
 
         public async Task<List<Account>> GetStudentsByClassId(Guid classId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Include(a => a.Account)
                 .Where(a => a.ClassId == classId && a.Account.RoleId == 4 && a.IsActive == true)
                 .Select(a => a.Account)
@@ -86,7 +86,7 @@ namespace Repositories
 
         public async Task<int?> GetEnrollmentStatusAsync(Guid accountId, Guid courseId)
         {
-            var enrollment = await _context.AccountOfCourses
+            var enrollment = await _context.EnrollmentRequests
                 .Where(aoc => aoc.AccountId == accountId && aoc.CourseId == courseId)
                 .Select(aoc => aoc.Status)
                 .FirstOrDefaultAsync();
@@ -94,9 +94,9 @@ namespace Repositories
             return enrollment; // null nếu không tìm thấy
         }
 
-        public async Task<List<AccountOfCourse>> GetEnrolledStudentsWithoutClass(Guid courseId)
+        public async Task<List<EnrollmentRequest>> GetEnrolledStudentsWithoutClass(Guid courseId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Include(aoc => aoc.Account)
                 .Where(aoc => aoc.CourseId == courseId
                     && aoc.Status == 1
@@ -106,9 +106,9 @@ namespace Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<AccountOfCourse>> GetPendingStudents(Guid courseId)
+        public async Task<List<EnrollmentRequest>> GetPendingStudents(Guid courseId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Include(aoc => aoc.Account)
                 .Where(aoc => aoc.CourseId == courseId
                     && aoc.Status == 0
@@ -119,9 +119,9 @@ namespace Repositories
         }
 
 
-        public async Task<AccountOfCourse?> GetAcceptedRequest(Guid studentId)
+        public async Task<EnrollmentRequest?> GetAcceptedRequest(Guid studentId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .FirstOrDefaultAsync(x => x.AccountId == studentId && x.Status == 2);
         }
     }

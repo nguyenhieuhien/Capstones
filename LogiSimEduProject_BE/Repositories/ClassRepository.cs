@@ -40,7 +40,7 @@ namespace Repositories
 
         public async Task<List<Class>> GetClassesByStudentIdAsync(Guid studentId)
         {
-            return await _context.AccountOfCourses
+            return await _context.EnrollmentRequests
                 .Include(a => a.Class)
                 .ThenInclude(c => c.Course)
                 .Where(a => a.AccountId == studentId && a.Class != null && a.IsActive == true)
@@ -50,7 +50,7 @@ namespace Repositories
 
         public async Task<Class?> GetClassByAccountAndCourseAsync(Guid accountId, Guid courseId)
         {
-            var classEntity = await _context.AccountOfCourses
+            var classEntity = await _context.EnrollmentRequests
                         .Where(aoc => aoc.IsActive == true
                       && aoc.AccountId == accountId
                       && aoc.CourseId == courseId

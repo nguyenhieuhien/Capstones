@@ -8,11 +8,11 @@ namespace LogiSimEduProject_BE_API.Controllers
 {
     [Route("api/accountOfWorkSpace")]
     [ApiController]
-    public class AccountOfWorkspaceController : ControllerBase
+    public class EnrollmentWorkspaceController : ControllerBase
     {
-        private readonly IAccountOfWorkSpaceService _service;
+        private readonly IEnrollmentWorkSpaceService _service;
 
-        public AccountOfWorkspaceController(IAccountOfWorkSpaceService service)
+        public EnrollmentWorkspaceController(IEnrollmentWorkSpaceService service)
         {
             _service = service;
         }
@@ -39,7 +39,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         [SwaggerOperation(Summary = "Create account-workspace relation", Description = "Assign an account to a workspace")]
         public async Task<IActionResult> Create([FromBody] AccountOfWorkSpaceDTOCreate request)
         {
-            var model = new AccountOfWorkSpace
+            var model = new EnrollmentWorkSpace
             {
                 AccountId = request.AccountId,
                 WorkSpaceId = request.WorkSpaceId

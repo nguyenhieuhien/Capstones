@@ -51,7 +51,7 @@ namespace Services
             var grouped = latestByStudent
                 .Select(s => new
                 {
-                    ClassName = s.Account?.AccountOfCourses?
+                    ClassName = s.Account?.EnrollmentRequests?
                         .Where(aoc => courseId != null && aoc.CourseId == courseId)
                         .Select(aoc => aoc.Class?.ClassName)
                         .FirstOrDefault() ?? "Unassigned",

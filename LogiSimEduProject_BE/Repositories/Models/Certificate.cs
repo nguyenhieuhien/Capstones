@@ -33,7 +33,5 @@ public partial class Certificate
 
     public virtual Account Account { get; set; }
 
-    public virtual CertificateTemplete CertiTemp { get; set; }
-
     public virtual Course Course { get; set; }
 }

@@ -101,10 +101,8 @@ builder.Services.AddScoped<ISceneService, SceneService>();
 builder.Services.AddScoped<SceneRepository>();
 builder.Services.AddScoped<IScenarioService, ScenarioService>();
 builder.Services.AddScoped<ScenarioRepository>();
-builder.Services.AddScoped<IAccountOfWorkSpaceService, AccountOfWorkSpaceService>();
-builder.Services.AddScoped<AccountOfWorkSpaceRepository>();
-builder.Services.AddScoped<ISceneOfWorkSpaceService, SceneOfWorkSpaceService>();
-builder.Services.AddScoped<SceneOfWorkSpaceRepository>();
+builder.Services.AddScoped<IEnrollmentWorkSpaceService, EnrollmentWorkSpaceService>();
+builder.Services.AddScoped<EnrollmentWorkSpaceRepository>();
 builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 builder.Services.AddScoped<SubscriptionPlanRepository>();
 
@@ -121,14 +119,10 @@ builder.Services.AddScoped<ILessonSubmissionService, LessonSubmissionService>();
 builder.Services.AddScoped<LessonSubmissionRepository>();
 
 // Notification & Enrollment
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<NotificationRepository>();
 builder.Services.AddScoped<IEnrollmentRequestService, EnrollmentRequestService>();
 builder.Services.AddScoped<EnrollmentRequestRepository>();
 
 // Certificate & Certificate Templete
-builder.Services.AddScoped<ICertificateTemplateService, CertificateTemplateService>();
-builder.Services.AddScoped<CertificateTemplateRepository>();
 builder.Services.AddScoped<ICertificateService, CertificateService>();
 builder.Services.AddScoped<CertificateRepository>();
 

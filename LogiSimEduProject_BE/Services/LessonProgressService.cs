@@ -25,7 +25,6 @@ namespace Services
         private readonly TopicRepository _topicRepo;
         private readonly CourseProgressRepository _courseProgressRepo;
         private readonly CertificateRepository _certificateRepo;
-        private readonly CertificateTemplateRepository _templateRepo;
         private readonly QuizSubmissionRepository _submissionRepo;
         private readonly CloudinaryDotNet.Cloudinary _cloudinary;
         private readonly IPdfService _pdfService;
@@ -36,7 +35,6 @@ namespace Services
                TopicRepository topicRepo,
                CourseProgressRepository courseProgressRepo,
                CertificateRepository certificateRepo,
-               CertificateTemplateRepository templateRepo,
                QuizSubmissionRepository quizSubmissionRepo,
                CloudinaryDotNet.Cloudinary cloudinary,
                IPdfService pdfService,
@@ -47,7 +45,6 @@ namespace Services
             _topicRepo = topicRepo;
             _courseProgressRepo = courseProgressRepo;
             _certificateRepo = certificateRepo;
-            _templateRepo = templateRepo;
             _submissionRepo = quizSubmissionRepo;
             _cloudinary = cloudinary;
             _pdfService = pdfService;

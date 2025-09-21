@@ -35,7 +35,7 @@ namespace Repositories
         {
             return await _context.QuizSubmissions
                 .Include(qs => qs.Account)
-                    .ThenInclude(a => a.AccountOfCourses)
+                    .ThenInclude(a => a.EnrollmentRequests)
                         .ThenInclude(aoc => aoc.Class)
                 .Include(qs => qs.Quiz)
                     .ThenInclude(q => q.Lesson)

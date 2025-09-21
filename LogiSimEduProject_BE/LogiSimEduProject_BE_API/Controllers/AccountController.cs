@@ -97,7 +97,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> ImportInstructors(Guid organizationId, IFormFile file)
         {
-            if (file is null || file.Length == 0) return BadRequest("Vui lòng upload file Excel");
+            if (file is null || file.Length == 0) return BadRequest("Please upload Excel file");
             var (ok, errs) = await _accountService.ImportInstructorAccountsAsync(file, organizationId);
             return Ok(new { SuccessCount = ok, Errors = errs });
         }
@@ -106,7 +106,7 @@ namespace LogiSimEduProject_BE_API.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> ImportStudents(Guid organizationId, IFormFile file)
         {
-            if (file is null || file.Length == 0) return BadRequest("Vui lòng upload file Excel");
+            if (file is null || file.Length == 0) return BadRequest("Please upload Excel file");
             var (ok, errs) = await _accountService.ImportStudentAccountsAsync(file, organizationId);
             return Ok(new { SuccessCount = ok, Errors = errs });
         }

@@ -105,7 +105,7 @@ CREATE TABLE WorkSpace (
     FOREIGN KEY (OrganizationId) REFERENCES Organization(Id)
 );
 
-CREATE TABLE AccountOfWorkSpace (
+CREATE TABLE EnrollmentWorkSpace (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     AccountId UNIQUEIDENTIFIER,
     WorkSpaceId UNIQUEIDENTIFIER,
@@ -159,7 +159,7 @@ CREATE TABLE Class (
     FOREIGN KEY (CourseId) REFERENCES Course(Id)
 );
 
-CREATE TABLE AccountOfCourse (
+CREATE TABLE EnrollmentRequest (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     AccountId UNIQUEIDENTIFIER,
     CourseId UNIQUEIDENTIFIER,
@@ -183,18 +183,6 @@ CREATE TABLE Scene (
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME
-);
-
-CREATE TABLE SceneOfWorkSpace (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
-    SceneId UNIQUEIDENTIFIER,
-    WorkSpaceId UNIQUEIDENTIFIER,
-    IsActive BIT,
-    Created_At DATETIME,
-    Updated_At DATETIME,
-    Delete_At DATETIME,
-    FOREIGN KEY (SceneId) REFERENCES Scene(Id),
-    FOREIGN KEY (WorkSpaceId) REFERENCES WorkSpace(Id)
 );
 
 CREATE TABLE Topic (
@@ -229,6 +217,7 @@ CREATE TABLE Lesson (
     TopicId UNIQUEIDENTIFIER,
 	ScenarioId UNIQUEIDENTIFIER NULL,
     LessonName NVARCHAR(100),
+	FileURL NVARCHAR(255) NULL,
 	OrderIndex INT NOT NULL DEFAULT 0,
     Title NVARCHAR(255),
     Description NVARCHAR(MAX),
@@ -357,18 +346,6 @@ CREATE TABLE CourseProgress (
     FOREIGN KEY (Status) REFERENCES CourseProgressStatus(Id)
 );
 
-CREATE TABLE Notification (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
-    AccountId UNIQUEIDENTIFIER,
-    Title NVARCHAR(255),
-    Description NVARCHAR(255),
-    IsActive BIT,
-    Created_At DATETIME,
-    Updated_At DATETIME,
-    Delete_At DATETIME,
-    FOREIGN KEY (AccountId) REFERENCES Account(Id)
-);
-
 CREATE TABLE Review (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     AccountId UNIQUEIDENTIFIER,
@@ -383,20 +360,6 @@ CREATE TABLE Review (
     FOREIGN KEY (CourseId) REFERENCES Course(Id)
 );
 
-CREATE TABLE CertificateTemplete (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
-    OrganizationId UNIQUEIDENTIFIER,
-    CourseId UNIQUEIDENTIFIER,
-    TemplateName NVARCHAR(100),
-    BackgroundURL NVARCHAR(255),
-    HtmlTemplate NVARCHAR(MAX),
-    IsActive BIT,
-    Created_At DATETIME,
-    Updated_At DATETIME,
-    Delete_At DATETIME,
-    FOREIGN KEY (OrganizationId) REFERENCES Organization(Id),
-    FOREIGN KEY (CourseId) REFERENCES Course(Id)
-);
 
 CREATE TABLE Certificate (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -413,7 +376,6 @@ CREATE TABLE Certificate (
     Delete_At DATETIME,
     FOREIGN KEY (AccountId) REFERENCES Account(Id),
     FOREIGN KEY (CourseId) REFERENCES Course(Id),
-    FOREIGN KEY (CertiTempId) REFERENCES CertificateTemplete(Id)
 );
 
 CREATE TABLE SubscriptionPlan (

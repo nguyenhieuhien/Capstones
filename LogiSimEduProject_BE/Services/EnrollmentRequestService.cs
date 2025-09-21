@@ -21,18 +21,18 @@ namespace Services
             _lessonRepo = lessonRepo;
         }
 
-        public async Task<List<AccountOfCourse>> GetAll()
+        public async Task<List<EnrollmentRequest>> GetAll()
         {
-            return await _repository.GetAll() ?? new List<AccountOfCourse>();
+            return await _repository.GetAll() ?? new List<EnrollmentRequest>();
         }
 
-        public async Task<AccountOfCourse?> GetById(string id)
+        public async Task<EnrollmentRequest?> GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
             return await _repository.GetById(id);
         }
 
-        public async Task<List<AccountOfCourse>> GetByCourseId(string courseId)
+        public async Task<List<EnrollmentRequest>> GetByCourseId(string courseId)
         {
             return await _repository.GetByCourseId(courseId);
         }
@@ -42,12 +42,12 @@ namespace Services
             return await _repository.GetStudentsByClassId(classId);
         }
 
-        public async Task<List<AccountOfCourse>> GetEnrolledStudentsWithoutClass(Guid courseId)
+        public async Task<List<EnrollmentRequest>> GetEnrolledStudentsWithoutClass(Guid courseId)
         {
             return await _repository.GetEnrolledStudentsWithoutClass(courseId);
         }
 
-        public async Task<List<AccountOfCourse>> GetPendingStudents(Guid courseId)
+        public async Task<List<EnrollmentRequest>> GetPendingStudents(Guid courseId)
         {
             return await _repository.GetPendingStudents(courseId);
         }
@@ -74,7 +74,7 @@ namespace Services
             return status.Value;
         }
 
-        public async Task<(bool Success, string Message, Guid? Id)> Create(AccountOfCourse request)
+        public async Task<(bool Success, string Message, Guid? Id)> Create(EnrollmentRequest request)
         {
             if (request == null || request.AccountId == Guid.Empty || request.CourseId == Guid.Empty)
                 return (false, "Invalid request data", null);
@@ -83,7 +83,7 @@ namespace Services
             var existing = await _repository.GetActiveByAccountAndCourseAsync(request.AccountId.Value, request.CourseId.Value);
 
             if (existing != null)
-                return (false, "Học viên đã gửi yêu cầu hoặc đang theo học khóa học này", null);
+                return (false, "Students who have requested or are taking this course", null);
 
             request.Id = Guid.NewGuid();
             request.Status = 0;
@@ -104,14 +104,14 @@ namespace Services
                 return (false, "Không tìm thấy học viên đủ điều kiện");
 
             var classEntity = await _dbContext.Classes
-                .Include(c => c.AccountOfCourses) // load danh sách học viên trong lớp
+                .Include(c => c.EnrollmentRequests) // load danh sách học viên trong lớp
                 .FirstOrDefaultAsync(c => c.Id == classId);
 
             if (classEntity == null)
                 return (false, "Không tìm thấy lớp học");
 
             // 🔍 Đếm số học viên hiện tại trong lớp
-            int currentStudents = classEntity.AccountOfCourses.Count(a => a.IsActive == true);
+            int currentStudents = classEntity.EnrollmentRequests.Count(a => a.IsActive == true);
 
             // 🔍 Kiểm tra số lượng tối đa
             if (classEntity.NumberOfStudent.HasValue && currentStudents >= classEntity.NumberOfStudent.Value)
@@ -166,13 +166,13 @@ namespace Services
             }
 
 
-            _dbContext.AccountOfCourses.Update(record);
+            _dbContext.EnrollmentRequests.Update(record);
             await _dbContext.SaveChangesAsync();
 
             return (true, "Đã gán học viên vào lớp và khởi tạo tiến độ thành công.");
         }
 
-        public async Task<(bool Success, string Message)> Update(AccountOfCourse request)
+        public async Task<(bool Success, string Message)> Update(EnrollmentRequest request)
         {
             if (request == null || request.Id == Guid.Empty)
                 return (false, "Invalid update data");
@@ -182,7 +182,7 @@ namespace Services
             return result > 0 ? (true, "Request updated successfully") : (false, "Failed to update request");
         }
 
-        public async Task<(bool Success, string Message)> UpdateAccept(AccountOfCourse request)
+        public async Task<(bool Success, string Message)> UpdateAccept(EnrollmentRequest request)
         {
             if (request == null || request.Id == Guid.Empty)
                 return (false, "Invalid update data");
@@ -200,14 +200,14 @@ namespace Services
 
                 if (wsId != null)
                 {
-                    var existing = await _dbContext.AccountOfWorkSpaces
+                    var existing = await _dbContext.EnrollmentWorkSpaces
                         .FirstOrDefaultAsync(x =>
                             x.AccountId == request.AccountId.Value &&
                             x.WorkSpaceId == wsId.Value);
 
                     if (existing == null)
                     {
-                        _dbContext.AccountOfWorkSpaces.Add(new AccountOfWorkSpace
+                        _dbContext.EnrollmentWorkSpaces.Add(new EnrollmentWorkSpace
                         {
                             Id = Guid.NewGuid(),
                             AccountId = request.AccountId,
@@ -222,7 +222,7 @@ namespace Services
                         existing.IsActive = true;
                         existing.DeleteAt = null;
                         existing.UpdatedAt = DateTime.UtcNow;
-                        _dbContext.AccountOfWorkSpaces.Update(existing);
+                        _dbContext.EnrollmentWorkSpaces.Update(existing);
                         await _dbContext.SaveChangesAsync();
                     }
                     // Nếu đã active đúng rồi thì không cần làm gì

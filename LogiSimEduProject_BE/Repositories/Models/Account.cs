@@ -39,10 +39,6 @@ public partial class Account
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual ICollection<AccountOfCourse> AccountOfCourses { get; set; } = new List<AccountOfCourse>();
-
-    public virtual ICollection<AccountOfWorkSpace> AccountOfWorkSpaces { get; set; } = new List<AccountOfWorkSpace>();
-
     public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
@@ -51,13 +47,15 @@ public partial class Account
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
+    public virtual ICollection<EnrollmentRequest> EnrollmentRequests { get; set; } = new List<EnrollmentRequest>();
+
+    public virtual ICollection<EnrollmentWorkSpace> EnrollmentWorkSpaces { get; set; } = new List<EnrollmentWorkSpace>();
+
     public virtual GenderType GenderNavigation { get; set; }
 
     public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 
     public virtual ICollection<LessonSubmission> LessonSubmissions { get; set; } = new List<LessonSubmission>();
-
-    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
