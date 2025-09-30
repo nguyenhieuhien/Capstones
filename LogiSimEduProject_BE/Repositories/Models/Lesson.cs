@@ -15,6 +15,8 @@ public partial class Lesson
 
     public string LessonName { get; set; }
 
+    public string FileUrl { get; set; }
+
     public int OrderIndex { get; set; }
 
     public string Title { get; set; }
@@ -30,8 +32,6 @@ public partial class Lesson
     public DateTime? UpdatedAt { get; set; }
 
     public DateTime? DeleteAt { get; set; }
-
-    public string FileUrl { get; set; }
 
     public virtual ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 
