@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Category
+public partial class Object
 {
     public Guid Id { get; set; }
 
-    public string CategoryName { get; set; }
+    public Guid? ScenarioId { get; set; }
+
+    public string ObjectName { get; set; }
+
+    public string Description { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -19,9 +23,7 @@ public partial class Category
 
     public DateTime? DeleteAt { get; set; }
 
-    public Guid? WorkSpaceId { get; set; }
+    public virtual ICollection<Method> Methods { get; set; } = new List<Method>();
 
-    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
-
-    public virtual WorkSpace WorkSpace { get; set; }
+    public virtual Scenario Scenario { get; set; }
 }
