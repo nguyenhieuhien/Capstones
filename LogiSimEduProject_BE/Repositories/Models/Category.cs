@@ -9,6 +9,8 @@ public partial class Category
 {
     public Guid Id { get; set; }
 
+    public Guid? WorkSpaceId { get; set; }
+
     public string CategoryName { get; set; }
 
     public bool? IsActive { get; set; }
@@ -18,8 +20,6 @@ public partial class Category
     public DateTime? UpdatedAt { get; set; }
 
     public DateTime? DeleteAt { get; set; }
-
-    public Guid? WorkSpaceId { get; set; }
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 

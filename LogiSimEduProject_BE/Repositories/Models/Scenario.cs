@@ -27,7 +27,7 @@ public partial class Scenario
 
     public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 
-    public virtual ICollection<Object> Objects { get; set; } = new List<Object>();
+    public virtual ICollection<ObjectModel> ObjectModels { get; set; } = new List<ObjectModel>();
 
     public virtual Scene Scene { get; set; }
 }

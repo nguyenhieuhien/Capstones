@@ -2,10 +2,11 @@
 #nullable disable
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Repositories.Models;
 using System;
 using System.Collections.Generic;
 
-namespace Repositories.Models;
+namespace Repositories.DBContext;
 
 public partial class LogiSimEduContext : DbContext
 {
@@ -55,7 +56,7 @@ public partial class LogiSimEduContext : DbContext
 
     public virtual DbSet<Method> Methods { get; set; }
 
-    public virtual DbSet<Object> Objects { get; set; }
+    public virtual DbSet<ObjectModel> ObjectModels { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
@@ -94,7 +95,6 @@ public partial class LogiSimEduContext : DbContext
     public virtual DbSet<Topic> Topics { get; set; }
 
     public virtual DbSet<WorkSpace> WorkSpaces { get; set; }
-
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -115,7 +115,7 @@ public partial class LogiSimEduContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07045D7685");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC0745A28C72");
 
             entity.ToTable("Account");
 
@@ -154,7 +154,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07958ED074");
+            entity.HasKey(e => e.Id).HasName("PK__Answer__3214EC07718458BF");
 
             entity.ToTable("Answer");
 
@@ -172,12 +172,12 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Question).WithMany(p => p.Answers)
                 .HasForeignKey(d => d.QuestionId)
-                .HasConstraintName("FK__Answer__Question__03F0984C");
+                .HasConstraintName("FK__Answer__Question__04E4BC85");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC076A1995C4");
+            entity.HasKey(e => e.Id).HasName("PK__Category__3214EC0797E7F28E");
 
             entity.ToTable("Category");
 
@@ -195,12 +195,12 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.Categories)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .HasConstraintName("FK_Category_WorkSpace");
+                .HasConstraintName("FK__Category__WorkSp__5812160E");
         });
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC076712A32A");
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC074EF62C86");
 
             entity.ToTable("Certificate");
 
@@ -221,16 +221,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Certificates)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__Certifica__Accou__1CBC4616");
+                .HasConstraintName("FK__Certifica__Accou__1DB06A4F");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Certificates)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__Certifica__Cours__1DB06A4F");
+                .HasConstraintName("FK__Certifica__Cours__1EA48E88");
         });
 
         modelBuilder.Entity<ChatHistory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ChatHist__3214EC0731F3608B");
+            entity.HasKey(e => e.Id).HasName("PK__ChatHist__3214EC07BF8F1E1B");
 
             entity.Property(e => e.Role).HasMaxLength(10);
             entity.Property(e => e.Timestamp).HasColumnType("datetime");
@@ -239,7 +239,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Class>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC07379C4C8C");
+            entity.HasKey(e => e.Id).HasName("PK__Class__3214EC072D114DE1");
 
             entity.ToTable("Class");
 
@@ -258,16 +258,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Classes)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__Class__CourseId__5FB337D6");
+                .HasConstraintName("FK__Class__CourseId__60A75C0F");
 
             entity.HasOne(d => d.Instructor).WithMany(p => p.Classes)
                 .HasForeignKey(d => d.InstructorId)
-                .HasConstraintName("FK__Class__Instructo__5EBF139D");
+                .HasConstraintName("FK__Class__Instructo__5FB337D6");
         });
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC076CA50098");
+            entity.HasKey(e => e.Id).HasName("PK__Course__3214EC07D351A8FA");
 
             entity.ToTable("Course");
 
@@ -289,20 +289,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK__Course__Category__5AEE82B9");
+                .HasConstraintName("FK__Course__Category__5BE2A6F2");
 
             entity.HasOne(d => d.Instructor).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.InstructorId)
-                .HasConstraintName("FK__Course__Instruct__59FA5E80");
+                .HasConstraintName("FK__Course__Instruct__5AEE82B9");
 
             entity.HasOne(d => d.WorkSpace).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.WorkSpaceId)
-                .HasConstraintName("FK__Course__WorkSpac__5BE2A6F2");
+                .HasConstraintName("FK__Course__WorkSpac__5CD6CB2B");
         });
 
         modelBuilder.Entity<CourseProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC07FA9AD633");
+            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC0776A22084");
 
             entity.ToTable("CourseProgress");
 
@@ -319,20 +319,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.CourseProgresses)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__CoursePro__Accou__14270015");
+                .HasConstraintName("FK__CoursePro__Accou__151B244E");
 
             entity.HasOne(d => d.Course).WithMany(p => p.CourseProgresses)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__CoursePro__Cours__151B244E");
+                .HasConstraintName("FK__CoursePro__Cours__160F4887");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.CourseProgresses)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__CoursePro__Statu__160F4887");
+                .HasConstraintName("FK__CoursePro__Statu__17036CC0");
         });
 
         modelBuilder.Entity<CourseProgressStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC075155D7D8");
+            entity.HasKey(e => e.Id).HasName("PK__CoursePr__3214EC07934401BD");
 
             entity.ToTable("CourseProgressStatus");
 
@@ -342,7 +342,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<EnrollmentRequest>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07572CBA72");
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07BC93C885");
 
             entity.ToTable("EnrollmentRequest");
 
@@ -359,24 +359,24 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.EnrollmentRequests)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__Enrollmen__Accou__628FA481");
+                .HasConstraintName("FK__Enrollmen__Accou__6383C8BA");
 
             entity.HasOne(d => d.Class).WithMany(p => p.EnrollmentRequests)
                 .HasForeignKey(d => d.ClassId)
-                .HasConstraintName("FK__Enrollmen__Class__6477ECF3");
+                .HasConstraintName("FK__Enrollmen__Class__656C112C");
 
             entity.HasOne(d => d.Course).WithMany(p => p.EnrollmentRequests)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__Enrollmen__Cours__6383C8BA");
+                .HasConstraintName("FK__Enrollmen__Cours__6477ECF3");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.EnrollmentRequests)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__Enrollmen__Statu__656C112C");
+                .HasConstraintName("FK__Enrollmen__Statu__66603565");
         });
 
         modelBuilder.Entity<EnrollmentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC0730C766EB");
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC078E2D9493");
 
             entity.ToTable("EnrollmentStatus");
 
@@ -388,7 +388,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<EnrollmentWorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC07DF96A695");
+            entity.HasKey(e => e.Id).HasName("PK__Enrollme__3214EC078381225C");
 
             entity.ToTable("EnrollmentWorkSpace");
 
@@ -414,7 +414,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<GenderType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__GenderTy__3214EC07353A53CD");
+            entity.HasKey(e => e.Id).HasName("PK__GenderTy__3214EC07042DF637");
 
             entity.ToTable("GenderType");
 
@@ -426,7 +426,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Lesson>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Lesson__3214EC0728F96854");
+            entity.HasKey(e => e.Id).HasName("PK__Lesson__3214EC07CE626608");
 
             entity.ToTable("Lesson");
 
@@ -448,20 +448,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Scenario).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.ScenarioId)
-                .HasConstraintName("FK__Lesson__Scenario__73BA3083");
+                .HasConstraintName("FK__Lesson__Scenario__74AE54BC");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__Lesson__Status__72C60C4A");
+                .HasConstraintName("FK__Lesson__Status__73BA3083");
 
             entity.HasOne(d => d.Topic).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.TopicId)
-                .HasConstraintName("FK__Lesson__TopicId__71D1E811");
+                .HasConstraintName("FK__Lesson__TopicId__72C60C4A");
         });
 
         modelBuilder.Entity<LessonProgress>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC07741D3F23");
+            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC074C0836EC");
 
             entity.ToTable("LessonProgress");
 
@@ -478,20 +478,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.LessonProgresses)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__LessonPro__Accou__0F624AF8");
+                .HasConstraintName("FK__LessonPro__Accou__10566F31");
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.LessonProgresses)
                 .HasForeignKey(d => d.LessonId)
-                .HasConstraintName("FK__LessonPro__Lesso__10566F31");
+                .HasConstraintName("FK__LessonPro__Lesso__114A936A");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.LessonProgresses)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__LessonPro__Statu__114A936A");
+                .HasConstraintName("FK__LessonPro__Statu__123EB7A3");
         });
 
         modelBuilder.Entity<LessonProgressStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC07AFCA88D3");
+            entity.HasKey(e => e.Id).HasName("PK__LessonPr__3214EC07A6F5AA7C");
 
             entity.ToTable("LessonProgressStatus");
 
@@ -501,7 +501,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<LessonStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonSt__3214EC0789850731");
+            entity.HasKey(e => e.Id).HasName("PK__LessonSt__3214EC07771D4697");
 
             entity.ToTable("LessonStatus");
 
@@ -513,7 +513,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<LessonSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LessonSu__3214EC07C5C370B0");
+            entity.HasKey(e => e.Id).HasName("PK__LessonSu__3214EC07F7F10DBF");
 
             entity.ToTable("LessonSubmission");
 
@@ -535,17 +535,17 @@ public partial class LogiSimEduContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.LessonSubmissions)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__LessonSub__Accou__787EE5A0");
+                .HasConstraintName("FK__LessonSub__Accou__797309D9");
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.LessonSubmissions)
                 .HasForeignKey(d => d.LessonId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__LessonSub__Lesso__797309D9");
+                .HasConstraintName("FK__LessonSub__Lesso__7A672E12");
         });
 
         modelBuilder.Entity<Method>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Method__3214EC07D88E7782");
+            entity.HasKey(e => e.Id).HasName("PK__Method__3214EC07CBE87DBC");
 
             entity.ToTable("Method");
 
@@ -563,14 +563,14 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Object).WithMany(p => p.Methods)
                 .HasForeignKey(d => d.ObjectId)
-                .HasConstraintName("FK__Method__ObjectId__3B40CD36");
+                .HasConstraintName("FK__Method__ObjectId__3493CFA7");
         });
 
-        modelBuilder.Entity<Object>(entity =>
+        modelBuilder.Entity<ObjectModel>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Object__3214EC07C04E1022");
+            entity.HasKey(e => e.Id).HasName("PK__ObjectMo__3214EC075D2BF9A7");
 
-            entity.ToTable("Object");
+            entity.ToTable("ObjectModel");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt)
@@ -584,14 +584,14 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
-            entity.HasOne(d => d.Scenario).WithMany(p => p.Objects)
+            entity.HasOne(d => d.Scenario).WithMany(p => p.ObjectModels)
                 .HasForeignKey(d => d.ScenarioId)
-                .HasConstraintName("FK__Object__Scenario__3864608B");
+                .HasConstraintName("FK__ObjectMod__Scena__2EDAF651");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC071D01111E");
+            entity.HasKey(e => e.Id).HasName("PK__Order__3214EC0707D7A3CC");
 
             entity.ToTable("Order");
 
@@ -611,24 +611,24 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__Order__AccountId__236943A5");
+                .HasConstraintName("FK__Order__AccountId__245D67DE");
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.OrganizationId)
-                .HasConstraintName("FK__Order__Organizat__22751F6C");
+                .HasConstraintName("FK__Order__Organizat__236943A5");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__Order__Status__25518C17");
+                .HasConstraintName("FK__Order__Status__2645B050");
 
             entity.HasOne(d => d.SubcriptionPlan).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.SubcriptionPlanId)
-                .HasConstraintName("FK__Order__Subcripti__245D67DE");
+                .HasConstraintName("FK__Order__Subcripti__25518C17");
         });
 
         modelBuilder.Entity<OrderStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC07AB401FC6");
+            entity.HasKey(e => e.Id).HasName("PK__OrderSta__3214EC0741522C20");
 
             entity.ToTable("OrderStatus");
 
@@ -638,7 +638,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Organization>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC0784A41F1C");
+            entity.HasKey(e => e.Id).HasName("PK__Organiza__3214EC079756C14F");
 
             entity.ToTable("Organization");
 
@@ -661,7 +661,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC0748146F7E");
+            entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC07104D0A4C");
 
             entity.ToTable("Payment");
 
@@ -672,16 +672,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)
-                .HasConstraintName("FK__Payment__OrderId__282DF8C2");
+                .HasConstraintName("FK__Payment__OrderId__29221CFB");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__Payment__Status__29221CFB");
+                .HasConstraintName("FK__Payment__Status__2A164134");
         });
 
         modelBuilder.Entity<PaymentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC07FAFE986A");
+            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC07EB18C922");
 
             entity.ToTable("PaymentStatus");
 
@@ -691,7 +691,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC0738BCA553");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC071353C394");
 
             entity.ToTable("Question");
 
@@ -709,16 +709,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.QuestionTypeNavigation).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.QuestionType)
-                .HasConstraintName("FK__Question__Questi__01142BA1");
+                .HasConstraintName("FK__Question__Questi__02084FDA");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.QuizId)
-                .HasConstraintName("FK__Question__QuizId__00200768");
+                .HasConstraintName("FK__Question__QuizId__01142BA1");
         });
 
         modelBuilder.Entity<QuestionSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC075992C11F");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07CB286BDA");
 
             entity.ToTable("QuestionSubmission");
 
@@ -735,20 +735,20 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Question).WithMany(p => p.QuestionSubmissions)
                 .HasForeignKey(d => d.QuestionId)
-                .HasConstraintName("FK__QuestionS__Quest__0B91BA14");
+                .HasConstraintName("FK__QuestionS__Quest__0C85DE4D");
 
             entity.HasOne(d => d.QuizSubmission).WithMany(p => p.QuestionSubmissions)
                 .HasForeignKey(d => d.QuizSubmissionId)
-                .HasConstraintName("FK__QuestionS__QuizS__0A9D95DB");
+                .HasConstraintName("FK__QuestionS__QuizS__0B91BA14");
 
             entity.HasOne(d => d.SelectedAnswer).WithMany(p => p.QuestionSubmissions)
                 .HasForeignKey(d => d.SelectedAnswerId)
-                .HasConstraintName("FK__QuestionS__Selec__0C85DE4D");
+                .HasConstraintName("FK__QuestionS__Selec__0D7A0286");
         });
 
         modelBuilder.Entity<QuestionType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC078749BDDB");
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC078909764D");
 
             entity.ToTable("QuestionType");
 
@@ -758,7 +758,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC071FF0935E");
+            entity.HasKey(e => e.Id).HasName("PK__Quiz__3214EC07F3B9CD0C");
 
             entity.ToTable("Quiz");
 
@@ -776,16 +776,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.Quizzes)
                 .HasForeignKey(d => d.LessonId)
-                .HasConstraintName("FK__Quiz__LessonId__7C4F7684");
+                .HasConstraintName("FK__Quiz__LessonId__7D439ABD");
 
             entity.HasOne(d => d.StatusNavigation).WithMany(p => p.Quizzes)
                 .HasForeignKey(d => d.Status)
-                .HasConstraintName("FK__Quiz__Status__7D439ABD");
+                .HasConstraintName("FK__Quiz__Status__7E37BEF6");
         });
 
         modelBuilder.Entity<QuizStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizStat__3214EC07FFC64E9F");
+            entity.HasKey(e => e.Id).HasName("PK__QuizStat__3214EC07BC2E05DA");
 
             entity.ToTable("QuizStatus");
 
@@ -795,7 +795,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<QuizSubmission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC079AF46D11");
+            entity.HasKey(e => e.Id).HasName("PK__QuizSubm__3214EC07FCF1F446");
 
             entity.ToTable("QuizSubmission");
 
@@ -813,16 +813,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.QuizSubmissions)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__QuizSubmi__Accou__06CD04F7");
+                .HasConstraintName("FK__QuizSubmi__Accou__07C12930");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.QuizSubmissions)
                 .HasForeignKey(d => d.QuizId)
-                .HasConstraintName("FK__QuizSubmi__QuizI__07C12930");
+                .HasConstraintName("FK__QuizSubmi__QuizI__08B54D69");
         });
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC070BF4CC12");
+            entity.HasKey(e => e.Id).HasName("PK__Review__3214EC0732438859");
 
             entity.ToTable("Review");
 
@@ -840,16 +840,16 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__Review__AccountI__18EBB532");
+                .HasConstraintName("FK__Review__AccountI__19DFD96B");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__Review__CourseId__19DFD96B");
+                .HasConstraintName("FK__Review__CourseId__1AD3FDA4");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07998F2449");
+            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07EC56BD77");
 
             entity.ToTable("Role");
 
@@ -859,7 +859,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Scenario>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC073C2EFFC2");
+            entity.HasKey(e => e.Id).HasName("PK__Scenario__3214EC0725B3DB78");
 
             entity.ToTable("Scenario");
 
@@ -881,12 +881,12 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Scene).WithMany(p => p.Scenarios)
                 .HasForeignKey(d => d.SceneId)
-                .HasConstraintName("FK__Scenario__SceneI__6E01572D");
+                .HasConstraintName("FK__Scenario__SceneI__6EF57B66");
         });
 
         modelBuilder.Entity<Scene>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC07A855D2E8");
+            entity.HasKey(e => e.Id).HasName("PK__Scene__3214EC07E6CFAB0A");
 
             entity.ToTable("Scene");
 
@@ -906,7 +906,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Script>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Script__3214EC0760212859");
+            entity.HasKey(e => e.Id).HasName("PK__Script__3214EC0713CB2D62");
 
             entity.ToTable("Script");
 
@@ -924,12 +924,12 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Method).WithMany(p => p.Scripts)
                 .HasForeignKey(d => d.MethodId)
-                .HasConstraintName("FK__Script__MethodId__3E1D39E1");
+                .HasConstraintName("FK__Script__MethodId__37703C52");
         });
 
         modelBuilder.Entity<SubscriptionPlan>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Subscrip__3214EC074AD36466");
+            entity.HasKey(e => e.Id).HasName("PK__Subscrip__3214EC0781E01B76");
 
             entity.ToTable("SubscriptionPlan");
 
@@ -948,7 +948,7 @@ public partial class LogiSimEduContext : DbContext
 
         modelBuilder.Entity<Topic>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC073765091C");
+            entity.HasKey(e => e.Id).HasName("PK__Topic__3214EC072B4E2CDB");
 
             entity.ToTable("Topic");
 
@@ -970,12 +970,12 @@ public partial class LogiSimEduContext : DbContext
 
             entity.HasOne(d => d.Course).WithMany(p => p.Topics)
                 .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("FK__Topic__CourseId__6B24EA82");
+                .HasConstraintName("FK__Topic__CourseId__6C190EBB");
         });
 
         modelBuilder.Entity<WorkSpace>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC075A2EBDBF");
+            entity.HasKey(e => e.Id).HasName("PK__WorkSpac__3214EC07816CFF5B");
 
             entity.ToTable("WorkSpace");
 

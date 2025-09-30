@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Repositories.Models;
 
-public partial class Object
+public partial class ObjectModel
 {
     public Guid Id { get; set; }
 

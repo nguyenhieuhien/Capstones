@@ -23,7 +23,7 @@ public partial class Method
 
     public DateTime? DeleteAt { get; set; }
 
-    public virtual Object Object { get; set; }
+    public virtual ObjectModel Object { get; set; }
 
     public virtual ICollection<Script> Scripts { get; set; } = new List<Script>();
 }

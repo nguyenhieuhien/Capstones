@@ -438,7 +438,7 @@ CREATE TABLE ChatHistories (
 );
 
 -- Bảng Object
-CREATE TABLE Object (
+CREATE TABLE ObjectModel (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
     ScenarioId UNIQUEIDENTIFIER,
     ObjectName NVARCHAR(100),
@@ -460,7 +460,7 @@ CREATE TABLE Method (
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME,
-    FOREIGN KEY (ObjectId) REFERENCES Object(Id)
+    FOREIGN KEY (ObjectId) REFERENCES ObjectModel(Id)
 );
 
 -- Bảng Script
@@ -488,3 +488,7 @@ INSERT INTO EnrollmentStatus VALUES (0, 'Pending'), (1, 'Accepted'), (2, 'Reject
 INSERT INTO CourseProgressStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
 
 INSERT INTO LessonProgressStatus VALUES (1, 'NotStarted'), (2, 'InProgress'), (3, 'Completed');
+
+INSERT INTO OrderStatus VALUES (0, 'PENDING'), (1, 'PAID'), (2, 'CANCELLED');
+
+INSERT INTO PaymentStatus VALUES (0, 'PENDING'), (1, 'PAID'), (2, 'CANCELLED');
