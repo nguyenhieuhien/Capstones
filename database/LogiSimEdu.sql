@@ -119,11 +119,13 @@ CREATE TABLE EnrollmentWorkSpace (
 
 CREATE TABLE Category (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
+	WorkSpaceId UNIQUEIDENTIFIER,
     CategoryName NVARCHAR(100),
     IsActive BIT,
     Created_At DATETIME,
     Updated_At DATETIME,
-    Delete_At DATETIME
+    Delete_At DATETIME,
+	FOREIGN KEY (WorkSpaceId) REFERENCES WorkSpace(Id)
 );
 
 CREATE TABLE Course (
@@ -434,6 +436,46 @@ CREATE TABLE ChatHistories (
     Message NVARCHAR(MAX),
     Timestamp DATETIME
 );
+
+-- Bảng Object
+CREATE TABLE Object (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    ScenarioId UNIQUEIDENTIFIER,
+    ObjectName NVARCHAR(100),
+    Description NVARCHAR(MAX),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME,
+    FOREIGN KEY (ScenarioId) REFERENCES Scenario(Id)
+);
+
+-- Bảng Method
+CREATE TABLE Method (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    ObjectId UNIQUEIDENTIFIER,
+    MethodName NVARCHAR(100),
+    Description NVARCHAR(MAX),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME,
+    FOREIGN KEY (ObjectId) REFERENCES Object(Id)
+);
+
+-- Bảng Script
+CREATE TABLE Script (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    MethodId UNIQUEIDENTIFIER,
+    ScriptName NVARCHAR(100),
+    Code NVARCHAR(MAX),
+    IsActive BIT,
+    Created_At DATETIME,
+    Updated_At DATETIME,
+    Delete_At DATETIME,
+    FOREIGN KEY (MethodId) REFERENCES Method(Id)
+);
+
 
 INSERT INTO GenderType VALUES (1, 'Male'), (2, 'Female'), (3, 'Other');
 
