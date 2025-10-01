@@ -216,7 +216,14 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 builder.Services.AddHostedService<DailyExpireOrganizationsJob>();
-builder.Services.AddHttpClient("flexsim");
+builder.Services.AddHttpClient("flexsim")
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        AutomaticDecompression = System.Net.DecompressionMethods.GZip |
+                                 System.Net.DecompressionMethods.Deflate |
+                                 System.Net.DecompressionMethods.Brotli
+    });
+
 
 
 // -----------------------
@@ -239,54 +246,83 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-// ---- FlexSim proxy (/flexsim -> {BaseUrl}/webserver.dll) ----
-var flexsimBase = builder.Configuration["FlexSim:BaseUrl"]!.TrimEnd('/');
+// ==== FlexSim UI proxy ====
+// UI gốc trên VM (đang chạy port 81)
+var uiBase = builder.Configuration["FlexSim:UiBaseUrl"]!.TrimEnd('/');
 
-app.Map("/flexsim", async (HttpContext ctx, IHttpClientFactory httpFactory) =>
+// /flexsim-ui -> forward "/"
+app.MapGet("/flexsim-ui", async (HttpContext ctx) =>
 {
-    // Ghép URL đích (nhớ giữ nguyên query string)
-    var target = $"{flexsimBase}/flexsim{ctx.Request.QueryString}";
+    var httpFactory = ctx.RequestServices.GetRequiredService<IHttpClientFactory>();
+    var client = httpFactory.CreateClient("flexsim");
+    client.Timeout = TimeSpan.FromMinutes(5);
+
+    using var upstream = await client.GetAsync($"{uiBase}/", ctx.RequestAborted);
+    ctx.Response.StatusCode = (int)upstream.StatusCode;
+
+    var media = upstream.Content.Headers.ContentType?.MediaType ?? "";
+    if (media.StartsWith("text/html", StringComparison.OrdinalIgnoreCase))
+    {
+        var html = await upstream.Content.ReadAsStringAsync(ctx.RequestAborted);
+        html = html
+            .Replace("href=\"/", "href=\"/flexsim-ui/")
+            .Replace("src=\"/", "src=\"/flexsim-ui/")
+            .Replace("action=\"/", "action=\"/flexsim-ui/")
+            .Replace("url(/", "url(/flexsim-ui/");
+        ctx.Response.ContentType = upstream.Content.Headers.ContentType?.ToString() ?? "text/html; charset=utf-8";
+        await ctx.Response.WriteAsync(html, ctx.RequestAborted);
+        return;
+    }
+
+    foreach (var h in upstream.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    foreach (var h in upstream.Content.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    ctx.Response.Headers.Remove("transfer-encoding");
+    await upstream.Content.CopyToAsync(ctx.Response.Body, ctx.RequestAborted);
+});
+
+// /flexsim-ui/{**rest} -> forward "/{rest}"
+app.Map("/flexsim-ui/{**rest}", async (HttpContext ctx) =>
+{
+    var httpFactory = ctx.RequestServices.GetRequiredService<IHttpClientFactory>();
+    var client = httpFactory.CreateClient("flexsim");
+    client.Timeout = TimeSpan.FromMinutes(5);
+
+    var rest = (ctx.Request.RouteValues["rest"] as string) ?? "";
+    var target = $"{uiBase}/{rest}{ctx.Request.QueryString}";
 
     using var req = new HttpRequestMessage(new System.Net.Http.HttpMethod(ctx.Request.Method), target);
-
-    // Copy body nếu có
     if (ctx.Request.ContentLength > 0 || ctx.Request.Headers.ContainsKey("Transfer-Encoding"))
         req.Content = new StreamContent(ctx.Request.Body);
 
-    // Copy header (trừ Host / pseudo headers)
     foreach (var h in ctx.Request.Headers)
-    {
-        if (h.Key.Equals("Host", StringComparison.OrdinalIgnoreCase)) continue;
-        if (h.Key.StartsWith(":")) continue;
-
-        if (!req.Headers.TryAddWithoutValidation(h.Key, h.Value.ToArray()))
+        if (!h.Key.Equals("Host", StringComparison.OrdinalIgnoreCase) && !h.Key.StartsWith(":")
+            && !req.Headers.TryAddWithoutValidation(h.Key, h.Value.ToArray()))
             req.Content?.Headers.TryAddWithoutValidation(h.Key, h.Value.ToArray());
+
+    using var upstream = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ctx.RequestAborted);
+
+    var media = upstream.Content.Headers.ContentType?.MediaType ?? "";
+    if (media.StartsWith("text/html", StringComparison.OrdinalIgnoreCase))
+    {
+        var html = await upstream.Content.ReadAsStringAsync(ctx.RequestAborted);
+        html = html
+            .Replace("href=\"/", "href=\"/flexsim-ui/")
+            .Replace("src=\"/", "src=\"/flexsim-ui/")
+            .Replace("action=\"/", "action=\"/flexsim-ui/")
+            .Replace("url(/", "url(/flexsim-ui/");
+        ctx.Response.ContentType = upstream.Content.Headers.ContentType?.ToString() ?? "text/html; charset=utf-8";
+        ctx.Response.StatusCode = (int)upstream.StatusCode;
+        await ctx.Response.WriteAsync(html, ctx.RequestAborted);
+        return;
     }
 
-    var client = httpFactory.CreateClient("flexsim");
-    client.Timeout = TimeSpan.FromMinutes(5); // trang mô phỏng có thể nặng
-
-    using var upstream = await client.SendAsync(
-        req,
-        HttpCompletionOption.ResponseHeadersRead,
-        ctx.RequestAborted
-    );
-
-    // Trả status + headers về client
     ctx.Response.StatusCode = (int)upstream.StatusCode;
-    foreach (var h in upstream.Headers)
-        ctx.Response.Headers[h.Key] = h.Value.ToArray();
-    foreach (var h in upstream.Content.Headers)
-        ctx.Response.Headers[h.Key] = h.Value.ToArray();
-
-    // Tránh lỗi chunking double
+    foreach (var h in upstream.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    foreach (var h in upstream.Content.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
     ctx.Response.Headers.Remove("transfer-encoding");
-
     await upstream.Content.CopyToAsync(ctx.Response.Body, ctx.RequestAborted);
-})
-// Nếu muốn bắt đăng nhập mới cho truy cập /flexsim, bật dòng dưới:
-// .RequireAuthorization()
-;
+});
+
 app.MapGet("/ping", () => Results.Text("pong"));
 app.MapControllers();
 
