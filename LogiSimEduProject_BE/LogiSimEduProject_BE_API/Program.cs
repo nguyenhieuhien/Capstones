@@ -216,11 +216,21 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 builder.Services.AddHostedService<DailyExpireOrganizationsJob>();
+builder.Services.AddHttpClient("flexsim")
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        AutomaticDecompression = System.Net.DecompressionMethods.GZip |
+                                 System.Net.DecompressionMethods.Deflate |
+                                 System.Net.DecompressionMethods.Brotli
+    });
+
+
 
 // -----------------------
 // 🚀 Build & Run App
 // -----------------------
 var app = builder.Build();
+
 
 app.UseCors("AllowAllOrigins");
 
@@ -236,7 +246,84 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+// ==== FlexSim UI proxy ====
+// UI gốc trên VM (đang chạy port 81)
+var uiBase = builder.Configuration["FlexSim:UiBaseUrl"]!.TrimEnd('/');
 
+// /flexsim-ui -> forward "/"
+app.MapGet("/flexsim-ui", async (HttpContext ctx) =>
+{
+    var httpFactory = ctx.RequestServices.GetRequiredService<IHttpClientFactory>();
+    var client = httpFactory.CreateClient("flexsim");
+    client.Timeout = TimeSpan.FromMinutes(5);
+
+    using var upstream = await client.GetAsync($"{uiBase}/", ctx.RequestAborted);
+    ctx.Response.StatusCode = (int)upstream.StatusCode;
+
+    var media = upstream.Content.Headers.ContentType?.MediaType ?? "";
+    if (media.StartsWith("text/html", StringComparison.OrdinalIgnoreCase))
+    {
+        var html = await upstream.Content.ReadAsStringAsync(ctx.RequestAborted);
+        html = html
+            .Replace("href=\"/", "href=\"/flexsim-ui/")
+            .Replace("src=\"/", "src=\"/flexsim-ui/")
+            .Replace("action=\"/", "action=\"/flexsim-ui/")
+            .Replace("url(/", "url(/flexsim-ui/");
+        ctx.Response.ContentType = upstream.Content.Headers.ContentType?.ToString() ?? "text/html; charset=utf-8";
+        await ctx.Response.WriteAsync(html, ctx.RequestAborted);
+        return;
+    }
+
+    foreach (var h in upstream.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    foreach (var h in upstream.Content.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    ctx.Response.Headers.Remove("transfer-encoding");
+    await upstream.Content.CopyToAsync(ctx.Response.Body, ctx.RequestAborted);
+});
+
+// /flexsim-ui/{**rest} -> forward "/{rest}"
+app.Map("/flexsim-ui/{**rest}", async (HttpContext ctx) =>
+{
+    var httpFactory = ctx.RequestServices.GetRequiredService<IHttpClientFactory>();
+    var client = httpFactory.CreateClient("flexsim");
+    client.Timeout = TimeSpan.FromMinutes(5);
+
+    var rest = (ctx.Request.RouteValues["rest"] as string) ?? "";
+    var target = $"{uiBase}/{rest}{ctx.Request.QueryString}";
+
+    using var req = new HttpRequestMessage(new System.Net.Http.HttpMethod(ctx.Request.Method), target);
+    if (ctx.Request.ContentLength > 0 || ctx.Request.Headers.ContainsKey("Transfer-Encoding"))
+        req.Content = new StreamContent(ctx.Request.Body);
+
+    foreach (var h in ctx.Request.Headers)
+        if (!h.Key.Equals("Host", StringComparison.OrdinalIgnoreCase) && !h.Key.StartsWith(":")
+            && !req.Headers.TryAddWithoutValidation(h.Key, h.Value.ToArray()))
+            req.Content?.Headers.TryAddWithoutValidation(h.Key, h.Value.ToArray());
+
+    using var upstream = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ctx.RequestAborted);
+
+    var media = upstream.Content.Headers.ContentType?.MediaType ?? "";
+    if (media.StartsWith("text/html", StringComparison.OrdinalIgnoreCase))
+    {
+        var html = await upstream.Content.ReadAsStringAsync(ctx.RequestAborted);
+        html = html
+            .Replace("href=\"/", "href=\"/flexsim-ui/")
+            .Replace("src=\"/", "src=\"/flexsim-ui/")
+            .Replace("action=\"/", "action=\"/flexsim-ui/")
+            .Replace("url(/", "url(/flexsim-ui/");
+        ctx.Response.ContentType = upstream.Content.Headers.ContentType?.ToString() ?? "text/html; charset=utf-8";
+        ctx.Response.StatusCode = (int)upstream.StatusCode;
+        await ctx.Response.WriteAsync(html, ctx.RequestAborted);
+        return;
+    }
+
+    ctx.Response.StatusCode = (int)upstream.StatusCode;
+    foreach (var h in upstream.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    foreach (var h in upstream.Content.Headers) ctx.Response.Headers[h.Key] = h.Value.ToArray();
+    ctx.Response.Headers.Remove("transfer-encoding");
+    await upstream.Content.CopyToAsync(ctx.Response.Body, ctx.RequestAborted);
+});
+
+app.MapGet("/ping", () => Results.Text("pong"));
 app.MapControllers();
 
 app.Run();
