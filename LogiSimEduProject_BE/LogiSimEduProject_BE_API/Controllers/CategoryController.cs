@@ -36,6 +36,18 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return NotFound("Category not found");
             return Ok(category);
         }
+
+        [HttpGet("workspace/{workspaceId}")]
+        public async Task<IActionResult> GetCategoriesByWorkspace(Guid workspaceId)
+        {
+            var categories = await _categoryService.GetByWorkspaceIdAsync(workspaceId);
+
+            if (categories == null || !categories.Any())
+                return NotFound("No categories found for this workspace");
+
+            return Ok(categories);
+        }
+
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create")]
         [SwaggerOperation(Summary = "Create new category", Description = "Create a new category and return its ID.")]
@@ -46,6 +58,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             var category = new Category
             {
+                WorkSpaceId = dto.WorkSpaceId,
                 CategoryName = dto.CategoryName
             };
 
@@ -64,6 +77,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             if (existing == null)
                 return NotFound("Category not found");
 
+            existing.WorkSpaceId = dto.WorkSpaceId;
             existing.CategoryName = dto.CategoryName;
 
             var (success, message) = await _categoryService.Update(existing);

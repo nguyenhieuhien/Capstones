@@ -100,6 +100,8 @@ builder.Services.AddScoped<WorkspaceRepository>();
 builder.Services.AddScoped<ISceneService, SceneService>();
 builder.Services.AddScoped<SceneRepository>();
 builder.Services.AddScoped<IScenarioService, ScenarioService>();
+builder.Services.AddScoped<ObjectRepository>();
+builder.Services.AddScoped<IObjectService, ObjectService>();
 builder.Services.AddScoped<ScenarioRepository>();
 builder.Services.AddScoped<IEnrollmentWorkSpaceService, EnrollmentWorkSpaceService>();
 builder.Services.AddScoped<EnrollmentWorkSpaceRepository>();
