@@ -11,6 +11,7 @@ namespace Services.IServices
     {
         Task<List<Category>> GetAll();
         Task<Category?> GetById(string id);
+        Task<List<Category>> GetByWorkspaceIdAsync(Guid workspaceId);
         Task<(bool Success, string Message, Guid? Id)> Create(Category category);
         Task<(bool Success, string Message)> Update(Category category);
         Task<(bool Success, string Message)> Delete(string id);

@@ -26,6 +26,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Category>> GetByWorkspaceIdAsync(Guid workspaceId)
+        {
+            return await _repository.GetByWorkspaceIdAsync(workspaceId);
+        }
+
         public async Task<(bool Success, string Message, Guid? Id)> Create(Category category)
         {
             if (category == null || string.IsNullOrWhiteSpace(category.CategoryName))

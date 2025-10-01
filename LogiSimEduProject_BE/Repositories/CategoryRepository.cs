@@ -20,5 +20,12 @@ namespace Repositories
             return categories ?? new List<Category>(); // đảm bảo không null
         }
 
+        public async Task<List<Category>> GetByWorkspaceIdAsync(Guid workspaceId)
+        {
+            return await _context.Categories
+                .Where(c => c.WorkSpaceId == workspaceId && c.IsActive == true)
+                .Include(c => c.Courses) // nếu muốn lấy luôn Courses
+                .ToListAsync();
+        }
     }
 }
