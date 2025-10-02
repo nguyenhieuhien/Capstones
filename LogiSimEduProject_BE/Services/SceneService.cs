@@ -1,6 +1,7 @@
 ﻿// File: Services/SceneService.cs
 using Repositories;
 using Repositories.Models;
+using Services.DTO.Object;
 using Services.IServices;
 
 namespace Services
@@ -26,6 +27,11 @@ namespace Services
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
             return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<List<Scene>> GetAllByInstructorIdAsync(Guid instructorId)
+        {
+            return await _repository.GetAllByInstructorId(instructorId);
         }
 
         public async Task<int> Create(Scene scene)

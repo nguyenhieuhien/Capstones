@@ -255,20 +255,21 @@ namespace Services
             return (true, "Tài khoản Student đã được tạo và gửi email thành công.");
         }
 
-        public async Task<(int SuccessCount, List<string> Errors)> ImportInstructorAccountsAsync(IFormFile excelFile, Guid organizationId)
+        public async Task<(int SuccessCount, List<string> Successes, List<string> Errors)> ImportInstructorAccountsAsync(IFormFile excelFile, Guid organizationId)
         {
             return await ImportAccountsFromExcelAsync(excelFile, 3, "Instructor", organizationId);
         }
 
-        public async Task<(int SuccessCount, List<string> Errors)> ImportStudentAccountsAsync(IFormFile excelFile, Guid organizationId)
+        public async Task<(int SuccessCount, List<string> Successes, List<string> Errors)> ImportStudentAccountsAsync(IFormFile excelFile, Guid organizationId)
         {
             return await ImportAccountsFromExcelAsync(excelFile, 4, "Student", organizationId);
         }
 
-        private async Task<(int SuccessCount, List<string> Errors)> ImportAccountsFromExcelAsync(IFormFile excelFile, int roleId, string roleName, Guid organizationId)
+        private async Task<(int SuccessCount, List<string> Successes, List<string> Errors)> ImportAccountsFromExcelAsync(IFormFile excelFile, int roleId, string roleName, Guid organizationId)
         {
 
             var errors = new List<string>();
+            var successes = new List<string>();
             int successCount = 0;
 
             using var stream = new MemoryStream();
@@ -280,10 +281,10 @@ namespace Services
 
             var org = await _organizationRepository.GetByIdAsync(organizationId);
             if (org == null)
-                return (0, new List<string> { "Organization does not exist." });
+                return (0, new List<string>(), new List<string> { "Organization does not exist." });
 
             if (org.IsActive != true)
-                return (0, new List<string> { "Organization is not activated yet, please checkout." });
+                return (0, new List<string>(), new List<string> { "Organization is not activated yet, please checkout." });
 
             for (int row = 2; row <= rowCount; row++)
             {
@@ -320,6 +321,8 @@ namespace Services
                     if (result > 0)
                     {
                         successCount++;
+                        successes.Add($"Import thành công cho email {email}");
+
                         var emailBody = $@"
                         <p>Chào {account.FullName},</p>
                         <p>Bạn đã được thêm vào tổ chức với vai trò <strong>{roleName}</strong> trên hệ thống LogiSimEdu.</p>
@@ -340,7 +343,7 @@ namespace Services
                 }
             }
 
-            return (successCount, errors);
+            return (successCount, successes, errors);
         }
 
         public async Task<byte[]> ExportStudentsToExcelAsync(Guid organizationId)

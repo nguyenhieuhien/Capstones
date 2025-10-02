@@ -45,13 +45,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scenario);
         }
 
-        //[HttpGet("get_all_by_org/{orgId}")]
-        //[SwaggerOperation(Summary = "Get all scenarios by organization ID", Description = "Retrieve all scenarios that belong to a specific organization.")]
-        //public async Task<IActionResult> GetAllByOrgId(Guid orgId)
-        //{
-        //    var scenarios = await _service.GetAllByOrgId(orgId);
-        //    return Ok(scenarios);
-        //}
+        [HttpGet("get_all_by_instructor/{instructorId}")]
+        [SwaggerOperation(Summary = "Get all scenarios by instructor ID", Description = "Retrieve all scenarios that belong to a specific instructor.")]
+        public async Task<IActionResult> GetAllByInstructorId(Guid instructorId)
+        {
+            var scenarios = await _service.GetAllByInstructorIdAsync(instructorId);
+            return Ok(scenarios);
+        }
 
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scenario")]
@@ -85,6 +85,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var scenario = new Scenario
             {
                 SceneId = dto.SceneId,
+                InstructorId = dto.InstructorId,
                 ScenarioName = dto.ScenarioName,
                 Description = dto.Description,
                 FileUrl = fileUrl
@@ -132,6 +133,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             }
 
             existing.SceneId = dto.SceneId;
+            existing.InstructorId = dto.InstructorId;
             existing.ScenarioName = dto.ScenarioName;
             existing.Description = dto.Description;
             existing.FileUrl = fileUrl;

@@ -179,12 +179,14 @@ CREATE TABLE EnrollmentRequest (
 
 CREATE TABLE Scene (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
+	InstructorId UNIQUEIDENTIFIER,
     SceneName NVARCHAR(100),
     Description NVARCHAR(255),
     IsActive BIT,
     Created_At DATETIME,
     Updated_At DATETIME,
-    Delete_At DATETIME
+    Delete_At DATETIME,
+	FOREIGN KEY (InstructorId) REFERENCES Account(Id)
 );
 
 CREATE TABLE Topic (
@@ -203,6 +205,7 @@ CREATE TABLE Topic (
 
 CREATE TABLE Scenario (
     Id UNIQUEIDENTIFIER PRIMARY KEY,
+	InstructorId UNIQUEIDENTIFIER,
     SceneId UNIQUEIDENTIFIER,
     FileURL NVARCHAR(255),
     ScenarioName NVARCHAR(100),
@@ -211,7 +214,8 @@ CREATE TABLE Scenario (
     Created_At DATETIME,
     Updated_At DATETIME,
     Delete_At DATETIME,
-    FOREIGN KEY (SceneId) REFERENCES Scene(Id)
+    FOREIGN KEY (SceneId) REFERENCES Scene(Id),
+	FOREIGN KEY (InstructorId) REFERENCES Account(Id);
 );
 
 CREATE TABLE Lesson (

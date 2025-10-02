@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using static LogiSimEduProject_BE_API.Controllers.DTOs.FlexsimQuestionsResponse;
 
 namespace LogiSimEduProject_BE_API.Controllers
@@ -64,8 +65,8 @@ namespace LogiSimEduProject_BE_API.Controllers
                 return BadRequest("File trống.");
 
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (ext != ".xlsx" && ext != ".csv")
-                return BadRequest("Vui lòng upload file .xlsx hoặc .csv.");
+            if (ext != ".xlsx" && ext != ".csv" && ext != ".fsx")
+                return BadRequest("Vui lòng upload file .xlsx hoặc .csv hoặc .fsx.");
 
             var table = ext == ".xlsx" ? await ReadExcelAsync(file) : await ReadCsvAsync(file);
             if (table.Rows.Count == 0 || table.Columns.Count == 0)
@@ -123,6 +124,36 @@ namespace LogiSimEduProject_BE_API.Controllers
         {
             public List<string> Columns { get; set; } = new();
             public List<string[]> Rows { get; set; } = new();
+        }
+
+        private async Task<SimpleTable> ReadFsxAsync(IFormFile file)
+        {
+            var table = new SimpleTable();
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            var xml = await reader.ReadToEndAsync();
+
+            var doc = XDocument.Parse(xml);
+
+            // Ví dụ: lấy tất cả <object name="Source1" type="source"> ... </object>
+            var objects = doc.Descendants("object");
+
+            table.Columns = new List<string> { "Name", "Type", "Parent", "Attributes" };
+
+            foreach (var obj in objects)
+            {
+                string name = obj.Attribute("name")?.Value ?? "";
+                string type = obj.Attribute("type")?.Value ?? "";
+                string parent = obj.Attribute("parent")?.Value ?? "";
+
+                // gom attributes con
+                var attrs = string.Join(";", obj.Elements("attr")
+                    .Select(a => $"{a.Attribute("name")?.Value}={a.Value}"));
+
+                table.Rows.Add(new string[] { name, type, parent, attrs });
+            }
+
+            return table;
         }
 
         private async Task<SimpleTable> ReadCsvAsync(IFormFile file)
