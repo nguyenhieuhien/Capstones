@@ -5,6 +5,7 @@ namespace Services.DTO.Scenario
     public class ScenarioDTOCreate
     {
         public Guid SceneId { get; set; }
+        public Guid InstructorId { get; set; }
 
         public string ScenarioName { get; set; }
 

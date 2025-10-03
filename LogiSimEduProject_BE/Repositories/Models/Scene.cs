@@ -21,5 +21,9 @@ public partial class Scene
 
     public DateTime? DeleteAt { get; set; }
 
+    public Guid? InstructorId { get; set; }
+
+    public virtual Account Instructor { get; set; }
+
     public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
 }

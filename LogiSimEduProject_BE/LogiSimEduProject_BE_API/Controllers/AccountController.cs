@@ -98,8 +98,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         public async Task<IActionResult> ImportInstructors(Guid organizationId, IFormFile file)
         {
             if (file is null || file.Length == 0) return BadRequest("Please upload Excel file");
-            var (ok, errs) = await _accountService.ImportInstructorAccountsAsync(file, organizationId);
-            return Ok(new { SuccessCount = ok, Errors = errs });
+            var (ok, successes, errs) = await _accountService.ImportInstructorAccountsAsync(file, organizationId);
+            return Ok(new { SuccessCount = ok, Successes = successes, Errors = errs });
         }
 
         [HttpPost("import-students/{organizationId}")]
@@ -107,8 +107,8 @@ namespace LogiSimEduProject_BE_API.Controllers
         public async Task<IActionResult> ImportStudents(Guid organizationId, IFormFile file)
         {
             if (file is null || file.Length == 0) return BadRequest("Please upload Excel file");
-            var (ok, errs) = await _accountService.ImportStudentAccountsAsync(file, organizationId);
-            return Ok(new { SuccessCount = ok, Errors = errs });
+            var (ok, successes, errs) = await _accountService.ImportStudentAccountsAsync(file, organizationId);
+            return Ok(new { SuccessCount = ok, Successes = successes, Errors = errs });
         }
 
         [HttpGet("students/{organizationId}")]

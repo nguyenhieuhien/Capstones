@@ -95,6 +95,7 @@ public partial class LogiSimEduContext : DbContext
     public virtual DbSet<Topic> Topics { get; set; }
 
     public virtual DbSet<WorkSpace> WorkSpaces { get; set; }
+
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -879,6 +880,10 @@ public partial class LogiSimEduContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
 
+            entity.HasOne(d => d.Instructor).WithMany(p => p.Scenarios)
+                .HasForeignKey(d => d.InstructorId)
+                .HasConstraintName("FK_Scenario_Instructor");
+
             entity.HasOne(d => d.Scene).WithMany(p => p.Scenarios)
                 .HasForeignKey(d => d.SceneId)
                 .HasConstraintName("FK__Scenario__SceneI__6EF57B66");
@@ -902,6 +907,10 @@ public partial class LogiSimEduContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("Updated_At");
+
+            entity.HasOne(d => d.Instructor).WithMany(p => p.Scenes)
+                .HasForeignKey(d => d.InstructorId)
+                .HasConstraintName("FK_Scene_Instructor");
         });
 
         modelBuilder.Entity<Script>(entity =>

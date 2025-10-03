@@ -40,13 +40,13 @@ namespace LogiSimEduProject_BE_API.Controllers
             return Ok(scene);
         }
 
-        //[HttpGet("get_all_by_org/{orgId}")]
-        //[SwaggerOperation(Summary = "Get all scenes by organization ID", Description = "Retrieve all scenes that belong to a specific organization.")]
-        //public async Task<IActionResult> GetAllByOrgId(Guid orgId)
-        //{
-        //    var scenes = await _sceneService.GetAllByOrgId(orgId);
-        //    return Ok(scenes);
-        //}
+        [HttpGet("get_all_by_instructor/{instructorId}")]
+        [SwaggerOperation(Summary = "Get all scenes by instructor ID", Description = "Retrieve all scenes that belong to a specific instructor.")]
+        public async Task<IActionResult> GetAllByInstructorId(Guid instructorId)
+        {
+            var scenes = await _sceneService.GetAllByInstructorIdAsync(instructorId);
+            return Ok(scenes);
+        }
 
         //[Authorize(Roles = "Instructor")]
         [HttpPost("create_scene")]
@@ -57,6 +57,7 @@ namespace LogiSimEduProject_BE_API.Controllers
 
             var scene = new Scene
             {
+                InstructorId = dto.InstructorId,
                 SceneName = dto.SceneName,
                 Description = dto.Description
             };
@@ -77,6 +78,7 @@ namespace LogiSimEduProject_BE_API.Controllers
             var existing = await _sceneService.GetById(id);
             if (existing == null) return NotFound();
 
+            existing.InstructorId = dto.InstructorId;
             existing.SceneName = dto.SceneName;
             existing.Description = dto.Description;
 

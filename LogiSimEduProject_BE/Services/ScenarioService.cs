@@ -27,6 +27,11 @@ namespace Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<List<Scenario>> GetAllByInstructorIdAsync(Guid instructorId)
+        {
+            return await _repository.GetAllByInstructorId(instructorId);
+        }
+
         public async Task<int> Create(Scenario scenario)
         {
             if (scenario == null || string.IsNullOrWhiteSpace(scenario.ScenarioName))

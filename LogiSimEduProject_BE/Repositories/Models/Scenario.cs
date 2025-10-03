@@ -25,6 +25,10 @@ public partial class Scenario
 
     public DateTime? DeleteAt { get; set; }
 
+    public Guid? InstructorId { get; set; }
+
+    public virtual Account Instructor { get; set; }
+
     public virtual ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 
     public virtual ICollection<ObjectModel> ObjectModels { get; set; } = new List<ObjectModel>();

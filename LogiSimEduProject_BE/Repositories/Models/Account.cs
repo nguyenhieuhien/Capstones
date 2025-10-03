@@ -66,4 +66,8 @@ public partial class Account
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     public virtual Role Role { get; set; }
+
+    public virtual ICollection<Scenario> Scenarios { get; set; } = new List<Scenario>();
+
+    public virtual ICollection<Scene> Scenes { get; set; } = new List<Scene>();
 }
