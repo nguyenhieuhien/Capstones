@@ -51,7 +51,10 @@ namespace Repositories
             var order = await GetByIdAsync(id);
             if (order == null) return false;
 
+            order.IsActive = false;
             order.DeleteAt = DateTime.UtcNow;
+            _context.Entry(order).State = EntityState.Modified;
+
             await _context.SaveChangesAsync();
             return true;
         }
